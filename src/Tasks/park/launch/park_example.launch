@@ -1,0 +1,31 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find park)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+    <node
+        name="park"
+        pkg="park"
+        type="park"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+        
+        <param name="state_msgs" value="$(arg debug)" />
+        
+        <remap from="drive_park" to="drive/park" />
+    </node>
+
+</launch>
