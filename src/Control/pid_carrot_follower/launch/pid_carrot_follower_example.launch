@@ -1,0 +1,58 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find pid_carrot_follower)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+  <node 
+      name="const_setpoint"
+      pkg="pid_carrot_follower"
+      type="const_float64.py"
+      respawn="$(arg node_respawn)"
+      output="$(arg node_output)" />
+
+  <node
+      name="control_calculator"
+      pkg="pid_carrot_follower"
+      type="control_calculator.py"
+      respawn="$(arg node_respawn)"
+      output="$(arg node_output)" />
+
+  <node
+      name="pid_controller"
+      pkg="pid"
+      type="controller"
+      respawn="$(arg node_respawn)"
+      output="$(arg node_output)" >
+
+      <param name="upper_limit" value="0.785" />
+      <param name="lower_limit" value="-0.785" />
+      <param name="windup_limit" value="10" />
+
+      <remap from="state" to="combined_offset" />
+      <remap from="control_effort" to="steering_angle" />
+  </node>
+
+  <node
+      name="cmd_creator"
+      type="cmd_creator"
+      pkg="pid_carrot_follower"
+      respawn="$(arg node_respawn)"
+      output="$(arg node_output)" >
+
+      <remap from="drive" to="drive/lane_control" />
+  </node>
+
+</launch>

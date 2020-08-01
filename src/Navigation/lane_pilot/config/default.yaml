@@ -1,0 +1,28 @@
+lane_controller:
+  {
+    right_lane_offset: -0.26,
+    left_lane_offset: 0.19,
+
+    ackermann_mode: true,
+
+    maximum_speed: 2.2,
+    slowdown_speed: 1.7,
+    lane_change_speed: 1.2,
+    lane_change_distance: 0.65,
+    max_length_of_obstacle: 0.4,
+    max_distance_to_obstacle: 1.2,
+    safety_margin: 1.0,
+    pos_tolerance: 0.01,
+    num_proof_to_slowdown: 2,
+    num_corners_to_detect: 2,
+
+    ROI_min_x: 0.5,
+    ROI_max_x: 1.7,
+    ROI_min_y: -1.0,
+    ROI_max_y: 1.0,
+
+    right_obst_area_min_x: 0.3,
+    right_obst_area_max_x: 1.6,
+    right_obst_area_min_y: -0.85,
+    right_obst_area_max_y: 0.15,
+  }

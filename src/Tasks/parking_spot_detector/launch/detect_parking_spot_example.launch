@@ -1,0 +1,31 @@
+<launch>
+  <!-- PASSED PARAMS-->
+  <arg name="debug"
+    default="true"  />
+  <arg name="load_config"
+    default="true"  />
+  <arg name="config_file"
+    default="$(find parking_spot_detector)/config/default.yaml"  />
+  <arg name="node_respawn"
+    default="true"  />
+  <arg name="node_output"
+    default="screen" doc="screen or log" />
+  
+  <!-- PARAMS FROM YAML -->
+  <group if="$(arg load_config)">
+    <rosparam command="load"
+      file="$(arg config_file)"  />
+  </group>
+
+
+  <node 
+    name="detect_parking_spot" 
+    type="detect_parking_spot" 
+    pkg="parking_spot_detector" 
+    respawn="$(arg node_respawn)"
+    output="$(arg node_output)" >
+
+    <param name="visualization_in_searching" value="$(arg debug)" />
+  </node>
+
+</launch>

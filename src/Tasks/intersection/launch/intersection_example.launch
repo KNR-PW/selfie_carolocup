@@ -1,0 +1,30 @@
+<launch>
+  <!-- PASSED PARAMS-->
+  <arg name="debug"
+    default="true"  />
+  <arg name="load_config"
+    default="true"  />
+  <arg name="config_file"
+    default="$(find intersection)/config/default.yaml"  />
+  <arg name="node_respawn"
+    default="true"  />
+  <arg name="node_output"
+    default="screen" doc="screen or log" />
+  
+  <!-- PARAMS FROM YAML -->
+  <group if="$(arg load_config)">
+    <rosparam command="load"
+      file="$(arg config_file)"  />
+  </group>
+
+  <node 
+    name="intersection_server" 
+    type="intersection_server" 
+    pkg="intersection" 
+    respawn="$(arg node_respawn)"
+    output="$(arg node_output)" >
+    
+    <param name="visualization_of_intersection" value="$(arg debug)" />
+  </node>
+
+</launch>
