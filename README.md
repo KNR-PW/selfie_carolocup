@@ -18,7 +18,7 @@ sure you have it [installed](http://wiki.ros.org/noetic/Installation) on your de
 Clone the repository to a convenient location using:
 
 ```bash
-git clone --recurse-submodules https://gitlab.com/KNR-Selfie/carolocup-2021/carolocup_2021.git
+git clone https://gitlab.com/KNR-Selfie/carolocup-2021/carolocup_2021.git
 ```
 
 Navigate to the main directory with:
@@ -33,3 +33,11 @@ The following set of commands will in turn download all external dependencies, b
 ```bash
 catkin_make
 source ./devel/setup.bash
+```
+
+### Bonus:
+If you want to init latest and official version of selfie simulator type:
+```bash
+git submodule update --init
+```
+<em>Note: You need to configure your gitlab profile SSH key</em>
