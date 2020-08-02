@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(pylon_camera)
 
 add_definitions("-std=gnu++11")
@@ -151,7 +151,7 @@ install(
      scripts/sequence_to_file.py
      scripts/toggle_camera
     DESTINATION
-     ${CATKIN_PACKAGE_SHARE_DESTINATION}
+     ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(
