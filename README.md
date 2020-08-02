@@ -33,3 +33,11 @@ The following set of commands will in turn download all external dependencies, b
 ```bash
 catkin_make
 source ./devel/setup.bash
+```
+
+### Bonus:
+If you want to init latest and official version of selfie simulator type:
+```bash
+git submodule update --init
+```
+<em>Note: You need to configure your gitlab profile SSH key</em>
