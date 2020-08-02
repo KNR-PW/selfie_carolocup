@@ -18,7 +18,7 @@ sure you have it [installed](http://wiki.ros.org/noetic/Installation) on your de
 Clone the repository to a convenient location using:
 
 ```bash
-git clone https://gitlab.com/KNR-Selfie/carolocup-2021/carolocup_2021.git
+git clone --recurse-submodules https://gitlab.com/KNR-Selfie/carolocup-2021/carolocup_2021.git
 ```
 
 Navigate to the main directory with:
