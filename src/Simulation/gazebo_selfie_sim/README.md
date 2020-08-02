@@ -1,2 +1,0 @@
-# Simulator Gazebo for Selfie
-
