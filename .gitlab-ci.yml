@@ -53,4 +53,4 @@ catkin lint:
       ######################### INSTALL PYLON SDK #########################
     - apt install -y python3-catkin-lint >/dev/null 2>&1
   script:
-    - catkin_lint --strict --ignore missing_install_target --ignore env_var .
+    - catkin_lint --strict --ignore env_var .
