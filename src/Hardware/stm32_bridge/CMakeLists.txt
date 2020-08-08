@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(stm32_bridge)
 
 add_compile_options(-std=c++11)
@@ -42,3 +42,7 @@ roslint_cpp()
 add_executable(stm32_bridge src/main.cpp src/usb.cpp src/bridge.cpp)
 target_link_libraries(stm32_bridge ${catkin_LIBRARIES})
 add_dependencies(stm32_bridge ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+install(TARGETS stm32_bridge
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
