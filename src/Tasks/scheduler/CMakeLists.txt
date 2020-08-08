@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(scheduler)
 
 add_compile_options(-std=c++17)
@@ -38,3 +38,7 @@ add_dependencies(action_mock ${catkin_EXPORTED_TARGETS})
 add_executable(rc_mock test/rc_mock.cpp)
 target_link_libraries(rc_mock ${catkin_LIBRARIES} commonlib)
 add_dependencies(rc_mock ${catkin_EXPORTED_TARGETS})
+
+install(TARGETS scheduler action_mock rc_mock
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

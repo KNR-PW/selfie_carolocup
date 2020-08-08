@@ -21,5 +21,5 @@ roslint_python()
 install(PROGRAMS
   scripts/diagnose.py
   DESTINATION
-  ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

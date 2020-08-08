@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(free_drive)
 
 add_compile_options(-std=c++11)
@@ -41,3 +41,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 add_executable(free_drive src/free_drive_server.cpp src/free_drive.cpp)
 target_link_libraries(free_drive ${catkin_LIBRARIES})
 add_dependencies(free_drive ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+install(TARGETS free_drive
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
