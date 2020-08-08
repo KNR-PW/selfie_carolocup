@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(park)
 
 add_compile_options(-std=c++11)
@@ -39,3 +39,7 @@ roslint_cpp()
 add_executable(park src/park.cpp src/park_node.cpp)
 target_link_libraries(park commonlib ${catkin_LIBRARIES})
 add_dependencies(park ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+install(TARGETS park
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(lane_detector)
 
 add_compile_options(-std=c++11)
@@ -48,9 +48,13 @@ install(DIRECTORY config/
 install(PROGRAMS
     scripts/make_hom_cut_file
     DESTINATION
-    ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 add_executable(lane_detector src/detect_markings.cpp src/lane_detector.cpp src/particle_filter.cpp src/polynomials.cpp src/road_line.cpp)
 target_link_libraries(lane_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(lane_detector ${catkin_EXPORTED_TARGETS})
+
+install(TARGETS lane_detector
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
