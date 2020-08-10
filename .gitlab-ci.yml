@@ -3,6 +3,8 @@ image: ros:noetic-robot
 variables:
   ROS_PACKAGES_TO_INSTALL: ""
   GLOBAL_C11: "true"
+  GIT_SUBMODULE_STRATEGY: recursive
+
 
 cache:
   paths:
