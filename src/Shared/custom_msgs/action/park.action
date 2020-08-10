@@ -1,0 +1,10 @@
+#goal definition
+geometry_msgs/Polygon parking_spot
+bool park
+---
+#result definition
+bool done
+---
+#feedback
+float32 distance 
+uint32 action_status #one of enums describing state (see more on wiki)

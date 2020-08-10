@@ -1,0 +1,32 @@
+
+<launch>
+  <!-- PASSED PARAMS-->
+  <arg name="debug"
+    default="true"  />
+  <arg name="load_config"
+    default="true"  />
+  <arg name="config_file"
+    default="$(find lane_pilot)/config/default.yaml"  />
+  <arg name="node_respawn"
+    default="true"  />
+  <arg name="node_output"
+    default="screen" doc="screen or log" />
+  
+  <!-- PARAMS FROM YAML -->
+  <group if="$(arg load_config)">
+    <rosparam command="load"
+      file="$(arg config_file)"  />
+  </group>
+
+  <node 
+    name="lane_pilot"
+    pkg="lane_pilot" 
+    type="lane_pilot"
+    respawn="$(arg node_respawn)"
+    output="$(arg node_output)" >
+    
+    <param name="visualization" value="$(arg debug)" />
+  </node>
+
+</launch>
+

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>starting_procedure</name>
+  <version>0.0.0</version>
+  <description>The starting_procedure package</description>
+
+  <maintainer email="KNR@email.com">KNR</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>zbar</depend>
+  <depend>ackermann_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>roslint</depend>
+  <depend>cv_bridge</depend>
+  <depend>std_srvs</depend>
+  <depend>nav_msgs</depend>
+  <depend>custom_msgs</depend>
+  <depend>tf</depend>
+
+
+</package>

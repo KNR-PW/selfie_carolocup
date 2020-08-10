@@ -1,0 +1,6 @@
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="wlan",ENV{ACTION}=="add",RUN+="/usr/sbin/oem-hotkey-osd-wlan"
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="wlan",ENV{ACTION}=="change",RUN+="/usr/sbin/oem-hotkey-osd-wlan"
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="wlan",ENV{ACTION}=="remove",RUN+="/usr/sbin/oem-hotkey-osd-wlan"
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="bluetooth",ENV{ACTION}=="add",RUN+="/usr/sbin/oem-hotkey-osd-bluetooth"
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="bluetooth",ENV{ACTION}=="change",RUN+="/usr/sbin/oem-hotkey-osd-bluetooth"
+SUBSYSTEM=="rfkill",ENV{RFKILL_TYPE}=="bluetooth",ENV{ACTION}=="remove",RUN+="/usr/sbin/oem-hotkey-osd-bluetooth"
