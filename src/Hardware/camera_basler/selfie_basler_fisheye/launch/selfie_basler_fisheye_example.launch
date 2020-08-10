@@ -1,0 +1,41 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find selfie_basler_fisheye)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+    <node 
+        name="pylon_camera_node"
+        type="pylon_camera_node"
+        pkg="pylon_camera"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" output="$(arg node_output)" respawn="$(arg node_respawn)" />
+
+    <node
+        pkg="nodelet"
+        type="nodelet"
+        name="image_proc_fisheye"
+        args="load image_proc_fisheye/RectifyNodelet camera_nodelet_manager"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+            <remap from="image_raw" to="pylon_camera_node/image_raw" />
+            <param name="mapx_file" value="$(find selfie_basler_fisheye)/config/mapx.yaml" />
+            <param name="mapy_file" value="$(find selfie_basler_fisheye)/config/mapy.yaml" />
+    </node>
+
+</launch>
