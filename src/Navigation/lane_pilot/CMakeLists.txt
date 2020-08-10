@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(lane_pilot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -77,4 +77,8 @@ add_executable(lane_pilot
 add_dependencies(lane_pilot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 target_link_libraries(lane_pilot
   ${catkin_LIBRARIES} commonlib
+)
+
+install(TARGETS lane_pilot
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

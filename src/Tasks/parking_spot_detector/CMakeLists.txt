@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(parking_spot_detector)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -101,4 +101,8 @@ add_executable(detect_parking_spot_mock_client
 add_dependencies(detect_parking_spot_mock_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(detect_parking_spot_mock_client
   ${catkin_LIBRARIES} commonlib
+)
+
+install(TARGETS detect_parking_spot detect_parking_spot_mock_client
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
