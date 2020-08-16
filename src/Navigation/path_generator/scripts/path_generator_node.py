@@ -47,8 +47,8 @@ class PathGenerator:
         while x < self.max_distance:
             der = c_poly.deriv()(x)
             angle = atan(der)
-            x_offset = x + self.path_offset*sin(angle)
-            y_offset = c_poly(x) - self.path_offset*cos(angle)
+            x_offset = x - self.path_offset*sin(angle)
+            y_offset = c_poly(x) + self.path_offset*cos(angle)
 
             path_pose = PoseStamped()
             path_pose.header = msg.header

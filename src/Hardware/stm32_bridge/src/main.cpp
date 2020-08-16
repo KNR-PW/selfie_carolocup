@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     ros::ServiceServer parallel_steering_mode = n.advertiseService("steering_parallel", steeringParallelCallback);
     ros::ServiceServer front_axis_steering_mode = n.advertiseService("steering_front_axis", steeringFrontAxisCallback);
 
-    ros::Subscriber ackerman_subscriber = n.subscribe("drive", 1, ackermanCallback);
+    ros::Subscriber ackerman_subscriber = n.subscribe("drive/out", 1, ackermanCallback);
     ros::Subscriber left_turn_indicator_subscriber = n.subscribe("left_turn_indicator", 1, left_turn_indicatorCallback);
     ros::Subscriber right_turn_indicator_subscriber = n.subscribe("right_turn_indicator", 1,
                                                                   right_turn_indicatorCallback);
@@ -84,21 +84,23 @@ int main(int argc, char **argv)
     {
         // if new data read - publish
         if (Usb.read_from_STM())
+        {
             Usb.fill_publishers(pub_messages);
+
+            // publishing msg
+            imu_publisher.publish(pub_messages.imu_msg);
+            velo_publisher.publish(pub_messages.velo_msg);
+            dis_publisher.publish(pub_messages.dist_msg);
+            switch_state_publisher.publish(pub_messages.futaba_state);
+
+            if (pub_messages.button_1)
+                button1_publisher.publish(empty_msg);
+            if (pub_messages.button_2)
+                button2_publisher.publish(empty_msg);
+        }
 
         // send subscribed data
         Usb.send_frame_to_STM(time.get_ms_time(), sub_messages);
-
-        // publishing msg
-        imu_publisher.publish(pub_messages.imu_msg);
-        velo_publisher.publish(pub_messages.velo_msg);
-        dis_publisher.publish(pub_messages.dist_msg);
-        switch_state_publisher.publish(pub_messages.futaba_state);
-
-        if (pub_messages.button_1)
-            button1_publisher.publish(empty_msg);
-        if (pub_messages.button_2)
-            button2_publisher.publish(empty_msg);
 
         ros::spinOnce();
         sleep_rate.sleep();
