@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     ros::ServiceServer parallel_steering_mode = n.advertiseService("steering_parallel", steeringParallelCallback);
     ros::ServiceServer front_axis_steering_mode = n.advertiseService("steering_front_axis", steeringFrontAxisCallback);
 
-    ros::Subscriber ackerman_subscriber = n.subscribe("drive", 1, ackermanCallback);
+    ros::Subscriber ackerman_subscriber = n.subscribe("drive/out", 1, ackermanCallback);
     ros::Subscriber left_turn_indicator_subscriber = n.subscribe("left_turn_indicator", 1, left_turn_indicatorCallback);
     ros::Subscriber right_turn_indicator_subscriber = n.subscribe("right_turn_indicator", 1,
                                                                   right_turn_indicatorCallback);
