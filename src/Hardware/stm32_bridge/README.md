@@ -6,7 +6,7 @@
 
 ## Subscribed topics
 
-`drive` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+`drive/out` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
 Steering commands to be applied.
 
 `left_turn_indicator` ([std_msgs/Bool](http://docs.ros.org/api/std_msgs/html/msg/Bool.html))
@@ -20,7 +20,7 @@ Status of right turn indicator.
 `imu` ([sensor_msgs/Imu](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Imu.html))
 Data stream from IMU.
 
-`speed` ([std_msgs/Float32](http://docs.ros.org/api/std_msgs/html/msg/Float32.html))
+`stm32/speed` ([std_msgs/Float32](http://docs.ros.org/api/std_msgs/html/msg/Float32.html))
 Linear velocity magnitude at the center of rear axle, as calculated from encoder data (in m/s).
 
 `start_button1` ([std_msgs/Empty](http://docs.ros.org/melodic/api/std_msgs/html/msg/Empty.html))
