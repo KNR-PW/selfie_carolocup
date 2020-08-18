@@ -13,7 +13,7 @@ used for localization
 - `/road_markings` (custom_msgs/RoadMarkings)
 parking position is determined relative to the right lane marking
 ### Published
-- `/drive_park` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/park` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
 steering commands
 - `/right_turn_indicator` ([std_msgs/Bool](http://docs.ros.org/melodic/api/std_msgs/html/msg/Bool.html))
 - `/left_turn_indicator` ([std_msgs/Bool](http://docs.ros.org/melodic/api/std_msgs/html/msg/Bool.html))

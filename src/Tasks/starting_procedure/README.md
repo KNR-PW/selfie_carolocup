@@ -19,7 +19,7 @@ rosrun selfie_starting_procedure starting_procedure
 - `/odom` ([nav_msgs/Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html))
    feedback to the proportional regulator
 ### Published topics
-- `/drive` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/starting_procedure` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
    Drive commands for uC to run the car
 
 ### Called services
