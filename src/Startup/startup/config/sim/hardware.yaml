@@ -1,0 +1,27 @@
+stm32_bridge:
+  {
+    ackermann_offset_front: 0.0,
+    ackermann_offset_back: 0.0,
+    parallel_offset_front_right: 0.1,
+    parallel_offset_back_right: 0.0,
+    parallel_offset_front_left: 0.0,
+    parallel_offset_back_left: -0.25,
+    front_axis_offset: 0.0,
+    back_axis_offset: 0.0
+  }
+
+pylon_camera_node: 
+  {
+    camera_info_url: "",
+    image_encoding: "mono8",
+    frame_rate: 150,
+    brightness: 150,
+    brightness_continuous: true,
+    exposure_auto: false,
+    gain_auto: true,
+    exposure: 6000.0,
+    height: 400,
+    width: 1024,
+    roi_offset_x: 512,
+    roi_offset_y: 460
+  }

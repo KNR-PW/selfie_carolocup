@@ -2,18 +2,37 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
+<arg name="config_default"
+     value="$(optenv SELFIE_DEFAULT false)" />
+
+<group unless="$(arg config_default)">
+    <rosparam command="load"
+        file="$(find startup)/config/car/control.yaml"  />
+    <rosparam command="load"
+        file="$(find startup)/config/car/hardware.yaml"  />
+    <rosparam command="load"
+        file="$(find startup)/config/car/navigation.yaml"  />
+    <rosparam command="load"
+        file="$(find startup)/config/car/perception.yaml"  />
+    <rosparam command="load"
+        file="$(find startup)/config/car/tasks.yaml"  />
+</group>
 
 <!-- Control -->
     <!-- drive_multiplexer -->
     <include file="$(find drive_multiplexer)/launch/drive_multiplexer_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- pid_carrot_follower -->
     <include file="$(find pid_carrot_follower)/launch/pid_carrot_follower_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
 <!-- Hardware -->
@@ -21,12 +40,16 @@
     <include file="$(find selfie_basler_fisheye)/launch/selfie_basler_fisheye_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- stm32_bridge -->
     <include file="$(find stm32_bridge)/launch/stm32_bridge_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
 <!-- Navigation -->
@@ -34,12 +57,16 @@
     <include file="$(find lane_pilot)/launch/lane_pilot_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- path_generator -->
     <include file="$(find path_generator)/launch/path_generator_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
 <!-- Perception -->
@@ -47,18 +74,24 @@
     <include file="$(find lane_detector)/launch/lane_detector_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- obstacle_detector -->
     <include file="$(find obstacle_detector)/launch/obstacle_detector_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- odometry -->
     <include file="$(find odometry)/launch/odometry_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
 <!-- Tasks -->
@@ -66,36 +99,48 @@
     <include file="$(find free_drive)/launch/free_drive_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- intersection -->
     <include file="$(find intersection)/launch/intersection_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- park -->
     <include file="$(find park)/launch/park_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- parking_spot_detector -->
     <include file="$(find parking_spot_detector)/launch/detect_parking_spot_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- scheduler -->
     <include file="$(find scheduler)/launch/scheduler_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
     <!-- starting_procedure -->
     <include file="$(find starting_procedure)/launch/starting_procedure_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg config_default)" />
     </include>
 
 <!-- Startup -->

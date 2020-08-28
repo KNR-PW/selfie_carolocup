@@ -7,15 +7,15 @@
 
 <group unless="$(arg config_default)">
     <rosparam command="load"
-        file="$(find startup)/config/car/control.yaml"  />
+        file="$(find startup)/config/sim/control.yaml"  />
     <rosparam command="load"
-        file="$(find startup)/config/car/hardware.yaml"  />
+        file="$(find startup)/config/sim/hardware.yaml"  />
     <rosparam command="load"
-        file="$(find startup)/config/car/navigation.yaml"  />
+        file="$(find startup)/config/sim/navigation.yaml"  />
     <rosparam command="load"
-        file="$(find startup)/config/car/perception.yaml"  />
+        file="$(find startup)/config/sim/perception.yaml"  />
     <rosparam command="load"
-        file="$(find startup)/config/car/tasks.yaml"  />
+        file="$(find startup)/config/sim/tasks.yaml"  />
 </group>
 
 <!-- Control -->
@@ -59,6 +59,8 @@
              value="$(arg debug)" />
         <arg name="load_config" 
              value="$(arg config_default)" />
+        <arg name="homography_file" 
+             value="/home/$(env USER)/.ros/homography_sim.yaml" />
     </include>
 
     <!-- obstacle_detector -->

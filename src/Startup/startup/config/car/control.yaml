@@ -1,0 +1,36 @@
+const_setpoint:
+  {
+    topic: "setpoint",
+    value: 0,
+    publish_rate: 2
+  }
+
+control_calculator:
+  {
+    L: 0.3,
+    look_ahead: 0.3,
+    publish_rate: 50,
+    max_acceleration: 5.0,
+    max_curvature: 1.8,
+    min_speed: 1.0
+  }
+
+pid_controller: 
+  {
+    Kd: 0.12,
+    Ki: 0.0,
+    Kp: 1.0,
+    lower_limit: -0.785,
+    upper_limit: 0.785,
+    windup_limit: 10
+  }
+
+cmd_creator:
+  {
+    publish_rate: 80
+  }
+
+drive_multiplexer:
+  {
+
+  }
