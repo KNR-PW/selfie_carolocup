@@ -41,8 +41,8 @@ def path_callback(msg):
             pose_next = p.pose
             break
 
-    position_offset = pose_next.position.y
-    heading_offset = pose_next.orientation.z
+    position_offset = -pose_next.position.y
+    heading_offset = -pose_next.orientation.z
 
 
 def max_speed_callback(msg):
