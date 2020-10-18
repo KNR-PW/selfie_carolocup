@@ -17,7 +17,7 @@ uint32_t Time::get_ms_time()
 
 Sub_messages::Sub_messages()
 {
-    ackerman.steering_angle_back = 0;
+    ackerman.steering_angle_rear = 0;
     ackerman.steering_angle_front = 0;
     ackerman.speed = 0;
     ackerman.acceleration = 0;

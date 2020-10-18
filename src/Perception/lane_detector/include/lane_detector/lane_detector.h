@@ -16,7 +16,8 @@
 #include <geometry_msgs/Point.h>
 #include <sensor_msgs/PointCloud.h>
 #include <std_srvs/Empty.h>
-#include <custom_msgs/RoadMarkings.h>
+#include <custom_msgs/RoadLines.h>
+#include <custom_msgs/IntersectionStop.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Float32.h>
 

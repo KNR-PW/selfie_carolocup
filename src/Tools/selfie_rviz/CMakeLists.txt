@@ -33,8 +33,8 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## Here we specify the list of source files.
 ## The generated MOC files are included automatically as headers.
 set(SRC_FILES
-  src/road_markings_display.cpp
-  src/road_markings_visual.cpp
+  src/road_lines_display.cpp
+  src/road_lines_visual.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILES})

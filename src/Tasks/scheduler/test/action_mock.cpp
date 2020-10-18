@@ -13,7 +13,7 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <custom_msgs/enums.h>
-#include <custom_msgs/PolygonArray.h>
+#include <custom_msgs/Box2D.h>
 
 class ActionMock
 {
@@ -157,19 +157,19 @@ public:
     custom_msgs::searchResult getMockObstacle()
     {
         custom_msgs::searchResult result;
-        geometry_msgs::Point32 p;
+        geometry_msgs::Point p;
         p.x = 1;
         p.y = 2;
-        result.parking_spot.points.push_back(p);
+        result.parking_spot.tr = p;
         p.x = 1;
         p.y = 2;
-        result.parking_spot.points.push_back(p);
+        result.parking_spot.tl = p;
         p.x = 1;
         p.y = 2;
-        result.parking_spot.points.push_back(p);
+        result.parking_spot.br = p;
         p.x = 1;
         p.y = 2;
-        result.parking_spot.points.push_back(p);
+        result.parking_spot.bl = p;
         return result;
     }
 

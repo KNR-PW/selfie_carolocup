@@ -1,7 +1,7 @@
-#ifndef ROAD_MARKINGS_VISUAL_H
-#define ROAD_MARKINGS_VISUAL_H
+#ifndef ROAD_LINES_VISUAL_H
+#define ROAD_LINES_VISUAL_H
 
-#include <custom_msgs/RoadMarkings.h>
+#include <custom_msgs/RoadLines.h>
 
 namespace Ogre
 {
@@ -18,24 +18,24 @@ class Line;
 namespace selfie_rviz
 {
 
-// Each instance of RoadMarkingsVisual represents the visualization
-// of a single custom_msgs::RoadMarkings message. For now each of the three
+// Each instance of RoadLinesVisual represents the visualization
+// of a single custom_msgs::RoadLines message. For now each of the three
 // road markings is represented by a sequence of straight line segments.
-class RoadMarkingsVisual
+class RoadLinesVisual
 {
 public:
-	RoadMarkingsVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node);
-	virtual ~RoadMarkingsVisual();
+	RoadLinesVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node);
+	virtual ~RoadLinesVisual();
 
 	// Configure the visual to show the data in the message.
-	void setMessage(const custom_msgs::RoadMarkings::ConstPtr& msg);
+	void setMessage(const custom_msgs::RoadLines::ConstPtr& msg);
 
 	// Set the pose of the coordinate frame the message refers to.
 	void setFramePosition(const Ogre::Vector3& position);
 	void setFrameOrientation(const Ogre::Quaternion& orientation);
 
 	// Set the colors and alpha of the visual, which are user-editable
-	// parameters and therefore don't come from the RoadMarkings message.
+	// parameters and therefore don't come from the RoadLines message.
 	void setColorsAndAlpha(Ogre::ColourValue boundaries_color,
 	                       Ogre::ColourValue centerline_color,
 	                       float alpha);
@@ -68,4 +68,4 @@ private:
 
 } // end namespace selfie_rviz
 
-#endif // ROAD_MARKINGS_VISUAL_H
+#endif // ROAD_LINES_VISUAL_H

@@ -14,11 +14,5 @@ int main(int argc, char** argv)
   ros::NodeHandle pnh("~");
   ros::Rate rate(pnh.param<int>("spin_rate", 10));
   Odometry odom(nh, pnh);
-  while (ros::ok())
-  {
-    ros::spinOnce();
-    odom.publishOdometryTransform();
-    odom.publishOdometryMessage();
-    rate.sleep();
-  }
+  ros::spin();
 }

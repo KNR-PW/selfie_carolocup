@@ -24,8 +24,6 @@
     respawn="$(arg node_respawn)"
     output="$(arg node_output)" >
 
-    <remap from="/speed" to="/stm32/speed" />
-    
     <!-- <param name="visualization" value="$(arg debug)" /> -->
   </node>
 

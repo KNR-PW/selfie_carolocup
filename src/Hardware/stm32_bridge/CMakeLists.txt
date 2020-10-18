@@ -4,17 +4,11 @@ project(stm32_bridge)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  sensor_msgs
   roscpp
-  ackermann_msgs
+  std_msgs
   custom_msgs
-  dynamic_reconfigure
   roslint
-)
-
-generate_dynamic_reconfigure_options(
-  cfg/stm32_bridge.cfg
+  tf
 )
 
 include_directories(
@@ -23,7 +17,7 @@ include_directories(
 )
 
 catkin_package(
-  CATKIN_DEPENDS std_msgs sensor_msgs custom_msgs ackermann_msgs
+  CATKIN_DEPENDS std_msgs custom_msgs
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/
@@ -41,7 +35,7 @@ roslint_cpp()
 
 add_executable(stm32_bridge src/main.cpp src/usb.cpp src/bridge.cpp)
 target_link_libraries(stm32_bridge ${catkin_LIBRARIES})
-add_dependencies(stm32_bridge ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+add_dependencies(stm32_bridge ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS stm32_bridge
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

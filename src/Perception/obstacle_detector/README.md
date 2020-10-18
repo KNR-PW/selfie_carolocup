@@ -11,11 +11,11 @@ Detected boxes are transformed to output_frame.
 - `/scan` ([sensor_msgs/LaserScan](http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html))
   - point cloud published by LIDAR sensor
 ### Published topics
-- `/obstacles` (custom_msgs/PolygonArray.msg)
+- `/obstacles` ([custom_msgs/Box2DArray](./../../Shared/custom_msgs/msg/Box2DArray.msg))
   - Polygon Array contains vertexes of every rectangular obstacle in local XY
-- `/visualization_lines` ([visualization_msgs/Marker](http://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
+- `/visualization/obstacles_lines` ([visualization_msgs/Marker](http://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
   - (optional) Visualization of lines
-- `/visualization_obstacles` ([visualization_msgs/Marker](http://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
+- `/visualization/obstacles` ([visualization_msgs/Marker](http://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
   - (optional) Visualization of obstacles
 ## Parameters
 ###

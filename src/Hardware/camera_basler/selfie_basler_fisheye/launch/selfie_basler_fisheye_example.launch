@@ -17,7 +17,7 @@
     </group>
 
     <node 
-        name="pylon_camera_node"
+        name="camera_basler"
         type="pylon_camera_node"
         pkg="pylon_camera"
         respawn="$(arg node_respawn)"
@@ -33,7 +33,8 @@
         args="load image_proc_fisheye/RectifyNodelet camera_nodelet_manager"
         respawn="$(arg node_respawn)"
         output="$(arg node_output)" >
-            <remap from="image_raw" to="pylon_camera_node/image_raw" />
+            <remap from="image_raw" to="camera_basler/image_raw" />
+            <remap from="image_rect" to="camera_basler/image_rect" />
             <param name="mapx_file" value="$(find selfie_basler_fisheye)/config/mapx.yaml" />
             <param name="mapy_file" value="$(find selfie_basler_fisheye)/config/mapy.yaml" />
     </node>

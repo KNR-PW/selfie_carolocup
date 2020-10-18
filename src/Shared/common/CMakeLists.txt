@@ -25,7 +25,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(commonlib
-  src/${PROJECT_NAME}/obstacle_box.cpp
+  src/${PROJECT_NAME}/marker_visualization.cpp
   src/${PROJECT_NAME}/state_publisher.cpp
 )
 

@@ -14,7 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   nav_msgs
   custom_msgs
-  ackermann_msgs
   tf
 )
 
@@ -29,7 +28,6 @@ catkin_package(
   CATKIN_DEPENDS
   std_msgs
   custom_msgs
-  ackermann_msgs
   nav_msgs
   actionlib_msgs
 )

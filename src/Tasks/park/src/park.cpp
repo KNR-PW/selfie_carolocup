@@ -6,7 +6,7 @@
 #include <park/park.h>
 
 Park::Park(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
-  : nh_(nh), pnh_(pnh), as_(nh_, "park", false), dr_server_CB_(boost::bind(&Park::reconfigureCB, this, _1, _2))
+  : nh_(nh), pnh_(pnh), as_(nh_, "task/park", false), dr_server_CB_(boost::bind(&Park::reconfigureCB, this, _1, _2))
 {
   pnh_.param<bool>("state_msgs", state_msgs_, false);
   pnh_.param<float>("parking_speed", parking_speed_, 0.8);
@@ -29,19 +29,16 @@ Park::Park(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   parking_state_ = not_parking;
   as_.registerGoalCallback(boost::bind(&Park::goalCB, this));
   as_.registerPreemptCallback(boost::bind(&Park::preemptCB, this));
-  steering_mode_set_parallel_ = nh_.serviceClient<std_srvs::Empty>("steering_parallel");
-  steering_mode_set_front_axis_ = nh_.serviceClient<std_srvs::Empty>("steering_front_axis");
   as_.start();
-  dist_sub_ = nh_.subscribe("/distance", 1, &Park::distanceCallback, this);
-  ackermann_pub_ = nh_.advertise<ackermann_msgs::AckermannDriveStamped>("/drive_park", 10);
-  right_indicator_pub_ = nh_.advertise<std_msgs::Bool>("right_turn_indicator", 20);
-  left_indicator_pub_ = nh_.advertise<std_msgs::Bool>("left_turn_indicator", 20);
-  markings_sub_ = nh_.subscribe("/road_markings", 10, &Park::markingsCallback, this);
+  dist_sub_ = nh_.subscribe("/selfie_out/motion", 1, &Park::distanceCallback, this);
+  drive_pub_ = nh_.advertise<custom_msgs::DriveCommand>("/drive_park", 10);
+  indicator_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20);
+  markings_sub_ = nh_.subscribe("/road_lines", 10, &Park::markingsCallback, this);
 }
 
-void Park::distanceCallback(const std_msgs::Float32& msg)
+void Park::distanceCallback(const custom_msgs::Motion& msg)
 {
-  actual_dist_ = msg.data;
+  actual_dist_ = msg.distance;
   custom_msgs::parkFeedback feedback;
   switch (parking_state_)
   {
@@ -50,14 +47,11 @@ void Park::distanceCallback(const std_msgs::Float32& msg)
       {
         prev_dist_ = actual_dist_;
         delay_end_ = ros::Time::now() + ros::Duration(turn_delay_);
-        std_srvs::Empty empty = std_srvs::Empty();
-        steering_mode_set_parallel_.call(empty);
         parking_state_ = going_in;
       }
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "go_to_parking_spot");
-      blinkRight(true);
-      blinkLeft(false);
+      blink(false, true);
       break;
 
     case going_in:
@@ -65,18 +59,14 @@ void Park::distanceCallback(const std_msgs::Float32& msg)
         ROS_INFO_THROTTLE(5, "get_in");
       if (park())
         parking_state_ = parked;
-      blinkRight(true);
-      blinkLeft(false);
+      blink(false, true);
       break;
 
     case parked:
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "parked");
-      drive(0., 0.);
-      blinkLeft(false);
-      blinkRight(false);
-      blinkLeft(true);
-      blinkRight(true);
+      drive(0., 0., 0.);
+      blink(true, true);
       feedback.action_status = IN_PLACE;
       as_.publishFeedback(feedback);
       ros::Duration(idle_time_).sleep();
@@ -84,8 +74,7 @@ void Park::distanceCallback(const std_msgs::Float32& msg)
       break;
 
     case going_out:
-      blinkLeft(true);
-      blinkRight(false);
+      blink(true, false);
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "get_out");
       if (leave())
@@ -95,11 +84,10 @@ void Park::distanceCallback(const std_msgs::Float32& msg)
     case out:
       feedback.action_status = OUT_PLACE;
       as_.publishFeedback(feedback);
-      blinkLeft(false);
-      blinkRight(false);
+      blink(false, false);
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "out");
-      drive(parking_speed_, 0);
+      drive(parking_speed_, 0., 0.);
       feedback.action_status = READY_TO_DRIVE;
       as_.publishFeedback(feedback);
       custom_msgs::parkResult result;
@@ -118,23 +106,20 @@ void Park::goalCB()
   feedback.action_status = START_PARK;
   as_.publishFeedback(feedback);
   parking_state_ = go_to_parking_spot;
-  std_srvs::Empty empty = std_srvs::Empty();
-  steering_mode_set_front_axis_.call(empty);
 }
 
 void Park::preemptCB()
 {
   ROS_INFO("parkService preempted");
-  blinkLeft(false);
-  blinkRight(false);
+  blink(false, false);
   parking_state_ = not_parking;
   move_state_ = first_phase;
   as_.setAborted();
 }
 
-void Park::initParkingSpot(const geometry_msgs::Polygon& msg)
+void Park::initParkingSpot(const custom_msgs::Box2D& msg)
 {
-  park_spot_middle_ = (msg.points[0].x + msg.points[3].x) / 2.;
+  park_spot_middle_ = msg.point_centroid.x;
   float mid_on_line(0.);
   float powered_x = 1.;
   for (float& coef : right_line_)
@@ -143,29 +128,28 @@ void Park::initParkingSpot(const geometry_msgs::Polygon& msg)
     powered_x *= park_spot_middle_;
   }
   park_spot_dist_ = std::abs(mid_on_line - PARK_SPOT_WIDTH / 2.);
-
   out_target_ = std::abs(mid_on_line) + line_dist_end_;
   back_target_ = actual_dist_ + park_spot_middle_ - iter_distance_ / 2. - back_to_mid_;
   front_target_ = back_target_ + iter_distance_;
 }
 
-void Park::drive(float speed, float steering_angle)
+void Park::drive(float speed, float steering_angle_front, float steering_angle_rear)
 {
-  ackermann_msgs::AckermannDriveStamped msg;
-  msg.header.stamp = ros::Time::now();
-  msg.drive.speed = speed;
-  msg.drive.steering_angle = steering_angle;
-  ackermann_pub_.publish(msg);
+  custom_msgs::DriveCommand msg;
+  msg.speed = speed;
+  msg.steering_angle_rear = steering_angle_rear;
+  msg.steering_angle_front = steering_angle_front;
+  drive_pub_.publish(msg);
 }
 
 bool Park::toParkingSpot()
 {
   if (actual_dist_ > back_target_)
   {
-    drive(0., -max_turn_);
+    drive(0., -max_turn_, -max_turn_);
     return true;
   }
-  drive(start_parking_speed_, 0.);
+  drive(start_parking_speed_, 0., 0.);
   return false;
 }
 
@@ -182,11 +166,11 @@ bool Park::park()
       {
         move_state_ = second_phase;
         delay_end_ = ros::Time::now() + ros::Duration(turn_delay_);
-        drive(0., max_turn_);
+        drive(0., max_turn_, max_turn_);
       }
       else if (ros::Time::now() > delay_end_)
       {
-        drive(parking_speed_, -max_turn_);
+        drive(parking_speed_, -max_turn_, -max_turn_);
       }
     }
     else
@@ -203,11 +187,11 @@ bool Park::park()
       {
         move_state_ = first_phase;
         delay_end_ = ros::Time::now() + ros::Duration(turn_delay_);
-        drive(0., -max_turn_);
+        drive(0., -max_turn_, -max_turn_);
       }
       else if (ros::Time::now() > delay_end_)
       {
-        drive(-parking_speed_, max_turn_);
+        drive(-parking_speed_, max_turn_, max_turn_);
       }
     }
     else
@@ -234,11 +218,13 @@ bool Park::leave()
       {
         move_state_ = second_phase;
         delay_end = ros::Time::now() + ros::Duration(turn_delay_);
-        drive(0., -max_turn_);
+        drive(0., -max_turn_, -max_turn_);
+        std_srvs::Empty empty = std_srvs::Empty();
+        steering_mode_set_front_axis_.call(empty);
       }
       else if (ros::Time::now() > delay_end)
       {
-        drive(parking_speed_, max_turn_);
+        drive(parking_speed_, max_turn_, max_turn_);
       }
     }
     else
@@ -255,11 +241,11 @@ bool Park::leave()
       {
         move_state_ = first_phase;
         delay_end = ros::Time::now() + ros::Duration(turn_delay_);
-        drive(0., max_turn_);
+        drive(0., max_turn_, max_turn_);
       }
       else if (ros::Time::now() > delay_end)
       {
-        drive(-parking_speed_, -max_turn_);
+        drive(-parking_speed_, -max_turn_, -max_turn_);
       }
     }
     else
@@ -272,7 +258,7 @@ bool Park::leave()
   return false;
 }
 
-void Park::markingsCallback(const custom_msgs::RoadMarkings& msg)
+void Park::markingsCallback(const custom_msgs::RoadLines& msg)
 {
   if (parking_state_ == not_parking)
   {
@@ -280,19 +266,12 @@ void Park::markingsCallback(const custom_msgs::RoadMarkings& msg)
   }
 }
 
-void Park::blinkLeft(bool on)
+void Park::blink(bool left, bool right)
 {
-  std_msgs::Bool msg;
-  msg.data = on;
-  left_indicator_pub_.publish(msg);
-  return;
-}
-
-void Park::blinkRight(bool on)
-{
-  std_msgs::Bool msg;
-  msg.data = on;
-  right_indicator_pub_.publish(msg);
+  custom_msgs::Indicators msg;
+  msg.is_active_left = left;
+  msg.is_active_right = right;
+  indicator_pub_.publish(msg);
   return;
 }
 

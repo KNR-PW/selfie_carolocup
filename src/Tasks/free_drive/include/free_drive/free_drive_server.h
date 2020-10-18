@@ -10,14 +10,15 @@
 #include <actionlib/server/simple_action_server.h>
 #include <string>
 #include <chrono>  // NOLINT [build/c++11]
+#include <custom_msgs/Motion.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float64.h>
-#include <ackermann_msgs/AckermannDriveStamped.h>
 #include <dynamic_reconfigure/server.h>
 
 #include <custom_msgs/drivingAction.h>  // Note: "Action" is appended
 #include <custom_msgs/enums.h>
+#include <custom_msgs/IntersectionStop.h>
 #include <free_drive/FreeDriveConfig.h>
 
 class FreeDriveServer
@@ -72,7 +73,7 @@ public:
   void executeLoop();
   void preemptCB();
   void startingLineCB(const std_msgs::Float32 &msg);
-  void intersectionCB(const std_msgs::Float32 &msg);
-  void distanceCB(const std_msgs::Float32 &msg);
+  void intersectionCB(const custom_msgs::IntersectionStop &msg);
+  void distanceCB(const custom_msgs::Motion &msg);
 };
 #endif  // FREE_DRIVE_FREE_DRIVE_SERVER_H

@@ -16,13 +16,13 @@
 #include <functional>
 
 #include <sensor_msgs/LaserScan.h>
-#include <geometry_msgs/Polygon.h>
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <dynamic_reconfigure/server.h>
 #include <obstacle_detector/ObstacleDetectorConfig.h>
-#include <custom_msgs/PolygonArray.h>
+#include <custom_msgs/Box2DArray.h>
+#include <custom_msgs/Box2D.h>
 
 struct Point
 {
@@ -64,7 +64,7 @@ private:
 
   std::vector<Line> line_array_;
   std::vector<std::vector<Point>> segments_;
-  custom_msgs::PolygonArray obstacle_array_;
+  custom_msgs::Box2DArray obstacle_array_;
   sensor_msgs::LaserScan scan;
   sensor_msgs::LaserScan scan_;
   void laserScanCallback(const sensor_msgs::LaserScan& msg);
@@ -74,6 +74,7 @@ private:
   float getSlope(Point& p1, Point& p2);
   float getA(Point& p1, Point& p2);
   float getDistance(Point& p1, Point& p2);
+  float getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2);
   void visualizeLines();
   void visualizeObstacles();
   void printInfoParams();
@@ -81,13 +82,11 @@ private:
   void convertUpsideDown();
   void convertToOutputFrame();
   void initializeTransform();
-  void transformPoint(geometry_msgs::Point32&);
+  void transformPoint(geometry_msgs::Point&);
 
   bool visualization_;
   float max_range_;
   float min_range_;
-  bool upside_down_;
-  float lidar_offset_;
   std::string visualization_frame_;
   std::string obstacles_frame_;
   std::string output_frame_;

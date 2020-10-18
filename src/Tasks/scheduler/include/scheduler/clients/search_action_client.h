@@ -18,7 +18,7 @@ class SearchClient : public ClientInterface
 protected:
     actionlib::SimpleActionClient<custom_msgs::searchAction> ac_;
     custom_msgs::searchGoal goal_;
-    geometry_msgs::Polygon result_;
+    custom_msgs::Box2D result_;
 
 public:
     explicit SearchClient(std::string name);

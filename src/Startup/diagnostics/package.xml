@@ -14,5 +14,6 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>roslint</depend>
+  <depend>custom_msgs</depend>
 
 </package>

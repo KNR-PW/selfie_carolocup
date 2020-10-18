@@ -10,11 +10,11 @@ roslaunch drive_multiplexer drive_multiplexer_example.launch
 ```
 ## Topics
 ### Subscribed topics
-- `/drive/lane_control` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/melodic/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
-- `/drive/park` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/melodic/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
-- `/drive/starting_procedure` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/melodic/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/lane_control` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
+- `/drive/park` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
+- `/drive/starting_procedure` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 ### Published topics
-- `/drive/out` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/melodic/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/selfie_in/drive` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 
 ## Services
 ###

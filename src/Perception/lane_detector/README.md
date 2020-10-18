@@ -7,12 +7,12 @@ rosrun lane_detector detect_markings
 ```
 ## Topics
 ### Subscribed topics
-- `/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
+- `camera_basler/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
   - Image from camera
 ### Published topics
-- `/road_markings` (custom_msgs/msgs/RoadMarkings.msg)
+- `/road_lines` ([custom_msgs/RoadLines](./../../Shared/custom_msgs/msg/RoadLines.msg))
   - Polynomial coefficients for fitted lines, starting from the constant term
-- `/intersection_distance` ([std_msgs/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
+- `/intersection/stop` ([custom_msgs/IntersectionStop](./../../Shared/custom_msgs/msg/IntersectionStop.msg))
   - Distance in meters to intersection
 - `/starting_line` ([std_msgs/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
   - Distance in meters to staring line

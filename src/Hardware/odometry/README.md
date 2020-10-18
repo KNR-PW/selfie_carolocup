@@ -6,11 +6,9 @@
 
 ### Subscribed topics
 
-- `imu` ([sensor_msgs/Imu](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Imu.html))
-  - Data stream from IMU.
 
-- `speed` ([std_msgs/Float32](http://docs.ros.org/api/std_msgs/html/msg/Float32.html))
-  - Linear velocity magnitude at the center of rear axle, as calculated from encoder data.
+- `selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
+  - motion description data
 
 ### Published topics
 

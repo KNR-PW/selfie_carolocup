@@ -1,4 +1,4 @@
-lane_controller:
+lane_pilot:
   {
     right_lane_offset: -0.26,
     left_lane_offset: 0.19,

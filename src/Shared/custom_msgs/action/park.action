@@ -1,5 +1,5 @@
 #goal definition
-geometry_msgs/Polygon parking_spot
+custom_msgs/Box2D parking_spot
 bool park
 ---
 #result definition

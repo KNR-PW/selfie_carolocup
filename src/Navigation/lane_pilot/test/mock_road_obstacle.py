@@ -18,7 +18,7 @@ def callback(data):
 
 def mock_road_obstacle():
     pub = rospy.Publisher('/obstacles', PolygonArray, queue_size=10)
-    pub_r =rospy.Publisher('/road_markings', RoadMarkings, queue_size=10)
+    pub_r =rospy.Publisher('/road_lines', RoadMarkings, queue_size=10)
     sub = rospy.Subscriber('/path_offset', Float32, callback)
     rospy.init_node('mock_road_obstacle', anonymous=True)
     marking=RoadMarkings

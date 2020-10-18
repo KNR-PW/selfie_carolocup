@@ -19,7 +19,7 @@
 
 
   <node 
-    name="detect_parking_spot" 
+    name="parking_spot_detector" 
     type="detect_parking_spot" 
     pkg="parking_spot_detector" 
     respawn="$(arg node_respawn)"

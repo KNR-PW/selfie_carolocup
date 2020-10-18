@@ -5,6 +5,7 @@
 
 #include <obstacle_detector/obstacles_generator.h>
 #include <vector>
+#include <algorithm>
 
 ObstaclesGenerator::ObstaclesGenerator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
@@ -16,20 +17,18 @@ ObstaclesGenerator::ObstaclesGenerator(const ros::NodeHandle& nh, const ros::Nod
   , visualization_frame_("base_link")
   , output_frame_("base_link")
   , visualization_(false)
-  , lidar_offset_(0)
   , segment_threshold_(0.03)
   , min_segment_size_(0.04)
   , max_segment_size_(0.5)
   , min_to_divide_(0.03)
-  , upside_down_(false)
   , dr_server_CB_(boost::bind(&ObstaclesGenerator::reconfigureCB, this, _1, _2))
 {
-  obstacles_pub_ = nh_.advertise<custom_msgs::PolygonArray>("obstacles", 10);
+  obstacles_pub_ = nh_.advertise<custom_msgs::Box2DArray>("obstacles", 10);
 }
 
 ObstaclesGenerator::~ObstaclesGenerator()
 {
-  obstacle_array_.polygons.clear();
+  obstacle_array_.boxes.clear();
   line_array_.clear();
 }
 
@@ -51,15 +50,12 @@ bool ObstaclesGenerator::init()
   pnh_.getParam("max_segment_size", max_segment_size_);
   pnh_.getParam("min_to_divide", min_to_divide_);
 
-  pnh_.getParam("lidar_offset", lidar_offset_);
-  pnh_.getParam("upside_down", upside_down_);
-
   dr_server_.setCallback(dr_server_CB_);
 
   if (visualization_)
   {
-    visualization_lines_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_lines", 1);
-    visualization_obstacles_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_obstacles", 1);
+    visualization_lines_pub_ = nh_.advertise<visualization_msgs::Marker>("/visualization/obstacles_lines", 1);
+    visualization_obstacles_pub_ = nh_.advertise<visualization_msgs::Marker>("/visualization/obstacles", 1);
   }
 
   printInfoParams();
@@ -73,9 +69,7 @@ void ObstaclesGenerator::laserScanCallback(const sensor_msgs::LaserScan& msg)
   divideIntoSegments();
   if (segments_.empty())
   {
-    obstacle_array_.polygons.clear();
-    obstacle_array_.header.stamp = ros::Time::now();
-    obstacle_array_.header.frame_id = output_frame_;
+    obstacle_array_.boxes.clear();
     obstacles_pub_.publish(obstacle_array_);
     line_array_.clear();
   }
@@ -158,6 +152,13 @@ float ObstaclesGenerator::getDistance(Point& p1, Point& p2)
   return std::sqrt(dx * dx + dy * dy);
 }
 
+float ObstaclesGenerator::getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2)
+{
+  float dx = p2.x - p1.x;
+  float dy = p2.y - p1.y;
+  return std::sqrt(dx * dx + dy * dy);
+}
+
 float ObstaclesGenerator::getA(Point& p1, Point& p2)
 {
   return (p2.y - p1.y) / (p2.x - p1.x);
@@ -189,11 +190,11 @@ void ObstaclesGenerator::visualizeLines()
   {
     for (int i = 0; i < line_array_.size(); i++)
     {
-      marker_point.x = line_array_[i].start_point.x + lidar_offset_;
+      marker_point.x = line_array_[i].start_point.x;
       marker_point.y = line_array_[i].start_point.y * 1;
       marker.points.push_back(marker_point);
 
-      marker_point.x = line_array_[i].end_point.x + lidar_offset_;
+      marker_point.x = line_array_[i].end_point.x;
       marker_point.y = line_array_[i].end_point.y * 1;
       marker.points.push_back(marker_point);
     }
@@ -215,49 +216,45 @@ void ObstaclesGenerator::printInfoParams()
   ROS_INFO("min_segment_size: %.3f", min_segment_size_);
   ROS_INFO("max_segment_size: %.3f", max_segment_size_);
   ROS_INFO("min_to_divide: %.3f\n", min_to_divide_);
-
-  ROS_INFO("lidar_offset: %.3f", lidar_offset_);
-  ROS_INFO("upside_down: %d", upside_down_);
 }
 
 void ObstaclesGenerator::generateObstacles()
 {
-  obstacle_array_.polygons.clear();
-  obstacle_array_.header.stamp = ros::Time::now();
-  obstacle_array_.header.frame_id = output_frame_;
+  obstacle_array_.boxes.clear();
   if (!line_array_.empty())
   {
     float distance = 0;
     float max_distance = 0.16;
     float slope_diff = 0;
-    geometry_msgs::Point32 p;
-    p.z = 0;
-    geometry_msgs::Polygon obstacle;
-    bool obstacle_generated = false;
+    geometry_msgs::Point points[4];
+    geometry_msgs::Point point_centroid;
+    custom_msgs::Box2D obstacle;
+    obstacle.header.stamp = ros::Time::now();
+    obstacle.header.frame_id = output_frame_;
     for (int i = 0; i < line_array_.size(); i++)
     {
-      obstacle_generated = false;
+      bool obstacle_generated = false;
       if (i != line_array_.size() - 1)
       {
         distance = getDistance(line_array_[i].end_point, line_array_[i + 1].start_point);
         slope_diff = std::abs(line_array_[i].slope - line_array_[i + 1].slope);
         if (distance < max_distance && slope_diff > M_PI / 4.2)
         {
-          p.x = ((line_array_[i + 1].b - line_array_[i].b) / (line_array_[i].a - line_array_[i + 1].a)) + lidar_offset_;
-          p.y = (((line_array_[i + 1].b * line_array_[i].a) - (line_array_[i].b * line_array_[i + 1].a)) /
-                 (line_array_[i].a - line_array_[i + 1].a));
-          obstacle.points.push_back(p);
-          p.x = line_array_[i].start_point.x + lidar_offset_;
-          p.y = line_array_[i].start_point.y;
-          obstacle.points.push_back(p);
+          points[0].x = ((line_array_[i + 1].b - line_array_[i].b) / (line_array_[i].a - line_array_[i + 1].a));
+          points[0].y = (((line_array_[i + 1].b * line_array_[i].a) - (line_array_[i].b * line_array_[i + 1].a)) /
+                        (line_array_[i].a - line_array_[i + 1].a));
+
+          points[1].x = line_array_[i].start_point.x;
+          points[1].y = line_array_[i].start_point.y;
+
           float b1 = line_array_[i].start_point.y - line_array_[i + 1].a * line_array_[i].start_point.x;
           float b2 = line_array_[i + 1].end_point.y - line_array_[i].a * line_array_[i + 1].end_point.x;
-          p.x = ((b1 - b2) / (line_array_[i].a - line_array_[i + 1].a)) + lidar_offset_;
-          p.y = ((b1 * line_array_[i].a - b2 * line_array_[i + 1].a) / (line_array_[i].a - line_array_[i + 1].a));
-          obstacle.points.push_back(p);
-          p.x = line_array_[i + 1].end_point.x + lidar_offset_;
-          p.y = line_array_[i + 1].end_point.y;
-          obstacle.points.push_back(p);
+          points[2].x = ((b1 - b2) / (line_array_[i].a - line_array_[i + 1].a));
+          points[2].y = ((b1 * line_array_[i].a - b2 * line_array_[i + 1].a) /
+                        (line_array_[i].a - line_array_[i + 1].a));
+
+          points[3].x = line_array_[i + 1].end_point.x;
+          points[3].y = line_array_[i + 1].end_point.y;
           i++;
           obstacle_generated = true;
         }
@@ -265,13 +262,11 @@ void ObstaclesGenerator::generateObstacles()
       if (!obstacle_generated)
       {
         float obstacle_nominal_length_ = getDistance(line_array_[i].start_point, line_array_[i].end_point);
-        p.x = line_array_[i].start_point.x + lidar_offset_;
-        p.y = line_array_[i].start_point.y;
-        obstacle.points.push_back(p);
+        points[0].x = line_array_[i].start_point.x;
+        points[0].y = line_array_[i].start_point.y;
 
-        p.x = line_array_[i].end_point.x + lidar_offset_;
-        p.y = line_array_[i].end_point.y;
-        obstacle.points.push_back(p);
+        points[1].x = line_array_[i].end_point.x;
+        points[1].y = line_array_[i].end_point.y;
 
         float add_x = obstacle_nominal_length_ * sin(line_array_[i].slope);
         float add_y = obstacle_nominal_length_ * cos(line_array_[i].slope);
@@ -293,16 +288,50 @@ void ObstaclesGenerator::generateObstacles()
           add_y *= -1;
         }
 
-        p.x = line_array_[i].end_point.x + add_x + lidar_offset_;
-        p.y = (line_array_[i].end_point.y - add_y);
-        obstacle.points.push_back(p);
+        points[2].x = line_array_[i].end_point.x + add_x;
+        points[2].y = (line_array_[i].end_point.y - add_y);
 
-        p.x = line_array_[i].start_point.x + add_x + lidar_offset_;
-        p.y = (line_array_[i].start_point.y - add_y);
-        obstacle.points.push_back(p);
+        points[3].x = line_array_[i].start_point.x + add_x;
+        points[3].y = (line_array_[i].start_point.y - add_y);
       }
-      obstacle_array_.polygons.push_back(obstacle);
-      obstacle.points.clear();
+
+      // defining the apex
+      std::sort(std::begin(points), std::end(points),
+                [](const geometry_msgs::Point &p1, const geometry_msgs::Point &p2) -> bool
+                {   // NOLINT
+                  return p1.y > p2.y;   // NOLINT
+                });  // NOLINT
+
+      if (points[0].x > points[1].x)
+      {
+        obstacle.tl = points[0];
+        obstacle.bl = points[1];
+      }
+      else
+      {
+        obstacle.tl = points[1];
+        obstacle.bl = points[0];
+      }
+
+      if (points[2].x > points[3].x)
+      {
+        obstacle.tr = points[2];
+        obstacle.br = points[3];
+      }
+      else
+      {
+        obstacle.tr = points[3];
+        obstacle.br = points[2];
+      }
+
+      point_centroid.x = (points[0].x + points[1].x + points[2].x + points[3].x) / 4.0;
+      point_centroid.y = (points[0].y + points[1].y + points[2].y + points[3].y) / 4.0;
+      obstacle.point_centroid = point_centroid;
+
+      obstacle.width = getDistance(obstacle.tr, obstacle.tl);
+      obstacle.length = getDistance(obstacle.tr, obstacle.br);
+
+      obstacle_array_.boxes.push_back(obstacle);
     }
   }
   convertToOutputFrame();  // obstacle_array_
@@ -327,56 +356,30 @@ void ObstaclesGenerator::visualizeObstacles()
   marker.color.a = 1.0f;
 
   marker.scale.x = 0.006;
-  marker.scale.y = 0.006;
 
-  geometry_msgs::Point marker_point;
-  marker_point.z = 0;
-
-  if (!obstacle_array_.polygons.empty())
+  if (!obstacle_array_.boxes.empty())
   {
-    for (int i = 0; i < obstacle_array_.polygons.size(); i++)
+    for (int i = 0; i < obstacle_array_.boxes.size(); i++)
     {
-      marker_point.x = obstacle_array_.polygons[i].points[0].x;
-      marker_point.y = obstacle_array_.polygons[i].points[0].y;
+      marker.points.push_back(obstacle_array_.boxes[i].tr);
+      marker.points.push_back(obstacle_array_.boxes[i].tl);
 
-      marker.points.push_back(marker_point);
+      marker.points.push_back(obstacle_array_.boxes[i].tl);
+      marker.points.push_back(obstacle_array_.boxes[i].bl);
 
-      marker_point.x = obstacle_array_.polygons[i].points[1].x;
-      marker_point.y = obstacle_array_.polygons[i].points[1].y;
+      marker.points.push_back(obstacle_array_.boxes[i].bl);
+      marker.points.push_back(obstacle_array_.boxes[i].br);
 
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[1].x;
-      marker_point.y = obstacle_array_.polygons[i].points[1].y;
-
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[2].x;
-      marker_point.y = obstacle_array_.polygons[i].points[2].y;
-
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[2].x;
-      marker_point.y = obstacle_array_.polygons[i].points[2].y;
-
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[3].x;
-      marker_point.y = obstacle_array_.polygons[i].points[3].y;
-
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[3].x;
-      marker_point.y = obstacle_array_.polygons[i].points[3].y;
-
-      marker.points.push_back(marker_point);
-
-      marker_point.x = obstacle_array_.polygons[i].points[0].x;
-      marker_point.y = obstacle_array_.polygons[i].points[0].y;
-
-      marker.points.push_back(marker_point);
+      marker.points.push_back(obstacle_array_.boxes[i].br);
+      marker.points.push_back(obstacle_array_.boxes[i].tr);
     }
   }
+  else
+  {
+    marker.points.push_back(geometry_msgs::Point());
+    marker.points.push_back(geometry_msgs::Point());
+  }
+
   visualization_obstacles_pub_.publish(marker);
 }
 
@@ -428,49 +431,58 @@ void ObstaclesGenerator::convertToOutputFrame()
   if (output_frame_ == obstacles_frame_)
     return;
 
-  for (std::vector<geometry_msgs::Polygon>::iterator plgit = obstacle_array_.polygons.begin();
-       plgit != obstacle_array_.polygons.end(); ++plgit)
+  if (!obstacle_array_.boxes.empty())
   {
-    std::for_each(plgit->points.begin(), plgit->points.end(),
-                  std::bind(&ObstaclesGenerator::transformPoint, this, std::placeholders::_1));
+    for (int i = 0; i < obstacle_array_.boxes.size(); i++)
+    {
+      transformPoint(obstacle_array_.boxes[i].tr);
+      transformPoint(obstacle_array_.boxes[i].tl);
+      transformPoint(obstacle_array_.boxes[i].bl);
+      transformPoint(obstacle_array_.boxes[i].br);
+      transformPoint(obstacle_array_.boxes[i].point_centroid);
+    }
   }
 }
 
 void ObstaclesGenerator::initializeTransform()
 {
-  ROS_INFO("Waiting for any transform form %s to %s\n", output_frame_.c_str(), obstacles_frame_.c_str());
-
-  transformListener_.waitForTransform(output_frame_, obstacles_frame_, ros::Time(0), ros::Duration(30),
-                                      ros::Duration(0.0001));
-  ROS_INFO("Transform from %s to %s found\n", output_frame_.c_str(), obstacles_frame_.c_str());
-  transformListener_.lookupTransform(output_frame_, obstacles_frame_, ros::Time(0), transform_);
+  ROS_INFO("Waiting for any transform from %s to %s", output_frame_.c_str(), obstacles_frame_.c_str());
+  try
+  {
+    transformListener_.waitForTransform(output_frame_, obstacles_frame_, ros::Time(0), ros::Duration(5),
+                                        ros::Duration(0.0001));
+    ROS_INFO("Transform from %s to %s found", output_frame_.c_str(), obstacles_frame_.c_str());
+    transformListener_.lookupTransform(output_frame_, obstacles_frame_, ros::Time(0), transform_);
+  }
+  catch (const std::exception& e)
+  {
+    ROS_INFO("No transform from %s to %s - using default", output_frame_.c_str(), obstacles_frame_.c_str());
+    // init zero
+    transform_ = tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1)), ros::Time::now(),
+                                      obstacles_frame_.c_str(), output_frame_.c_str());
+  }
 }
 
-void ObstaclesGenerator::transformPoint(geometry_msgs::Point32& pt32)
+void ObstaclesGenerator::transformPoint(geometry_msgs::Point& pt)
 {
   tf::Point tfpt;
-  geometry_msgs::Point pt;
-  pt.x = static_cast<double>(pt32.x);
-  pt.y = static_cast<double>(pt32.y);
-  pt.z = static_cast<double>(pt32.z);
   tf::pointMsgToTF(pt, tfpt);
   tfpt = transform_ * tfpt;
   tf::pointTFToMsg(tfpt, pt);
-  pt32.x = static_cast<float>(pt.x);
-  pt32.y = static_cast<float>(pt.y);
-  pt32.z = static_cast<float>(pt.z);
 }
 
 void ObstaclesGenerator::convertUpsideDown()
 {
-  for (int i = 0; i < obstacle_array_.polygons.size(); ++i)
+  for (int i = 0; i < obstacle_array_.boxes.size(); ++i)
   {
-    obstacle_array_.polygons[i].points[0].y *= -1;
-    obstacle_array_.polygons[i].points[1].y *= -1;
-    obstacle_array_.polygons[i].points[2].y *= -1;
-    obstacle_array_.polygons[i].points[3].y *= -1;
+    obstacle_array_.boxes[i].tr.y *= -1;
+    obstacle_array_.boxes[i].tl.y *= -1;
+    obstacle_array_.boxes[i].bl.y *= -1;
+    obstacle_array_.boxes[i].br.y *= -1;
+    obstacle_array_.boxes[i].point_centroid.y *= -1;
   }
 }
+
 void ObstaclesGenerator::reconfigureCB(obstacle_detector::ObstacleDetectorConfig& config, uint32_t level)
 {
   if (max_range_ != static_cast<float>(config.max_range))

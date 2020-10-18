@@ -1,6 +1,6 @@
 # parking_spot_detector
 Search action server- manages speed of car while searching for free place in parking zone
-Server uses [search.action](https://github.com/KNR-Selfie/selfie_carolocup2020/wiki/Messages-and-actions) to communicate with client
+Server uses [search.action](./../../Shared/custom_msgs/action/search.action) to communicate with client
 ## Usage
 ```
 . devel/setup.bash
@@ -8,13 +8,13 @@ rosrun selfie_park detect_parking_spot
 ```
 ## Topics
 ### Action name
-- `search`
+- `task/parking_spot_detector`
 
 ### Subscribed topics
 - `/obstacles` ([selfie_msgs/PolygonArray](https://github.com/KNR-Selfie/selfie_carolocup2020/wiki/Messages-and-actions))
   - detected obstacles
-- `/distance` ([std_msgs/Float32](https://docs.ros.org/api/std_msgs/html/msg/Float32.html))
-  - detected obstacles
+- `/selfie_out/motion` ([custom_msgs/movement](./../../Shared/custom_msgs/msg/Motion.msg))
+  - from this message distance is used
  
 ### Published topics
 - `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))

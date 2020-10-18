@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-'''
+"""
 *Copyright ( c ) 2020, KNR Selfie
 *This code is licensed under BSD license (see LICENSE for details)
-'''
+"""
 
 import rospy
 
 from math import atan, cos, sin
 from numpy.polynomial.polynomial import Polynomial
 
-from custom_msgs.msg import RoadMarkings
+from custom_msgs.msg import RoadLines
 from std_msgs.msg import Float64
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -21,16 +21,16 @@ from path_generator.cfg import PathGeneratorConfig
 class PathGenerator:
 
     def __init__(self):
-        self.interval_x = rospy.get_param('~interval_x', 0.1)
-        self.max_distance = rospy.get_param('~max_distance', 1.0)
+        self.interval_x = rospy.get_param("~interval_x", 0.1)
+        self.max_distance = rospy.get_param("~max_distance", 1.0)
         self.path_offset = 0
         self.dr_srv = Server(PathGeneratorConfig, self.reconfigure_callback)
-        self.path_pub = rospy.Publisher('path', Path, queue_size=1)
-        self.road_markings_sub = rospy.Subscriber('road_markings',
-                                                  RoadMarkings,
-                                                  self.road_markings_callback,
-                                                  queue_size=1)
-        self.max_speed_sub = rospy.Subscriber('path_offset',
+        self.path_pub = rospy.Publisher("path", Path, queue_size=1)
+        self.road_lines_sub = rospy.Subscriber("road_lines",
+                                               RoadLines,
+                                               self.road_lines_callback,
+                                               queue_size=1)
+        self.max_speed_sub = rospy.Subscriber("path_offset",
                                               Float64,
                                               self.path_offset_callback,
                                               queue_size=1)
@@ -38,7 +38,7 @@ class PathGenerator:
         print("max_distance set to: " + str(self.max_distance))
         print("interval_x set to: " + str(self.interval_x))
 
-    def road_markings_callback(self, msg):
+    def road_lines_callback(self, msg):
         c_poly = Polynomial(msg.center_line)
         path = Path()
         path.header = msg.header
@@ -67,7 +67,7 @@ class PathGenerator:
 
     def set_if_reconfigured(self, config):
         for it in config.keys():
-            if it is 'groups':
+            if it == "groups":
                 continue
             if self.__dict__[it] != config[it]:
                 self.__dict__[it] = config[it]
@@ -78,7 +78,7 @@ class PathGenerator:
         return config
 
 
-if __name__ == '__main__':
-    rospy.init_node('path_generator')
+if __name__ == "__main__":
+    rospy.init_node("path_generator")
     PathGenerator()
     rospy.spin()

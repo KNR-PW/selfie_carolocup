@@ -6,9 +6,9 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
 #include <nav_msgs/Odometry.h>
-#include <std_msgs/Float32.h>
-#include <sensor_msgs/Imu.h>
+#include "custom_msgs/Motion.h"
 #include <string>
 
 #ifndef ODOMETRY_ODOMETRY_H
@@ -18,12 +18,10 @@ class Odometry
 {
   double speed_;
 
-  double roll_;
-  double pitch_;
   double yaw_;
 
   double base_yaw_;
-  bool yaw_initialized_;
+  bool initialized_;
 
   double x_;
   double y_;
@@ -40,23 +38,17 @@ class Odometry
   double dy_;
 
   ros::Time current_time_, last_distance_update_;
-  bool distance_initialized_ = false;
 
   ros::NodeHandle nh_, pnh_;
   ros::Publisher pub_odom_;
-  ros::Subscriber sub_distance_;
-  ros::Subscriber sub_imu_;
+  ros::Subscriber sub_motion_;
   geometry_msgs::Quaternion odom_quat_;
 
   tf::TransformBroadcaster odom_broadcaster_;
-  tf::TransformListener listener_;
   std::string rear_axis_frame_;
   const std::string ODOM_FRAME = "odom";
-  const std::string IMU_FRAME = "imu";
-  tf::StampedTransform imu_transform_;
 
-  void distanceCallback(const std_msgs::Float32& msg);
-  void imuCallback(const sensor_msgs::Imu& msg);
+  void motionCallback(const custom_msgs::Motion &msg);
 
 public:
   void publishOdometryTransform();

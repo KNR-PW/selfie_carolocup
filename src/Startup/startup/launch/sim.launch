@@ -1,5 +1,7 @@
 <launch>
 
+<param name="/use_sim_time" value="true" />
+
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
 <arg name="config_default"
@@ -56,7 +58,7 @@
     <!-- lane_detector -->
     <include file="$(find lane_detector)/launch/lane_detector_example.launch" >
         <arg name="debug" 
-             value="$(arg debug)" />
+             value="false" />
         <arg name="load_config" 
              value="$(arg config_default)" />
         <arg name="homography_file" 
@@ -129,10 +131,6 @@
     </include>
 
 <!-- Startup -->
-    <!-- transforms -->
-    <node pkg="tf" type="static_transform_publisher" name="tf_base2laser"           args="0.3 0 0 0 0 0 base_link laser           10"/>
-    <node pkg="tf" type="static_transform_publisher" name="tf_base2imu"             args="0   0 0 0 0 0 base_link imu             10"/>
-    <node pkg="tf" type="static_transform_publisher" name="tf_base2road_markings"   args="0   0 0 0 0 0 base_link road_markings   10"/>
 
     <!-- diagnostics -->
 

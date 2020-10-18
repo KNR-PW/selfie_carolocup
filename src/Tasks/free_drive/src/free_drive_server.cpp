@@ -8,7 +8,7 @@
 FreeDriveServer::FreeDriveServer(const ros::NodeHandle &nh, const ros::NodeHandle &pnh) :
   nh_(nh),
   pnh_(pnh),
-  as_(nh_, "free_drive", false),
+  as_(nh_, "task/free_drive", false),
   distance_to_event_(100),
   starting_line_distance_to_end_(0.45),
   intersection_distance_to_end_(0.8),
@@ -48,7 +48,7 @@ void FreeDriveServer::registerGoal()
 
   distance_to_event_ = 100;
   if (!event_verified_)
-    distance_sub_ = nh_.subscribe("/distance", 50, &FreeDriveServer::distanceCB, this);
+    distance_sub_ = nh_.subscribe("/selfie_out/motion", 50, &FreeDriveServer::distanceCB, this);
 
   if (goal_.mode == 0)
   {
@@ -58,7 +58,7 @@ void FreeDriveServer::registerGoal()
   else
   {
     event_distance_to_end_ = intersection_distance_to_end_;
-    intersection_sub_ = nh_.subscribe("/intersection_distance", 100, &FreeDriveServer::intersectionCB, this);
+    intersection_sub_ = nh_.subscribe("/intersection/stop", 100, &FreeDriveServer::intersectionCB, this);
   }
   executeLoop();
 }
@@ -125,7 +125,7 @@ void FreeDriveServer::executeLoop()
     as_.setSucceeded(result_);
     intersection_sub_.shutdown();
   }
-  distance_sub_ = nh_.subscribe("/distance", 50, &FreeDriveServer::distanceCB, this);
+  distance_sub_ = nh_.subscribe("/selfie_out/motion", 50, &FreeDriveServer::distanceCB, this);
 }
 
 void FreeDriveServer::startingLineCB(const std_msgs::Float32 &msg)
@@ -136,11 +136,11 @@ void FreeDriveServer::startingLineCB(const std_msgs::Float32 &msg)
   last_event_time_ = std::chrono::steady_clock::now();
 }
 
-void FreeDriveServer::intersectionCB(const std_msgs::Float32 &msg)
+void FreeDriveServer::intersectionCB(const custom_msgs::IntersectionStop &msg)
 {
   event_detected_ = true;
   if (event_verified_)
-    distance_to_event_ = msg.data;
+    distance_to_event_ = msg.distance_in;
   last_event_time_ = std::chrono::steady_clock::now();
 }
 
@@ -191,11 +191,11 @@ void FreeDriveServer::reconfigureCB(free_drive::FreeDriveConfig& config, uint32_
   }
 }
 
-void FreeDriveServer::distanceCB(const std_msgs::Float32 &msg)
+void FreeDriveServer::distanceCB(const custom_msgs::Motion &msg)
 {
   if (event_verified_)
   {
-    distance_on_last_event_ = msg.data;
+    distance_on_last_event_ = msg.distance;
     event_verified_ = false;
     distance_to_event_ = 100;
     ROS_INFO("free_drive: last event distance saved");
@@ -203,7 +203,7 @@ void FreeDriveServer::distanceCB(const std_msgs::Float32 &msg)
   }
   else
   {
-    if (msg.data - distance_on_last_event_ > distance_to_verify_event_)
+    if (msg.distance - distance_on_last_event_ > distance_to_verify_event_)
     {
       event_verified_ = true;
       distance_to_event_ = 100;
