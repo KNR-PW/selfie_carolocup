@@ -11,10 +11,10 @@
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "detect_parking_spot");
+  ros::init(argc, argv, "task/parking_spot_detector");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
-  Search_server parking_node(nh, pnh);
+  SearchServer parking_node(nh, pnh);
 
   ros::spin();
   return 0;

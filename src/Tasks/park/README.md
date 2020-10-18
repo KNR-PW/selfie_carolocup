@@ -10,13 +10,12 @@ rosrun park park
 ### Subscribed
 - `/distance` ([std_msgs/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
 used for localization
-- `/road_markings` (custom_msgs/RoadMarkings)
+- `/RoadLines` ([custom_msgs/RoadLines](./../../Shared/custom_msgs/msg/RoadLines.msg))
 parking position is determined relative to the right lane marking
 ### Published
-- `/drive/park` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/park` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 steering commands
-- `/right_turn_indicator` ([std_msgs/Bool](http://docs.ros.org/melodic/api/std_msgs/html/msg/Bool.html))
-- `/left_turn_indicator` ([std_msgs/Bool](http://docs.ros.org/melodic/api/std_msgs/html/msg/Bool.html))
+- `/selfie_in/indicators` ([custom_msgs/Indicators](./../../Shared/custom_msgs/msg/Indicators.msg))
 
 ## Called Services
 - `/steering_parallel` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))

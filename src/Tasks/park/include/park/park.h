@@ -9,18 +9,18 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 #include <custom_msgs/parkAction.h>
-#include <geometry_msgs/Polygon.h>
+#include <custom_msgs/Motion.h>
+#include <custom_msgs/Indicators.h>
+#include <custom_msgs/DriveCommand.h>
 #include <vector>
-#include <ackermann_msgs/AckermannDriveStamped.h>
-#include <std_msgs/Bool.h>
 #include <string>
 #include <custom_msgs/enums.h>
 #include <park/ParkConfig.h>
 #include <dynamic_reconfigure/server.h>
-#include <std_msgs/Float32.h>
 #include <algorithm>
 #include <std_srvs/Empty.h>
-#include <custom_msgs/RoadMarkings.h>
+#include <custom_msgs/RoadLines.h>
+#include <custom_msgs/Box2D.h>
 
 class Park
 {
@@ -33,9 +33,8 @@ private:
   ros::Subscriber dist_sub_;
   ros::NodeHandle nh_, pnh_;
   actionlib::SimpleActionServer<custom_msgs::parkAction> as_;
-  ros::Publisher ackermann_pub_;
-  ros::Publisher right_indicator_pub_;
-  ros::Publisher left_indicator_pub_;
+  ros::Publisher drive_pub_;
+  ros::Publisher indicator_pub_;
   ros::Subscriber markings_sub_;
   ros::ServiceClient steering_mode_set_parallel_;
   ros::ServiceClient steering_mode_set_front_axis_;
@@ -44,18 +43,17 @@ private:
   dynamic_reconfigure::Server<park::ParkConfig>::CallbackType dr_server_CB_;
   void reconfigureCB(park::ParkConfig& config, uint32_t level);
 
-  void distanceCallback(const std_msgs::Float32& msg);
-  void markingsCallback(const custom_msgs::RoadMarkings& msg);
+  void distanceCallback(const custom_msgs::Motion& msg);
+  void markingsCallback(const custom_msgs::RoadLines& msg);
   void goalCB();
   void preemptCB();
 
-  void drive(float speed, float steering_angle);
+  void drive(float speed, float steering_angle_front, float steering_angle_rear);
   bool toParkingSpot();
   bool park();
   bool leave();
-  void initParkingSpot(const geometry_msgs::Polygon& msg);
-  void blinkLeft(bool on);
-  void blinkRight(bool on);
+  void initParkingSpot(const custom_msgs::Box2D& msg);
+  void blink(bool left, bool right);
 
   enum Parking_State
   {

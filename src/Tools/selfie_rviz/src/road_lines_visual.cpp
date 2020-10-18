@@ -6,7 +6,7 @@
 
 #include <math.h>
 
-#include "road_markings_visual.h"
+#include "road_lines_visual.h"
 
 namespace selfie_rviz
 {
@@ -22,18 +22,18 @@ float eval_poly(float x, std::vector<float> coeffs)
 	return value;
 }
 
-RoadMarkingsVisual::RoadMarkingsVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node)
+RoadLinesVisual::RoadLinesVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node)
 {
 	scene_manager_ = scene_manager;
 	frame_node_ = parent_node->createChildSceneNode();
 }
 
-RoadMarkingsVisual::~RoadMarkingsVisual()
+RoadLinesVisual::~RoadLinesVisual()
 {
 	scene_manager_->destroySceneNode(frame_node_);
 }
 
-void RoadMarkingsVisual::setMessage(const custom_msgs::RoadMarkings::ConstPtr& msg)
+void RoadLinesVisual::setMessage(const custom_msgs::RoadLines::ConstPtr& msg)
 {
 	left_line_segments_  .clear();
 	center_line_segments_.clear();
@@ -88,18 +88,18 @@ void RoadMarkingsVisual::setMessage(const custom_msgs::RoadMarkings::ConstPtr& m
 }
 
 // Position and orientation are passed through to the SceneNode.
-void RoadMarkingsVisual::setFramePosition(const Ogre::Vector3& position)
+void RoadLinesVisual::setFramePosition(const Ogre::Vector3& position)
 {
 	frame_node_->setPosition(position);
 }
 
-void RoadMarkingsVisual::setFrameOrientation(const Ogre::Quaternion& orientation)
+void RoadLinesVisual::setFrameOrientation(const Ogre::Quaternion& orientation)
 {
 	frame_node_->setOrientation(orientation);
 }
 
 // Color is passed through to all line segments.
-void RoadMarkingsVisual::setColorsAndAlpha(Ogre::ColourValue boundaries_color,
+void RoadLinesVisual::setColorsAndAlpha(Ogre::ColourValue boundaries_color,
         Ogre::ColourValue centerline_color,
         float alpha)
 {
@@ -108,7 +108,7 @@ void RoadMarkingsVisual::setColorsAndAlpha(Ogre::ColourValue boundaries_color,
 	alpha_ = alpha;
 }
 
-void RoadMarkingsVisual::setRenderingRangeAndStep(float start_x,
+void RoadLinesVisual::setRenderingRangeAndStep(float start_x,
         float end_x,
         float step_x)
 {

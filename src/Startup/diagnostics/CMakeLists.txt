@@ -6,12 +6,14 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   roslint
+  custom_msgs
 )
 
 catkin_package(
   CATKIN_DEPENDS
   sensor_msgs
   std_msgs
+  custom_msgs
 )
 
 catkin_python_setup()

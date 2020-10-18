@@ -5,9 +5,8 @@ add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
   nav_msgs
-  sensor_msgs
+  custom_msgs
   tf
   roslint
 )
@@ -15,9 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   CATKIN_DEPENDS
-  std_msgs 
   nav_msgs
-  sensor_msgs
+  custom_msgs
 )
 
 include_directories(

@@ -63,7 +63,6 @@ void IntersectionClient::activeCb()
 
 void IntersectionClient::feedbackCb(const custom_msgs::intersectionFeedbackConstPtr& feedback)
 {
-  ROS_INFO("itersection action feedback %d", feedback->action_status);
   action_state_ = (program_state)feedback->action_status;
 }
 

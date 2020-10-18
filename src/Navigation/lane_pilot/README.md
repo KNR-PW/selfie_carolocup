@@ -10,11 +10,11 @@ rosrun selfie_avoiding_obstacles lane_pilot
 ```
 ## Topics
 ### Subscribed topics
-- `/obstacles` ([selfie_msgs/PolygonArray](https://github.com/KNR-Selfie/selfie_carolocup2020/wiki/Messages-and-actions))
+- `/obstacles` ([custom_msgs/Box2DArray](./../../Shared/custom_msgs/msg/Box2DArray.msg))
   - detected obstacles
- - `/road_markings` ([selfie_msgs/RoadMarkings](https://github.com/KNR-Selfie/selfie_carolocup2020/wiki/Messages-and-actions))
+ - `/road_lines` ([custom_msgs/RoadLines](./../../Shared/custom_msgs/msg/RoadLines.msg))
    - contains polynomial coefficients for fitted lines
- - `/distance` ([std_msgs/Float32](https://docs.ros.org/api/std_msgs/html/msg/Float32.html))
+ - `selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
    - distance covered by car
   
  
@@ -24,9 +24,9 @@ rosrun selfie_avoiding_obstacles lane_pilot
 - `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
   - current speed of car
   - describes lane, changing this value changes lane
-- `/right_turn_indicator` `/left_turn_indicator` ([std_msgs/Bool](https://docs.ros.org/kinetic/api/std_msgs/html/msg/Bool.html))
+- `/selfie_in/indicators` ([custom_msgs/Indicators](./../../Shared/custom_msgs/msg/Indicators.msg))
   - used for turning on and of turn indicators
-- `/avoiding_obstacles` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
+- `/visualization/avoiding_obstacles` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
   - (only when parameter `visualization=true` visualizes found found and places in rviz)
 
 ### Used Services

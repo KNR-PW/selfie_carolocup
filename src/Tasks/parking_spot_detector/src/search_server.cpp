@@ -5,21 +5,21 @@
 
 #include <parking_spot_detector/search_server.hpp>
 
-Search_server::Search_server(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
+SearchServer::SearchServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
   , pnh_(pnh)
-  , search_server_(nh_, "search", false)
-  , dr_server_CB_(boost::bind(&Search_server::reconfigureCB, this, _1, _2))
+  , search_server_(nh_, "task/parking_spot_detector", false)
+  , dr_server_CB_(boost::bind(&SearchServer::reconfigureCB, this, _1, _2))
 {
-  search_server_.registerGoalCallback(boost::bind(&Search_server::init, this));
-  search_server_.registerPreemptCallback(boost::bind(&Search_server::preemptCB, this));
+  search_server_.registerGoalCallback(boost::bind(&SearchServer::init, this));
+  search_server_.registerPreemptCallback(boost::bind(&SearchServer::preemptCB, this));
   dr_server_.setCallback(dr_server_CB_);
 
   search_server_.start();
-  pnh_.param<float>("point_min_x", point_min_x, 0.01);
-  pnh_.param<float>("point_max_x", point_max_x, 2);
-  pnh_.param<float>("point_min_y", point_min_y, -1);
-  pnh_.param<float>("point_max_y", point_max_y, 0.2);
+  pnh_.param<float>("ROI_min_x", ROI_min_x_, 0.01);
+  pnh_.param<float>("ROI_max_x", ROI_max_x_, 2);
+  pnh_.param<float>("ROI_min_y", ROI_min_y_, -1);
+  pnh_.param<float>("ROI_max_y", ROI_max_y_, 0.2);
   pnh_.param<float>("default_speed_in_parking_zone", default_speed_in_parking_zone, 0.9);
   pnh_.param<float>("speed_when_found_place", speed_when_found_place, 0.3);
   pnh_.param<bool>("visualization_in_searching", visualization, true);
@@ -28,48 +28,46 @@ Search_server::Search_server(const ros::NodeHandle& nh, const ros::NodeHandle& p
   pnh_.param<float>("length_of_parking_area", length_of_parking_area_, 5.5);
   tangens_of_box_angle_ = tan(tangens_of_box_angle_ * M_PI / 180);
 
-  speed_publisher = nh_.advertise<std_msgs::Float64>("/max_speed", 5);
+  speed_pub_ = nh_.advertise<std_msgs::Float64>("/max_speed", 5);
 
   speed_current.data = default_speed_in_parking_zone;
   if (visualization)
   {
-    visualize_free_place = nh_.advertise<visualization_msgs::Marker>("/free_place", 1);
+    visualizator_pub_ = nh_.advertise<visualization_msgs::Marker>("/visualization/free_place", 1);
   }
 }
 
-Search_server::~Search_server()
+SearchServer::~SearchServer()
 {
 }
 
-bool Search_server::init()
+bool SearchServer::init()
 {
-  obstacles_sub = nh_.subscribe("/obstacles", 1, &Search_server::manager, this);
-  distance_sub_ = nh_.subscribe("/distance", 1, &Search_server::distanceCb, this);
+  obstacles_sub_ = nh_.subscribe("/obstacles", 1, &SearchServer::manager, this);
+  distance_sub_ = nh_.subscribe("/selfie_out/motion", 1, &SearchServer::distanceCb, this);
 
   speed_current.data = default_speed_in_parking_zone;
-  speed_publisher.publish(speed_current);
+  speed_pub_.publish(speed_current);
   min_spot_lenght = search_server_.acceptNewGoal()->min_spot_lenght;
   publishFeedback(START_SEARCHING_PLACE);
   ROS_INFO("Initialized");
+  return true;
 }
 
-void Search_server::manager(const custom_msgs::PolygonArray& msg)
+void SearchServer::manager(const custom_msgs::Box2DArray& msg)
 {
   // to save cpu time just do nothing when new scan comes
   if (!search_server_.isActive())
   {
-    ROS_INFO("search_server_ is not active");
+    ROS_INFO("parking_spot_detector is not active");
     return;
   }
   filter_boxes(msg);
   if (visualization)
   {
-    display_places(boxes_on_the_right_side, "FilteredBoxes");
-    area_of_interest_ = Box(Point(point_min_x, point_max_y), Point(point_min_x, point_min_y),
-                            Point(point_max_x, point_max_y), Point(point_max_x, point_min_y));
-    area_of_interest_.visualize(visualize_free_place, "Area of interest", 1, 1, 1);
+    selfie::visualizeBoxes2D(boxes_on_the_right_side, visualizator_pub_, "FilteredBoxes", 0, 255, 1);
+    selfie::visualizeBox2D(ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_, visualizator_pub_, "ROI", 1, 1, 1);
   }
-  // ROS_INFO("Size of  boxes_on_the_right %lu",boxes_on_the_right_side.size());
 
   switch (action_status.action_status)
   {
@@ -78,26 +76,26 @@ void Search_server::manager(const custom_msgs::PolygonArray& msg)
       {
         publishFeedback(FOUND_PLACE_MEASURING);
         speed_current.data = speed_when_found_place;
-        speed_publisher.publish(speed_current);
+        speed_pub_.publish(speed_current);
       }
       break;
 
     case FOUND_PLACE_MEASURING:
       if (find_free_places())
       {
-        if (first_free_place.bottom_left.x <= max_distance_to_free_place_)
+        if (first_free_place.bl.x <= max_distance_to_free_place_)
         {
           publishFeedback(FIND_PROPER_PLACE);
           speed_current.data = default_speed_in_parking_zone;
         }
-        speed_publisher.publish(speed_current);
+        speed_pub_.publish(speed_current);
       }
       else
       {
         speed_current.data = default_speed_in_parking_zone;
         publishFeedback(START_SEARCHING_PLACE);
       }
-      speed_publisher.publish(speed_current);
+      speed_pub_.publish(speed_current);
       break;
 
     case FIND_PROPER_PLACE:
@@ -111,7 +109,7 @@ void Search_server::manager(const custom_msgs::PolygonArray& msg)
         std::cout << "Place lost\n";
         speed_current.data = default_speed_in_parking_zone;
         publishFeedback(START_SEARCHING_PLACE);
-        speed_publisher.publish(speed_current);
+        speed_pub_.publish(speed_current);
       }
       break;
 
@@ -121,59 +119,83 @@ void Search_server::manager(const custom_msgs::PolygonArray& msg)
   }
 }
 
-void Search_server::filter_boxes(const custom_msgs::PolygonArray& msg)
+void SearchServer::filter_boxes(const custom_msgs::Box2DArray& msg)
 {
   boxes_on_the_right_side.clear();
-  for (int box_nr = msg.polygons.size() - 1; box_nr >= 0; box_nr--)
+  if (msg.boxes.empty())
   {
-    geometry_msgs::Polygon polygon = msg.polygons[box_nr];
-    bool box_ok = false;
-    for (int a = 0; a < 4; ++a)
+    return;
+  }
+
+  for (int box_nr = msg.boxes.size() - 1; box_nr >= 0; box_nr--)
+  {
+    bool box_inside = false;
+    // check corners of obstacle
+    if (isPointInsideROI(msg.boxes[box_nr].tl))
+      box_inside = true;
+    else if (isPointInsideROI(msg.boxes[box_nr].tr))
+      box_inside = true;
+    else if (isPointInsideROI(msg.boxes[box_nr].bl))
+      box_inside = true;
+    else if (isPointInsideROI(msg.boxes[box_nr].br))
+      box_inside = true;
+
+    if (box_inside)
     {
-      Point p(polygon.points[a]);
-      if (p.check_position(point_min_x, point_max_x, point_min_y, point_max_y))
+      float left_vertical_line_a = (msg.boxes[box_nr].tl.y - msg.boxes[box_nr].bl.y) /
+                                   (msg.boxes[box_nr].tl.x - msg.boxes[box_nr].bl.x);
+
+      if (abs(left_vertical_line_a) < tangens_of_box_angle_)  // filters out boxes which are not parallel to car
       {
-        box_ok = true;
-        break;
+        boxes_on_the_right_side.insert(boxes_on_the_right_side.begin(), msg.boxes[box_nr]);
       }
-    }
-    if (box_ok)
-    {
-      Box temp_box(polygon);
-      if (abs(temp_box.left_vertical_line.a) < tangens_of_box_angle_ &&
-          abs((temp_box.top_right.x - temp_box.bottom_right.x) - (temp_box.top_right.y - temp_box.bottom_right.y)) <
-              tangens_of_box_angle_)  // filters out boxes which are not parallel to car
-        boxes_on_the_right_side.insert(boxes_on_the_right_side.begin(), temp_box);
     }
   }
 }
 
-bool Search_server::find_free_places()
+bool SearchServer::isPointInsideROI(const geometry_msgs::Point& p)
 {
-  if (boxes_on_the_right_side.size() < 2)
+  return !(p.x < ROI_min_x_ || p.x > ROI_max_x_ || p.y < ROI_min_y_ || p.y > ROI_max_y_);
+}
+
+bool SearchServer::find_free_places()
+{
+  if (boxes_on_the_right_side.size() < 2 || boxes_on_the_right_side.empty())
   {
-    // ROS_WARN("REJECTED");
     return false;
   }
   float min_space = min_spot_lenght;
-  // ROS_INFO("min space: %f", min_space);
-  vector<Box>::iterator iter = boxes_on_the_right_side.begin();
-  vector<Box>::const_iterator end_iter = boxes_on_the_right_side.cend();
+
+  vector<custom_msgs::Box2D>::iterator iter = boxes_on_the_right_side.begin();
+  vector<custom_msgs::Box2D>::const_iterator end_iter = boxes_on_the_right_side.cend();
   for (; iter + 1 != end_iter; ++iter)
   {
-    double dist = (*iter).top_left.get_distance((*(iter + 1)).bottom_left);
+    float dist = getDistance((*iter).tl, (*(iter + 1)).bl);
     // ROS_INFO("dist: %f", dist);
     if (dist > min_space)
     {
-      Box tmp_box((*iter).top_left, (*iter).top_right, (*(iter + 1)).bottom_left, (*(iter + 1)).bottom_right);
+      custom_msgs::Box2D tmp_box;
+      tmp_box.bl = (*iter).tl;
+      tmp_box.br = (*iter).tr;
+      tmp_box.tl = (*(iter + 1)).bl;
+      tmp_box.tr = (*(iter + 1)).br;
+
+      geometry_msgs::Point point_centroid;
+      point_centroid.x = (tmp_box.bl.x + tmp_box.br.x + tmp_box.tr.x + tmp_box.tl.x) / 4.0;
+      point_centroid.y = (tmp_box.bl.y + tmp_box.br.y + tmp_box.tr.y + tmp_box.tl.y) / 4.0;
+      tmp_box.point_centroid = point_centroid;
+
+      tmp_box.width = getDistance(tmp_box.tr, tmp_box.tl);
+      tmp_box.length = getDistance(tmp_box.tr, tmp_box.br);
+
       first_free_place = tmp_box;
       ROS_INFO("Found place \nTL: x=%lf y=%lf\nTR: x=%lf y=%lf\nBL x=%lf "
                "y=%lf\nBR x=%lf y=%lf\n",
-               tmp_box.top_left.x, tmp_box.top_left.y, tmp_box.top_right.x, tmp_box.top_right.y, tmp_box.bottom_left.x,
-               tmp_box.bottom_left.y, tmp_box.bottom_right.x, tmp_box.bottom_right.y);
+               tmp_box.tl.x, tmp_box.tl.y, tmp_box.tr.x, tmp_box.tr.y, tmp_box.bl.x,
+               tmp_box.bl.y, tmp_box.br.x, tmp_box.br.y);
       if (visualization)
       {
-        display_place(tmp_box, "first_free_place");
+        selfie::visualizeBox2D(tmp_box, visualizator_pub_, "first_free_place", 100, 255, 200);
       }
       return true;
     }
@@ -181,9 +203,16 @@ bool Search_server::find_free_places()
   return false;
 }
 
-void Search_server::distanceCb(const std_msgs::Float32& msg)
+float SearchServer::getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2)
 {
-  current_distance_ = msg.data;
+  float dx = p2.x - p1.x;
+  float dy = p2.y - p1.y;
+  return std::sqrt(dx * dx + dy * dy);
+}
+
+void SearchServer::distanceCb(const custom_msgs::Motion& msg)
+{
+  current_distance_ = msg.distance;
   if (!max_distance_calculated_)
   {
     max_distance_ = current_distance_ + length_of_parking_area_;
@@ -196,157 +225,35 @@ void Search_server::distanceCb(const std_msgs::Float32& msg)
   }
 }
 
-void Search_server::send_goal()
+void SearchServer::send_goal()
 {
-  geometry_msgs::Point32 p;
-  result.parking_spot.points.clear();
-  p.x = first_free_place.bottom_left.x;
-  p.y = first_free_place.bottom_left.y;
-  result.parking_spot.points.push_back(p);
-  p.x = first_free_place.bottom_right.x;
-  p.y = first_free_place.bottom_right.y;
-  result.parking_spot.points.push_back(p);
-  p.x = first_free_place.top_right.x;
-  p.y = first_free_place.top_right.y;
-  result.parking_spot.points.push_back(p);
-  p.x = first_free_place.top_left.x;
-  p.y = first_free_place.top_left.y;
-  result.parking_spot.points.push_back(p);
-
+  result.parking_spot = first_free_place;
   ROS_INFO("Place found and sent");
   search_server_.setSucceeded(result);
   endAction();
 }
 
-void Search_server::display_place(Box& place, const std::string& name, float r, float g, float b)
-{
-  visualization_msgs::Marker marker;
-
-  marker.header.frame_id = "base_link";
-  marker.header.stamp = ros::Time::now();
-  marker.ns = name;
-  marker.type = visualization_msgs::Marker::LINE_LIST;
-  marker.action = visualization_msgs::Marker::ADD;
-  marker.id = 0;
-  marker.lifetime = ros::Duration(1);
-
-  marker.color.r = r;
-  marker.color.g = g;
-  marker.color.b = b;
-  marker.color.a = 1.0f;
-
-  marker.scale.x = 0.01;
-  marker.scale.y = 0.01;
-
-  geometry_msgs::Point marker_point;
-  marker_point.z = 0;
-
-  marker_point.x = place.bottom_left.x;
-  marker_point.y = place.bottom_left.y;
-  marker.points.push_back(marker_point);
-  marker_point.x = place.bottom_right.x;
-  marker_point.y = place.bottom_right.y;
-  marker.points.push_back(marker_point);
-
-  marker_point.x = place.bottom_right.x;
-  marker_point.y = place.bottom_right.y;
-  marker.points.push_back(marker_point);
-  marker_point.x = place.top_right.x;
-  marker_point.y = place.top_right.y;
-  marker.points.push_back(marker_point);
-
-  marker_point.x = place.top_right.x;
-  marker_point.y = place.top_right.y;
-  marker.points.push_back(marker_point);
-  marker_point.x = place.top_left.x;
-  marker_point.y = place.top_left.y;
-  marker.points.push_back(marker_point);
-
-  marker_point.x = place.top_left.x;
-  marker_point.y = place.top_left.y;
-  marker.points.push_back(marker_point);
-  marker_point.x = place.bottom_left.x;
-  marker_point.y = place.bottom_left.y;
-  marker.points.push_back(marker_point);
-
-  visualize_free_place.publish(marker);
-}
-
-void Search_server::display_places(std::vector<Box>& boxes, const std::string& name)
-{
-  visualization_msgs::Marker marker;
-
-  marker.header.frame_id = "base_link";
-  marker.header.stamp = ros::Time::now();
-  marker.ns = name;
-  marker.type = visualization_msgs::Marker::LINE_LIST;
-  marker.action = visualization_msgs::Marker::ADD;
-  marker.id = 0;
-  marker.lifetime = ros::Duration(1);
-
-  marker.color.r = 0.0f;
-  marker.color.g = 255.0f;
-  marker.color.b = 1.0f;
-  marker.color.a = 1.0f;
-
-  marker.scale.x = 0.01;
-  marker.scale.y = 0.01;
-
-  geometry_msgs::Point marker_point;
-  marker_point.z = 0;
-  for (int i = boxes.size() - 1; i >= 0; i--)
-  {
-    marker_point.x = boxes[i].bottom_left.x;
-    marker_point.y = boxes[i].bottom_left.y;
-    marker.points.push_back(marker_point);
-    marker_point.x = boxes[i].bottom_right.x;
-    marker_point.y = boxes[i].bottom_right.y;
-    marker.points.push_back(marker_point);
-
-    marker_point.x = boxes[i].bottom_right.x;
-    marker_point.y = boxes[i].bottom_right.y;
-    marker.points.push_back(marker_point);
-    marker_point.x = boxes[i].top_right.x;
-    marker_point.y = boxes[i].top_right.y;
-    marker.points.push_back(marker_point);
-
-    marker_point.x = boxes[i].top_right.x;
-    marker_point.y = boxes[i].top_right.y;
-    marker.points.push_back(marker_point);
-    marker_point.x = boxes[i].top_left.x;
-    marker_point.y = boxes[i].top_left.y;
-    marker.points.push_back(marker_point);
-
-    marker_point.x = boxes[i].top_left.x;
-    marker_point.y = boxes[i].top_left.y;
-    marker.points.push_back(marker_point);
-    marker_point.x = boxes[i].bottom_left.x;
-    marker_point.y = boxes[i].bottom_left.y;
-    marker.points.push_back(marker_point);
-  }
-  visualize_free_place.publish(marker);
-}  // OPT
-void Search_server::publishFeedback(unsigned int newActionStatus)
+void SearchServer::publishFeedback(unsigned int newActionStatus)
 {
   action_status.action_status = newActionStatus;
   search_server_.publishFeedback(action_status);
 }
 
-void Search_server::preemptCB()
+void SearchServer::preemptCB()
 {
   ROS_INFO("Action preempted");
   endAction();
   search_server_.setAborted();
 }
 
-void Search_server::endAction()  // shutting donw unnecesary subscribers and publishers
+void SearchServer::endAction()  // shutting donw unnecesary subscribers and publishers
 {
-  obstacles_sub.shutdown();
+  obstacles_sub_.shutdown();
   distance_sub_.shutdown();
   max_distance_calculated_ = false;
 }
 
-void Search_server::reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
+void SearchServer::reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
 {
   if (default_speed_in_parking_zone != static_cast<float>(config.default_speed_in_parking_zone))
   {

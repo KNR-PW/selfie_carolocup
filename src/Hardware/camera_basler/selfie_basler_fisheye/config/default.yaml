@@ -1,4 +1,4 @@
-pylon_camera_node: 
+camera_basler: 
   {
     camera_info_url: "",
     image_encoding: "mono8",

@@ -7,19 +7,17 @@ Controls the starting procedure
 
 ### Usage
 ```
-rosrun selfie_starting_procedure starting_procedure
+roslaunch starting_procedure starting_procedure_example.launch
 ```
 ### Subscribed topics
-- `/start_button1` ([std_msg/Empty](http://docs.ros.org/api/std_msgs/html/msg/Empty.html))
-   indicates the parking competition button was pressed
-- `/start_button2` ([std_msg/Empty](http://docs.ros.org/api/std_msgs/html/msg/Empty.html))
-   indicates the obstacles competition button was pressed
-- `/distance` ([std_msg/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
-   Distance covered by the car (based on encoder's reading)
+- `/selfie_out/buttons` ([custom_msgs/Buttons](./../../Shared/custom_msgs/msg/Buttons.msg))
+   buttons state of the car, used to choose the competition
+- `/selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
+   Distance covered by the car (based on encoder's reading) used to determine when to stop driving straightforward
 - `/odom` ([nav_msgs/Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html))
    feedback to the proportional regulator
 ### Published topics
-- `/drive/starting_procedure` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/jade/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/starting_procedure` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
    Drive commands for uC to run the car
 
 ### Called services
@@ -43,14 +41,14 @@ rosrun selfie_starting_procedure starting_procedure
 Searches for the qr code, informs whenever the qr code stops being detected.
 ### Usage
 ```
-rosrun selfie_starting_procedure qr_decoder
+rosrun starting_procedure qr_decoder
 ```
 
 ### Published topics
 - `/qr_gate_open` ([std_msg/Empty](http://docs.ros.org/api/std_msgs/html/msg/Empty.html))
    indicates the starting gate was opened
 ### Subscibed topics
-- `/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
+- `/camera/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
    used to detect the qr code
 
 ### Advertised services
@@ -70,7 +68,7 @@ rosrun selfie_starting_procedure qr_decoder
 Searches for the starting gate with the laser scans, and informs whenever the gate stops being detected.
 ### Usage
 ```
-rosrun selfie_starting_procedure gate_scanner
+rosrun starting_procedure gate_scanner
 ```
 
 ### Published topics

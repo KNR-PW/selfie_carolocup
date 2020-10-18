@@ -3,7 +3,6 @@ project(pid_carrot_follower)
 
 find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
-  ackermann_msgs
   rospy
   roscpp
   std_msgs
@@ -11,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   geometry_msgs
   pid
+  custom_msgs
 )
 
 generate_dynamic_reconfigure_options(
@@ -18,7 +18,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS dynamic_reconfigure ackermann_msgs std_msgs nav_msgs geometry_msgs
+  CATKIN_DEPENDS dynamic_reconfigure std_msgs nav_msgs geometry_msgs custom_msgs
 )
 
 roslint_cpp()

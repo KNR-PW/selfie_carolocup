@@ -12,7 +12,7 @@
 
   <depend>pid</depend>
   <depend>dynamic_reconfigure</depend>
-  <depend>ackermann_msgs</depend>
+  <depend>custom_msgs</depend>
   <depend>rospy</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>

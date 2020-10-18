@@ -35,7 +35,7 @@ QrDecoder::QrDecoder(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
 
 bool QrDecoder::startSearching(std_srvs::Empty::Request& rq, std_srvs::Empty::Response& rp)
 {
-  image_sub_ = nh_.subscribe("image_rect", 1, &QrDecoder::imageRectCallback, this);
+  image_sub_ = nh_.subscribe("/camera/image_rect", 1, &QrDecoder::imageRectCallback, this);
   count_valid_iterations_ = 0;
   init_ = false;
   count_valid_iterations_ = 0;

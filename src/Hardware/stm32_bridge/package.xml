@@ -12,10 +12,8 @@
 
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>ackermann_msgs</depend>
-  <depend>dynamic_reconfigure</depend>
   <depend>custom_msgs</depend>
   <depend>roslint</depend>
+  <depend>tf</depend>
 
 </package>

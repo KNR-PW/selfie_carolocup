@@ -5,17 +5,17 @@
 
 #include <lane_pilot/lane_pilot.hpp>
 
-Road_obstacle_detector::Road_obstacle_detector(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
+RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
   , pnh_(pnh)
-  , received_road_markings_(false)
+  , are_road_lines_received_(false)
   , max_distance_to_obstacle_(0.5)
   , proof_slowdown_(0)
   , num_corners_to_detect_(3)
   , current_distance_(0)
   , current_offset_(0)
   , return_distance_calculated_(false)
-  , dr_server_CB_(boost::bind(&Road_obstacle_detector::reconfigureCB, this, _1, _2))
+  , dr_server_CB_(boost::bind(&RoadObstacleDetector::reconfigureCB, this, _1, _2))
 {
   pnh_.param<bool>("visualization", visualization_, true);
   pnh_.param<bool>("ackermann_mode", ackermann_mode_, false);
@@ -29,8 +29,8 @@ Road_obstacle_detector::Road_obstacle_detector(const ros::NodeHandle& nh, const 
   pnh_.param<float>("right_obst_area_max_x", right_obst_area_max_x_, 1);
   pnh_.param<float>("right_obst_area_min_y", right_obst_area_min_y_, 0.1);
   pnh_.param<float>("right_obst_area_max_y", right_obst_area_max_y_, 1.3);
-  pnh_.param<float>("right_lane_offset", right_lane_, -0.2);
-  pnh_.param<float>("left_lane_offset", left_lane_, 0.2);
+  pnh_.param<float>("right_lane_offset", right_lane_offset_, -0.2);
+  pnh_.param<float>("left_lane_offset", left_lane_offset_, 0.2);
   pnh_.param<float>("maximum_speed", max_speed_, 0.3);
   pnh_.param<float>("slowdown_speed", slowdown_speed_, 0.1);
   pnh_.param<float>("lane_change_speed", lane_change_speed_, 0.1);
@@ -42,62 +42,76 @@ Road_obstacle_detector::Road_obstacle_detector(const ros::NodeHandle& nh, const 
   num_proof_to_return_ = num_proof_to_slowdown_;  // Maybe change to param later
   dr_server_.setCallback(dr_server_CB_);
   passive_mode_service_ =
-      nh_.advertiseService("/avoiding_obst_set_passive", &Road_obstacle_detector::switchToPassive, this);
+      nh_.advertiseService("/avoiding_obst_set_passive", &RoadObstacleDetector::switchToPassive, this);
   active_mode_service_ =
-      nh_.advertiseService("/avoiding_obst_set_active", &Road_obstacle_detector::switchToActive, this);
-  reset_node_service_ = nh_.advertiseService("/resetLaneControl", &Road_obstacle_detector::reset_node, this);
+      nh_.advertiseService("/avoiding_obst_set_active", &RoadObstacleDetector::switchToActive, this);
+  reset_node_service_ = nh_.advertiseService("/resetLaneControl", &RoadObstacleDetector::resetNode, this);
   offset_pub_ = nh_.advertise<std_msgs::Float64>("/path_offset", 1);
   speed_pub_ = nh_.advertise<std_msgs::Float64>("/max_speed", 1);
-  right_indicator_pub_ = nh_.advertise<std_msgs::Bool>("right_turn_indicator", 20);
-  left_indicator_pub_ = nh_.advertise<std_msgs::Bool>("left_turn_indicator", 20);
+  indicators_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20);
 
   speed_message_.data = max_speed_;
 
   if (visualization_)
   {
-    visualizer_ = nh_.advertise<visualization_msgs::Marker>("/avoiding_obstacles", 1);
-    // Initializing empty_marker_
-    empty_marker_.header.frame_id = "laser";
-    empty_marker_.header.stamp = ros::Time::now();
-    empty_marker_.ns = "nearest_box";
-    empty_marker_.type = visualization_msgs::Marker::LINE_LIST;
-    empty_marker_.action = visualization_msgs::Marker::ADD;
-    empty_marker_.id = 0;
-    empty_marker_.lifetime = ros::Duration();
+    visualizer_ = nh_.advertise<visualization_msgs::Marker>("/visualization/avoiding_obstacles", 1);
+
+    geometry_msgs::Point p;
+
     // Initializing Box describing area of interest
-    area_of_interest_box_ = Box(Point(ROI_min_x_, ROI_max_y_), Point(ROI_min_x_, ROI_min_y_),
-                                Point(ROI_max_x_, ROI_max_y_), Point(ROI_max_x_, ROI_min_y_));
+    p.x = ROI_min_x_;
+    p.y = ROI_min_y_;
+    area_of_interest_box_.br = p;
+    p.x = ROI_min_x_;
+    p.y = ROI_max_y_;
+    area_of_interest_box_.bl = p;
+    p.x = ROI_max_x_;
+    p.y = ROI_min_y_;
+    area_of_interest_box_.tr = p;
+    p.x = ROI_max_x_;
+    p.y = ROI_max_y_;
+    area_of_interest_box_.tl = p;
+
     // Initializing Box describing area of searching right box
-    right_obst_area_box_ = Box(
-        Point(right_obst_area_min_x_, right_obst_area_max_y_), Point(right_obst_area_min_x_, right_obst_area_min_y_),
-        Point(right_obst_area_max_x_, right_obst_area_max_y_), Point(right_obst_area_max_x_, right_obst_area_min_y_));
+    p.x = right_obst_area_min_x_;
+    p.y = right_obst_area_min_y_;
+    right_obst_area_box_.br = p;
+    p.x = right_obst_area_min_x_;
+    p.y = right_obst_area_max_y_;
+    right_obst_area_box_.bl = p;
+    p.x = right_obst_area_max_x_;
+    p.y = right_obst_area_min_y_;
+    right_obst_area_box_.tr = p;
+    p.x = right_obst_area_max_x_;
+    p.y = right_obst_area_max_y_;
+    right_obst_area_box_.tl = p;
   }
   status_ = PASSIVE;
-  offset_value_.data = right_lane_;
-  timer_ = nh_.createTimer(ros::Duration(0.5), &Road_obstacle_detector::passive_timer_cb, this);
+  offset_value_.data = right_lane_offset_;
+  timer_ = nh_.createTimer(ros::Duration(0.5), &RoadObstacleDetector::passiveTimerCallback, this);
   timer_.start();
 
   ROS_INFO("road_obstacle_detector initialized ");
 }
 
-Road_obstacle_detector::~Road_obstacle_detector()
+RoadObstacleDetector::~RoadObstacleDetector()
 {
 }
 
-void Road_obstacle_detector::obstacle_callback(const custom_msgs::PolygonArray& msg)
+void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 {
   if (status_ != OVERTAKE && status_ != ON_LEFT)
   {
-    filter_boxes(msg);
+    filterBoxes(msg);
     if (!filtered_boxes_.empty())
     {
       ++proof_slowdown_;
       if ((status_ == ON_RIGHT || status_ == RETURN) &&
-          (nearest_box_in_front_of_car_->bottom_left.x <= max_distance_to_obstacle_ ||
-           nearest_box_in_front_of_car_->bottom_right.x <= max_distance_to_obstacle_))
+          (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
+           nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
       {
         proof_slowdown_ = 0;
-        calculate_return_distance();
+        calculateReturnDistance();
         if (ackermann_mode_)
         {
           std_srvs::Empty e;
@@ -118,7 +132,7 @@ void Road_obstacle_detector::obstacle_callback(const custom_msgs::PolygonArray& 
   }
   else if (status_ == ON_LEFT)
   {
-    if (!is_obstacle_next_to_car(msg))
+    if (!isObstacleNextToCar(msg))
     {
       proof_return_++;
     }
@@ -138,14 +152,14 @@ void Road_obstacle_detector::obstacle_callback(const custom_msgs::PolygonArray& 
       ROS_INFO("LC: RETURN");
       return_distance_calculated_ = false;
       distance_when_started_changing_lane_ = current_distance_;
-      custom_msgs::PolygonArray temp;
-      obstacle_callback(temp);
+      custom_msgs::Box2DArray temp;
+      obstacleCallback(temp);
     }
   }
   switch (status_)
   {
     case ON_RIGHT:
-      offset_value_.data = right_lane_;
+      offset_value_.data = right_lane_offset_;
 
       if (proof_slowdown_ >= num_proof_to_slowdown_)
         speed_message_.data = slowdown_speed_;
@@ -154,19 +168,17 @@ void Road_obstacle_detector::obstacle_callback(const custom_msgs::PolygonArray& 
 
       break;
     case OVERTAKE:
-      blinkRight(false);
-      blinkLeft(true);
-      offset_value_.data = left_lane_;
+      sendIndicators(true, false);
+      offset_value_.data = left_lane_offset_;
       speed_message_.data = lane_change_speed_;
       break;
     case ON_LEFT:
-      offset_value_.data = left_lane_;
+      offset_value_.data = left_lane_offset_;
       speed_message_.data = max_speed_;
       break;
     case RETURN:
-      blinkRight(true);
-      blinkLeft(false);
-      offset_value_.data = right_lane_;
+      sendIndicators(false, true);
+      offset_value_.data = right_lane_offset_;
       speed_message_.data = lane_change_speed_;
       break;
     case PASSIVE:
@@ -178,79 +190,100 @@ void Road_obstacle_detector::obstacle_callback(const custom_msgs::PolygonArray& 
   speed_pub_.publish(speed_message_);
 }
 
-void Road_obstacle_detector::filter_boxes(const custom_msgs::PolygonArray& msg)
+void RoadObstacleDetector::filterBoxes(const custom_msgs::Box2DArray& msg)
 {
   filtered_boxes_.clear();
-  if (!msg.polygons.empty())
-  {
-    geometry_msgs::Polygon polygon;
-    for (int box_nr = msg.polygons.size() - 1; box_nr >= 0; box_nr--)
-    {
-      polygon = msg.polygons[box_nr];
-      int corners_ok = 0;
-      for (int a = 0; a < 4; ++a)
-      {
-        Point p(polygon.points[a]);
 
-        if (is_on_right_lane(p) && p.check_position(ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
-        {
-          ++corners_ok;
-        }
-      }
-      if (corners_ok >= num_corners_to_detect_)
+  for (const custom_msgs::Box2D &box : msg.boxes)
+  {
+    int corners_ok = 0;
+    if (isPointOnRightLane(box.bl) && isPointInsideROI(box.bl, ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
+    {
+      ++corners_ok;
+    }
+    if (isPointOnRightLane(box.br) && isPointInsideROI(box.br, ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
+    {
+      ++corners_ok;
+    }
+    if (isPointOnRightLane(box.tl) && isPointInsideROI(box.tl, ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
+    {
+      ++corners_ok;
+    }
+    if (isPointOnRightLane(box.tr) && isPointInsideROI(box.tr, ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
+    {
+      ++corners_ok;
+    }
+
+    if (corners_ok >= num_corners_to_detect_)
+    {
+      filtered_boxes_.insert(filtered_boxes_.begin(), box);
+      if (box.bl.x > 0)
       {
-        Box temp_box(polygon);
-        filtered_boxes_.insert(filtered_boxes_.begin(), temp_box);
-        if (temp_box.bottom_left.x > 0)
-        {
-          nearest_box_in_front_of_car_ = filtered_boxes_.begin();
-        }
+        nearest_box_in_front_of_car_ = filtered_boxes_.begin();
       }
     }
   }
+
   if (visualization_)
   {
     visualizeBoxes();
   }
 }
 
-bool Road_obstacle_detector::is_obstacle_next_to_car(const custom_msgs::PolygonArray& msg)
+bool RoadObstacleDetector::isPointInsideROI(const geometry_msgs::Point& p,
+                                            const float& ROI_min_x,
+                                            const float& ROI_max_x,
+                                            const float& ROI_min_y,
+                                            const float& ROI_max_y)
+{
+  return !(p.x < ROI_min_x || p.x > ROI_max_x || p.y < ROI_min_y || p.y > ROI_max_y);
+}
+
+bool RoadObstacleDetector::isObstacleNextToCar(const custom_msgs::Box2DArray& msg)
 {
   if (visualization_)
-    right_obst_area_box_.visualize(visualizer_, "area_of_right_boxes", 1, 0.9, 0.7);
+    selfie::visualizeBox2D(right_obst_area_box_, visualizer_, "area_of_right_boxes", 1, 0.9, 0.7);
 
-  if (!msg.polygons.empty())
+  for (const custom_msgs::Box2D &box : msg.boxes)
   {
-    geometry_msgs::Polygon polygon;
-    for (int box_nr = msg.polygons.size() - 1; box_nr >= 0; box_nr--)
-    {
-      polygon = msg.polygons[box_nr];
-      int corners_ok = 0;
-      for (int a = 0; a < 4; ++a)
-      {
-        Point p(polygon.points[a]);
-
-        if (p.check_position(right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
+    int corners_ok = 0;
+    if (isPointInsideROI(box.br, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
                              right_obst_area_max_y_))
-        {
-          ++corners_ok;
-        }
-      }
-      if (corners_ok >= num_corners_to_detect_)
+    {
+      ++corners_ok;
+    }
+
+    if (isPointInsideROI(box.bl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
+                             right_obst_area_max_y_))
+    {
+      ++corners_ok;
+    }
+
+    if (isPointInsideROI(box.tr, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
+                             right_obst_area_max_y_))
+    {
+      ++corners_ok;
+    }
+
+    if (isPointInsideROI(box.tl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
+                             right_obst_area_max_y_))
+    {
+      ++corners_ok;
+    }
+
+    if (corners_ok >= num_corners_to_detect_)
+    {
+      if (visualization_)
       {
-        Box temp_box(polygon);
-        if (visualization_)
-        {
-          temp_box.visualize(visualizer_, "box_on_right", 0.9, 0.2, 0.3);
-        }
-        return true;
+        selfie::visualizeBox2D(box, visualizer_, "box_on_right", 0.9, 0.2, 0.3);
       }
+      return true;
     }
   }
   return false;
 }
 
-void Road_obstacle_detector::road_markings_callback(const custom_msgs::RoadMarkings& msg)
+void RoadObstacleDetector::roadLinesCallback(const custom_msgs::RoadLines& msg)
 {
   int size = msg.left_line.size();
   int i = 0;
@@ -266,12 +299,12 @@ void Road_obstacle_detector::road_markings_callback(const custom_msgs::RoadMarki
     center_line_[i] = 0;
     right_line_[i] = 0;
   }
-  received_road_markings_ = true;
+  are_road_lines_received_ = true;
 }
 
-bool Road_obstacle_detector::is_on_right_lane(const Point& point)
+bool RoadObstacleDetector::isPointOnRightLane(const geometry_msgs::Point& point)
 {
-  if (received_road_markings_ == false)
+  if (are_road_lines_received_ == false)
     return false;
 
   float right_value = right_line_[0] + point.x * right_line_[1] + point.x * point.x * right_line_[2] +
@@ -285,43 +318,28 @@ bool Road_obstacle_detector::is_on_right_lane(const Point& point)
     return false;
 }
 
-void Road_obstacle_detector::calculate_return_distance()
+void RoadObstacleDetector::calculateReturnDistance()
 {
   return_distance_calculated_ = true;
   return_distance_ = safety_margin_ * (max_length_of_obstacle_) + current_distance_ + lane_change_distance_;
   ROS_INFO("LC: return_distance_: %f", return_distance_);
 }
 
-void Road_obstacle_detector::visualizeBoxes()
+void RoadObstacleDetector::visualizeBoxes()
 {
-  Box().visualizeList(filtered_boxes_, visualizer_, "boxes_on_lane", 0.9, 0.9, 0.9);
-  area_of_interest_box_.visualize(visualizer_, "area_of_interest", 1, 1, 1);
+  selfie::visualizeBoxes2D(filtered_boxes_, visualizer_, "boxes_on_lane", 0.9, 0.9, 0.9);
+  selfie::visualizeBox2D(area_of_interest_box_, visualizer_, "area_of_interest", 1, 1, 1);
   if (filtered_boxes_.empty())
   {
-    visualizer_.publish(empty_marker_);
+    selfie::visualizeEmpty(visualizer_, "nearest_box", 1, 0.1, 0.1);
   }
   else
-    nearest_box_in_front_of_car_->visualize(visualizer_, "nearest_box", 1, 0.1, 0.1);
+    selfie::visualizeBox2D(*nearest_box_in_front_of_car_, visualizer_, "nearest_box", 1, 0.1, 0.1);
 }
 
-void Road_obstacle_detector::distanceCallback(const std_msgs::Float32& msg)
+void RoadObstacleDetector::motionCallback(const custom_msgs::Motion& msg)
 {
-  current_distance_ = msg.data;
-  /*
-  if (status_ == ON_LEFT && return_distance_calculated_ && current_distance_ > return_distance_)
-  {
-    if (ackermann_mode_)
-    {
-      std_srvs::Empty e;
-      ackerman_steering_service_.call(e);
-    }
-    status_ = RETURN;
-    ROS_INFO("LC: RETURN");
-    return_distance_calculated_ = false;
-    distance_when_started_changing_lane_ = current_distance_;
-    custom_msgs::PolygonArray temp;
-    obstacle_callback(temp);
-  } else */
+  current_distance_ = msg.distance;
   if (status_ == OVERTAKE && current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
     if (ackermann_mode_)
@@ -332,9 +350,9 @@ void Road_obstacle_detector::distanceCallback(const std_msgs::Float32& msg)
     status_ = ON_LEFT;
     proof_return_ = 0;
     ROS_INFO("LC: ON_LEFT");
-    blinkLeft(false);
-    custom_msgs::PolygonArray temp;
-    obstacle_callback(temp);
+    sendIndicators(false, false);
+    custom_msgs::Box2DArray temp;
+    obstacleCallback(temp);
   }
   else if (status_ == RETURN && current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
@@ -345,19 +363,19 @@ void Road_obstacle_detector::distanceCallback(const std_msgs::Float32& msg)
     }
     status_ = ON_RIGHT;
     ROS_INFO("LC: ON_RIGHT");
-    blinkRight(false);
-    custom_msgs::PolygonArray temp;
-    obstacle_callback(temp);
+    sendIndicators(false, false);
+    custom_msgs::Box2DArray temp;
+    obstacleCallback(temp);
   }
 }
 
-void Road_obstacle_detector::passive_timer_cb(const ros::TimerEvent& time)
+void RoadObstacleDetector::passiveTimerCallback(const ros::TimerEvent& time)
 {
-  offset_value_.data = right_lane_;
+  offset_value_.data = right_lane_offset_;
   offset_pub_.publish(offset_value_);
 }
 
-bool Road_obstacle_detector::switchToActive(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("lane control set to active");
   if (status_ != PASSIVE)
@@ -365,11 +383,10 @@ bool Road_obstacle_detector::switchToActive(std_srvs::Empty::Request& request, s
     ROS_WARN("Switched to active when node is active");
     return false;
   }
-  obstacles_sub_ = nh_.subscribe("/obstacles", 1, &Road_obstacle_detector::obstacle_callback, this);
-  markings_sub_ = nh_.subscribe("/road_markings", 1, &Road_obstacle_detector::road_markings_callback, this);
-  distance_sub_ = nh_.subscribe("/distance", 1, &Road_obstacle_detector::distanceCallback, this);
-  blinkLeft(false);
-  blinkRight(false);
+  obstacles_sub_ = nh_.subscribe("/obstacles", 1, &RoadObstacleDetector::obstacleCallback, this);
+  road_lines_sub_ = nh_.subscribe("/road_lines", 1, &RoadObstacleDetector::roadLinesCallback, this);
+  motion_sub_ = nh_.subscribe("selfie_out/motion", 1, &RoadObstacleDetector::motionCallback, this);
+  sendIndicators(false, false);
   return_distance_calculated_ = false;
   proof_slowdown_ = 0;
   timer_.stop();
@@ -383,13 +400,13 @@ bool Road_obstacle_detector::switchToActive(std_srvs::Empty::Request& request, s
   return true;
 }
 
-bool Road_obstacle_detector::switchToPassive(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool RoadObstacleDetector::switchToPassive(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("lane control set to passive");
-  markings_sub_.shutdown();
+  road_lines_sub_.shutdown();
   obstacles_sub_.shutdown();
-  distance_sub_.shutdown();
-  offset_value_.data = right_lane_;
+  motion_sub_.shutdown();
+  offset_value_.data = right_lane_offset_;
   speed_message_.data = max_speed_;
   offset_pub_.publish(offset_value_);
   speed_pub_.publish(speed_message_);
@@ -399,7 +416,7 @@ bool Road_obstacle_detector::switchToPassive(std_srvs::Empty::Request& request, 
   return true;
 }
 
-bool Road_obstacle_detector::reset_node(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool RoadObstacleDetector::resetNode(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("Lane control reset");
   if (status_ != PASSIVE)
@@ -411,28 +428,35 @@ bool Road_obstacle_detector::reset_node(std_srvs::Empty::Request& request, std_s
   return true;
 }
 
-void Road_obstacle_detector::blinkLeft(bool on)
+void RoadObstacleDetector::sendIndicators(bool is_left_on, bool is_right_on)
 {
-  std_msgs::Bool msg;
-  msg.data = on;
-  left_indicator_pub_.publish(msg);
-  return;
-}
-
-void Road_obstacle_detector::blinkRight(bool on)
-{
-  std_msgs::Bool msg;
-  msg.data = on;
-  right_indicator_pub_.publish(msg);
-  return;
-}
-
-void Road_obstacle_detector::reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level)
-{
-  if (left_lane_ != static_cast<float>(config.left_lane_offset))
+  custom_msgs::Indicators msg;
+  if (is_left_on)
   {
-    left_lane_ = config.left_lane_offset;
-    ROS_INFO("Left lane offset new value: %f", left_lane_);
+    msg.is_active_left = true;
+  }
+  else
+  {
+    msg.is_active_left = false;
+  }
+
+  if (is_right_on)
+  {
+    msg.is_active_right = true;
+  }
+  else
+  {
+    msg.is_active_right = false;
+  }
+  indicators_pub_.publish(msg);
+}
+
+void RoadObstacleDetector::reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level)
+{
+  if (left_lane_offset_ != static_cast<float>(config.left_lane_offset))
+  {
+    left_lane_offset_ = config.left_lane_offset;
+    ROS_INFO("Left lane offset new value: %f", left_lane_offset_);
   }
   if (max_distance_to_obstacle_ != static_cast<float>(config.max_distance_to_obstacle))
   {
@@ -454,10 +478,10 @@ void Road_obstacle_detector::reconfigureCB(lane_pilot::LaneControllerConfig& con
     num_corners_to_detect_ = config.num_corners_to_detect;
     ROS_INFO("num_corners_to_detect new value: %d", num_corners_to_detect_);
   }
-  if (right_lane_ != static_cast<float>(config.right_lane_offset))
+  if (right_lane_offset_ != static_cast<float>(config.right_lane_offset))
   {
-    right_lane_ = config.right_lane_offset;
-    ROS_INFO("right_lane_offset new value: %f", right_lane_);
+    right_lane_offset_ = config.right_lane_offset;
+    ROS_INFO("right_lane_offset new value: %f", right_lane_offset_);
   }
   if (safety_margin_ != static_cast<float>(config.safety_margin))
   {
@@ -508,8 +532,19 @@ void Road_obstacle_detector::reconfigureCB(lane_pilot::LaneControllerConfig& con
 
   if (ROI_changed)
   {
-    area_of_interest_box_ = Box(Point(ROI_min_x_, ROI_max_y_), Point(ROI_min_x_, ROI_min_y_),
-                                Point(ROI_max_x_, ROI_max_y_), Point(ROI_max_x_, ROI_min_y_));
+    geometry_msgs::Point p;
+    p.x = ROI_min_x_;
+    p.y = ROI_min_y_;
+    area_of_interest_box_.br = p;
+    p.x = ROI_min_x_;
+    p.y = ROI_max_y_;
+    area_of_interest_box_.bl = p;
+    p.x = ROI_max_x_;
+    p.y = ROI_min_y_;
+    area_of_interest_box_.tr = p;
+    p.x = ROI_max_x_;
+    p.y = ROI_max_y_;
+    area_of_interest_box_.tl = p;
   }
 
   bool right_obst_area_changed = false;
@@ -540,9 +575,19 @@ void Road_obstacle_detector::reconfigureCB(lane_pilot::LaneControllerConfig& con
 
   if (right_obst_area_changed)
   {
-    right_obst_area_box_ = Box(
-        Point(right_obst_area_min_x_, right_obst_area_max_y_), Point(right_obst_area_min_x_, right_obst_area_min_y_),
-        Point(right_obst_area_max_x_, right_obst_area_max_y_), Point(right_obst_area_max_x_, right_obst_area_min_y_));
+    geometry_msgs::Point p;
+    p.x = right_obst_area_min_x_;
+    p.y = right_obst_area_min_y_;
+    right_obst_area_box_.br = p;
+    p.x = right_obst_area_min_x_;
+    p.y = right_obst_area_max_y_;
+    right_obst_area_box_.bl = p;
+    p.x = right_obst_area_max_x_;
+    p.y = right_obst_area_min_y_;
+    right_obst_area_box_.tr = p;
+    p.x = right_obst_area_max_x_;
+    p.y = right_obst_area_max_y_;
+    right_obst_area_box_.tl = p;
   }
 
   if (lane_change_speed_ != static_cast<float>(config.lane_change_speed))

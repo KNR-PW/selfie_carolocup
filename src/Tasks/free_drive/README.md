@@ -7,39 +7,27 @@ Server uses [driving.action](https://github.com/KNR-Selfie/selfie_carolocup2020/
 ## Usage
 
 ```
-
 source ./devel/setup.bash
-
-rosrun selfie_free_drive intersection_free_drive
-
+roslaunch free_drive free_drive_example.launch
 ```
 
 ## Topics
 ### Action name
-- `free_drive`
-
+- `task/free_drive`
 
 ### Subscribed topics
-
--  `/distance` ([std_msgs/Float32](https://docs.ros.org/api/std_msgs/html/msg/Float32.html))
-   - detected obstacles
-
--  `/intersection_distance` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
+-  `/selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
+   - from this optic distance covered by car is used
+-  `/intersection/stop` ([custom_msgs/IntersectionStop](./../../Shared/custom_msgs/msg/IntersectionStop.msg))
    - distance to the nearest intersection
-
 -  `/starting_line` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
    - distance to the nearest starting line
 
 ### Published topics
-
 -  `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
    - current speed of car
 
-  
-  
-
 ## Parameters
-
 -  `max_speed` (*float*)
    - max speed of the car when parking scenario
 -  `starting_line_distance_to_end` (*float*)

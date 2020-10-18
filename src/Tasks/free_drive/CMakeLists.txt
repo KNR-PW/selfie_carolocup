@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   custom_msgs
-  ackermann_msgs
   dynamic_reconfigure
   roslint
 )
@@ -23,7 +22,7 @@ generate_dynamic_reconfigure_options(
 roslint_cpp()
 
 catkin_package(
-  CATKIN_DEPENDS std_msgs actionlib_msgs custom_msgs ackermann_msgs
+  CATKIN_DEPENDS std_msgs actionlib_msgs custom_msgs
 )
 
 include_directories(

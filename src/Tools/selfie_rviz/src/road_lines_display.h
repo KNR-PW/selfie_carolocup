@@ -1,10 +1,10 @@
-#ifndef ROAD_MARKINGS_DISPLAY_H
-#define ROAD_MARKINGS_DISPLAY_H
+#ifndef ROAD_LINES_DISPLAY_H
+#define ROAD_LINES_DISPLAY_H
 
 #ifndef Q_MOC_RUN
 
 #include <rviz/message_filter_display.h>
-#include <custom_msgs/RoadMarkings.h>
+#include <custom_msgs/RoadLines.h>
 #endif
 
 namespace rviz
@@ -16,14 +16,14 @@ class FloatProperty;
 namespace selfie_rviz
 {
 
-class RoadMarkingsVisual;
+class RoadLinesVisual;
 
-class RoadMarkingsDisplay: public rviz::MessageFilterDisplay<custom_msgs::RoadMarkings>
+class RoadLinesDisplay: public rviz::MessageFilterDisplay<custom_msgs::RoadLines>
 {
 	Q_OBJECT
 public:
-	RoadMarkingsDisplay();
-	virtual ~RoadMarkingsDisplay();
+	RoadLinesDisplay();
+	virtual ~RoadLinesDisplay();
 
 protected:
 	virtual void onInitialize();
@@ -34,9 +34,9 @@ private Q_SLOTS:
 	void updateRenderingRange();
 
 private:
-	void processMessage(const custom_msgs::RoadMarkings::ConstPtr& msg);
+	void processMessage(const custom_msgs::RoadLines::ConstPtr& msg);
 
-	RoadMarkingsVisual* visual_;
+	RoadLinesVisual* visual_;
 
 	// User-editable property variables.
 	rviz::ColorProperty* boundaries_color_property_;
@@ -49,4 +49,4 @@ private:
 
 } // end namespace selfie_rviz
 
-#endif // ROAD_MARKINGS_DISPLAY_H
+#endif // ROAD_LINES_DISPLAY_H

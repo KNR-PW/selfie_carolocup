@@ -14,7 +14,7 @@ roslaunch pid_carrot_follower pid_carrot_follower_example.launch
 - `/path` ([nav_msgs/Path](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float64.html))
 - `/max_speed` ([std_msgs/Float64](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float64.html))
 ### Published topics
-- `/drive/lane_control` ([ackermann_msgs/AckermannDriveStamped](http://docs.ros.org/melodic/api/ackermann_msgs/html/msg/AckermannDriveStamped.html))
+- `/drive/lane_control` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 
 ## Parameters
 ###

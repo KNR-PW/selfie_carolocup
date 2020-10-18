@@ -15,9 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  ParkingInfo.msg
-  PolygonArray.msg
-  RoadMarkings.msg
+  Buttons.msg
+  DriveCommand.msg
+  Indicators.msg
+  IntersectionStop.msg
+  Motion.msg
+  Box2D.msg
+  Box2DArray.msg
+  RoadLines.msg
 )
 
 ## Generate services in the 'srv' folder

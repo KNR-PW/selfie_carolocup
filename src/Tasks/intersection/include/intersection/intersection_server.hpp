@@ -3,14 +3,17 @@
 #include <actionlib/server/simple_action_server.h>
 #include <ros/ros.h>
 
-#include <custom_msgs/PolygonArray.h>
+#include <custom_msgs/Box2DArray.h>
+#include <custom_msgs/Box2D.h>
+#include <custom_msgs/Motion.h>
+#include <custom_msgs/IntersectionStop.h>
 #include <custom_msgs/intersectionAction.h>
-#include <std_msgs/Float32.h>
+#include <std_msgs/Float64.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <intersection/IntersectionServerConfig.h>
-#include <common/obstacle_box.h>
 #include <custom_msgs/enums.h>
+#include <common/marker_visualization.h>
 
 class IntersectionServer
 {
@@ -55,7 +58,7 @@ private:
   int num_corners_to_detect_;
   bool visualization_;
 
-  std::list<Box> filtered_boxes_;
+  std::vector<custom_msgs::Box2D> filtered_boxes_;
   custom_msgs::intersectionFeedback action_status_;
   custom_msgs::intersectionGoal goal_;
   std_msgs::Float64 speed_;
@@ -67,13 +70,12 @@ private:
 
   void init();
   void preemptCb();
-  void manager(const custom_msgs::PolygonArray&);
-  void intersection_callback(const std_msgs::Float32&);
-  void distance_callback(const std_msgs::Float32&);
-  void filter_boxes(const custom_msgs::PolygonArray&);
+  void manager(const custom_msgs::Box2DArray&);
+  void intersectionCallback(const custom_msgs::IntersectionStop&);
+  void distanceCallback(const custom_msgs::Motion&);
+  void filterBoxes(const custom_msgs::Box2DArray&);
+  bool isPointInsideROI(const geometry_msgs::Point& p);
   void publishFeedback(program_state newStatus);
-  void send_goal();
+  void sendGoal();
   void reconfigureCB(intersection::IntersectionServerConfig& config, uint32_t level);
-
-  void visualizeBoxes(std::list<Box> boxes, float r, float g, float b);
 };

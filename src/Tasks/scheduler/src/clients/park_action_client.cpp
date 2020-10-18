@@ -32,11 +32,11 @@ ParkClient::~ParkClient()
 
 void ParkClient::setGoal(boost::any goal)
 {
-    geometry_msgs::Polygon parking_spot;
+    custom_msgs::Box2D parking_spot;
 
     try
     {
-        parking_spot = boost::any_cast<geometry_msgs::Polygon>(goal);
+        parking_spot = boost::any_cast<custom_msgs::Box2D>(goal);
     }
     catch (boost::bad_any_cast &e)
     {
@@ -90,7 +90,6 @@ void ParkClient::activeCb()
 
 void ParkClient::feedbackCb(const custom_msgs::parkFeedbackConstPtr& feedback)
 {
-  ROS_INFO("Park action feedback %d", feedback->action_status);
   action_state_ = (program_state)feedback->action_status;
 }
 

@@ -8,7 +8,7 @@
 IntersectionServer::IntersectionServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
   , pnh_(pnh)
-  , intersectionServer_(nh_, "intersection", false)
+  , intersectionServer_(nh_, "task/intersection", false)
   , point_max_x_(0.95)  // Width of road
   , dr_server_CB_(boost::bind(&IntersectionServer::reconfigureCB, this, _1, _2))
   , is_distance_to_intersection_saved_(false)
@@ -34,7 +34,7 @@ IntersectionServer::IntersectionServer(const ros::NodeHandle& nh, const ros::Nod
 
   if (visualization_)
   {
-    visualize_intersection_ = nh_.advertise<visualization_msgs::Marker>("/intersection_visualization", 10);
+    visualize_intersection_ = nh_.advertise<visualization_msgs::Marker>("/visualization/intersection", 10);
   }
 }
 
@@ -42,10 +42,11 @@ void IntersectionServer::init()
 {
   goal_ = *(intersectionServer_.acceptNewGoal());
   obstacles_sub_ = nh_.subscribe("/obstacles", 1, &IntersectionServer::manager, this);
-  speed_publisher_ = nh_.advertise<std_msgs::Float64>("/max_speed", 2);
   intersection_subscriber_ =
-      nh_.subscribe("/intersection_distance", 1, &IntersectionServer::intersection_callback, this);
-  distance_subscriber_ = nh_.subscribe("/distance", 1, &IntersectionServer::distance_callback, this);
+      nh_.subscribe("/intersection/stop", 1, &IntersectionServer::intersectionCallback, this);
+  distance_subscriber_ = nh_.subscribe("/selfie_out/motion", 1, &IntersectionServer::distanceCallback, this);
+
+  speed_publisher_ = nh_.advertise<std_msgs::Float64>("/max_speed", 2);
   speed_.data = speed_default_;
   speed_publisher_.publish(speed_);
   publishFeedback(APPROACHING_TO_INTERSECTION);
@@ -55,19 +56,19 @@ void IntersectionServer::init()
 
   if (visualization_)
   {
-    Box(point_min_x_, point_max_x_, point_min_y_, point_max_y_)
-        .visualize(visualize_intersection_, "area_of_interest", 0.9, 0.9, 0.1);
+    selfie::visualizeBox2D(point_min_x_, point_max_x_, point_min_y_, point_max_y_, visualize_intersection_,
+                              "area_of_interest", 0.9, 0.9, 0.1);
   }
 }
 
-void IntersectionServer::manager(const custom_msgs::PolygonArray& boxes)
+void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
 {
   if (!intersectionServer_.isActive())
   {
     ROS_INFO_THROTTLE(2, "Intersection Server server not active");
     return;
   }
-  filter_boxes(boxes);
+  filterBoxes(boxes);
   if (max_distance_to_intersection_ < point_min_x_)
   {
     speed_.data = speed_default_;
@@ -87,9 +88,11 @@ void IntersectionServer::manager(const custom_msgs::PolygonArray& boxes)
       ROS_INFO_THROTTLE(1.5, "Another car on the road");
       if (visualization_)
       {
-        Box().visualizeList(filtered_boxes_, visualize_intersection_, "obstacles_on_road", 0.9, 0.9, 0.9);
-        Box(point_min_x_, point_max_x_, point_min_y_, point_max_y_)
-            .visualize(visualize_intersection_, "area_of_interest", 0.9, 0.9, 0.1, 3);
+        selfie::visualizeBoxes2D(filtered_boxes_, visualize_intersection_,
+                                        "obstacles_on_intersection", 0.9, 0.9, 0.1);
+
+        selfie::visualizeBox2D(point_min_x_, point_max_x_, point_min_y_, point_max_y_, visualize_intersection_,
+                                  "area_of_interest", 0.9, 0.9, 0.1);
       }
       if (action_status_.action_status != STOPPED_ON_INTERSECTION)
       {
@@ -106,7 +109,7 @@ void IntersectionServer::manager(const custom_msgs::PolygonArray& boxes)
       {
         publishFeedback(ROAD_CLEAR);
         ROS_INFO("Road clear, intersection action finished");
-        send_goal();
+        sendGoal();
       }
       else
       {
@@ -134,14 +137,14 @@ void IntersectionServer::manager(const custom_msgs::PolygonArray& boxes)
   }
 }
 
-void IntersectionServer::intersection_callback(const std_msgs::Float32& msg)
+void IntersectionServer::intersectionCallback(const custom_msgs::IntersectionStop& msg)
 {
   if (action_status_.action_status != APPROACHING_TO_INTERSECTION2)
   {
-    point_min_x_ = msg.data;
+    point_min_x_ = msg.distance_in;
     if (!is_distance_to_intersection_saved_)
     {
-      distance_to_intersection_when_started_ = msg.data;
+      distance_to_intersection_when_started_ = msg.distance_in;
       is_distance_to_intersection_saved_ = true;
     }
     point_max_x_ = point_min_x_ + road_width_;
@@ -150,26 +153,26 @@ void IntersectionServer::intersection_callback(const std_msgs::Float32& msg)
 
     if (max_distance_to_intersection_ >= point_min_x_)
     {
-      custom_msgs::PolygonArray emptyBoxes;
+      custom_msgs::Box2DArray emptyBoxes;
       manager(emptyBoxes);
     }
   }
 }
 
-void IntersectionServer::distance_callback(const std_msgs::Float32& msg)
+void IntersectionServer::distanceCallback(const custom_msgs::Motion& msg)
 {
-  current_distance_ = msg.data;
+  current_distance_ = msg.distance;
   if (!is_distance_saved_)
   {
     is_distance_saved_ = true;
-    distance_when_started_ = msg.data;
+    distance_when_started_ = current_distance_;
   }
   if (is_distance_to_intersection_saved_)
   {
-    if (msg.data > distance_when_started_ + distance_to_intersection_when_started_)
+    if (current_distance_ > distance_when_started_ + distance_to_intersection_when_started_)
     {
       ROS_INFO("Timeout for intersection (distance exceeded)");
-      send_goal();
+      sendGoal();
     }
   }
   if (!approached_blindly_ && action_status_.action_status == APPROACHING_TO_INTERSECTION2)
@@ -181,7 +184,7 @@ void IntersectionServer::distance_callback(const std_msgs::Float32& msg)
   }
 }
 
-void IntersectionServer::send_goal()
+void IntersectionServer::sendGoal()
 {
   custom_msgs::intersectionResult result;
   result.done = true;
@@ -196,34 +199,39 @@ void IntersectionServer::send_goal()
   intersectionServer_.setSucceeded();
 }
 
-void IntersectionServer::filter_boxes(const custom_msgs::PolygonArray& msg)
+void IntersectionServer::filterBoxes(const custom_msgs::Box2DArray& msg)
 {
   filtered_boxes_.clear();
-  if (!msg.polygons.empty())
+  if (msg.boxes.empty())
+    return;
+
+  for (int box_nr = msg.boxes.size() - 1; box_nr >= 0; box_nr--)
   {
-    for (int box_nr = msg.polygons.size() - 1; box_nr >= 0; box_nr--)
+    int corners = 0;
+    // check corners of obstacle
+    if (isPointInsideROI(msg.boxes[box_nr].tl))
+      corners++;
+    if (isPointInsideROI(msg.boxes[box_nr].tr))
+      corners++;
+    if (isPointInsideROI(msg.boxes[box_nr].bl))
+      corners++;
+    if (isPointInsideROI(msg.boxes[box_nr].br))
+      corners++;
+
+    if (corners >= num_corners_to_detect_)
     {
-      geometry_msgs::Polygon polygon = msg.polygons[box_nr];
-      int corners = 0;
-      for (int a = 0; a < 4; ++a)
+      filtered_boxes_.push_back(msg.boxes[box_nr]);
+      if (!visualization_)
       {
-        Point p(polygon.points[a]);
-        if (p.check_position(point_min_x_, point_max_x_, point_min_y_, point_max_y_))
-        {
-          corners++;
-        }
-      }
-      if (corners >= num_corners_to_detect_)
-      {
-        Box temp_box(polygon);
-        filtered_boxes_.push_back(temp_box);
-        if (visualization_ == false)
-        {
-          return;  // for better optimalization
-        }
+        return;  // for better optimalization
       }
     }
   }
+}
+
+bool IntersectionServer::isPointInsideROI(const geometry_msgs::Point& p)
+{
+  return !(p.x < point_min_x_ || p.x > point_max_x_ || p.y < point_min_y_ || p.y > point_max_y_);
 }
 
 void IntersectionServer::publishFeedback(program_state newStatus)

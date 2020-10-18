@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "park");
+  ros::init(argc, argv, "task/park");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   Park park(nh, pnh);

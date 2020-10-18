@@ -2,6 +2,7 @@
 import rospy
 from sensor_msgs.msg import LaserScan, Image, Imu
 from std_msgs.msg import Bool, String, Float32
+from custom_msgs.msg import Indicators
 from enum import Enum
 
 from Tester import Tester
@@ -13,9 +14,8 @@ import sys
 class Diagnose:
     def __init__(self):
         # ros communication
-        self.pub_ = rospy.Publisher('~selfie_diagnostics', String, queue_size=10)  # warning, errors publishers
-        self.left_blink_ = rospy.Publisher("left_turn_indicator", Bool, queue_size=10)
-        self.right_blink_ = rospy.Publisher("right_turn_indicator", Bool, queue_size=10)
+        self.pub_ = rospy.Publisher('/selfie_diagnostics', String, queue_size=10)  # warning, errors publishers
+        self.indicators_pub_ = rospy.Publisher("/selfie_in/indicators", Indicators, queue_size=10)
         rospy.on_shutdown(self.shutdownPerformance)
         rospy.loginfo("[Diagnostic Node] Starting  Selfie Diagnostics")
 
@@ -67,18 +67,15 @@ class Diagnose:
     def blinkLights(self, time):
         now = rospy.Time.now()
         while (now + rospy.Duration(time) > rospy.Time.now()):
-            self.left_blink_.publish(Bool(data=True))
-            self.right_blink_.publish(Bool(data=True))
+            self.indicators_pub_.publish(Indicators(is_active_left=True, is_active_right=True))
         # rospy.sleep(time)
         now = rospy.Time.now()
         while (now + rospy.Duration(0.5) > rospy.Time.now()):
-            self.left_blink_.publish(Bool(data=False))
-            self.right_blink_.publish(Bool(data=False))
+            self.indicators_pub_.publish(Indicators(is_active_left=False, is_active_right=False))
 
     # turning lights off when node interrupted
     def shutdownPerformance(self):
-        self.left_blink_.publish(Bool(data=False))
-        self.right_blink_.publish(Bool(data=False))
+        self.indicators_pub_.publish(Indicators(is_active_left=False, is_active_right=False))
         print("[Diagnostic Node] DIAGNOSER SHUTDOWN")
 
     # reading parameters from server

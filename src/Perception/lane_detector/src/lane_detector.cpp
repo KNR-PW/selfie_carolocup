@@ -12,8 +12,8 @@ static int Acc_value = 1;
 
 LaneDetector::LaneDetector(const ros::NodeHandle& nh, const ros::NodeHandle& pnh) : nh_(nh), pnh_(pnh), it_(nh)
 {
-  lanes_pub_ = nh_.advertise<custom_msgs::RoadMarkings>("road_markings", 100);
-  intersection_pub_ = nh_.advertise<std_msgs::Float32>("intersection_distance", 100);
+  lanes_pub_ = nh_.advertise<custom_msgs::RoadLines>("road_lines", 100);
+  intersection_pub_ = nh_.advertise<custom_msgs::IntersectionStop>("intersection/stop", 100);
   starting_line_pub_ = nh_.advertise<std_msgs::Float32>("starting_line", 100);
 }
 
@@ -57,10 +57,10 @@ bool LaneDetector::init()
   if (treshold_block_size_ % 2 == 0)
     treshold_block_size_++;
 
-  image_sub_ = it_.subscribe("/image_rect", 10, &LaneDetector::imageCallback, this);
+  image_sub_ = it_.subscribe("camera_basler/image_rect", 10, &LaneDetector::imageCallback, this);
   if (debug_mode_)
   {
-    points_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("new_coordinates", 10);
+    points_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("visualization/vision_new_coordinates", 10);
   }
 
   left_line_.setShortParam(min_length_to_2aprox_);
@@ -751,16 +751,16 @@ void LaneDetector::recognizeLines()
 
 void LaneDetector::publishMarkings()
 {
-  custom_msgs::RoadMarkings road_markings;
-  road_markings.header.stamp = ros::Time::now();
-  road_markings.header.frame_id = "road_markings";
+  custom_msgs::RoadLines road_lines;
+  road_lines.header.stamp = ros::Time::now();
+  road_lines.header.frame_id = "base_link";
   for (int i = 0; i < left_line_.getCoeff().size(); ++i)
   {
-    road_markings.left_line.push_back(left_line_.getCoeff()[i]);
-    road_markings.right_line.push_back(right_line_.getCoeff()[i]);
-    road_markings.center_line.push_back(center_line_.getCoeff()[i]);
+    road_lines.left_line.push_back(left_line_.getCoeff()[i]);
+    road_lines.right_line.push_back(right_line_.getCoeff()[i]);
+    road_lines.center_line.push_back(center_line_.getCoeff()[i]);
   }
-  lanes_pub_.publish(road_markings);
+  lanes_pub_.publish(road_lines);
 }
 
 void LaneDetector::printInfoParams()
@@ -1107,7 +1107,7 @@ void LaneDetector::pointsRVIZVisualization()
   geometry_msgs::Point32 point;
   point.z = 0;
   points_cloud_.points.clear();
-  points_cloud_.header.frame_id = "road_markings";
+  points_cloud_.header.frame_id = "base_link";
 
   for (int i = 0; i < lines_vector_converted_.size(); ++i)
   {
@@ -2028,8 +2028,9 @@ void LaneDetector::detectStartAndIntersectionLine()
         intersection_line_dist_ = right_distance;
         if (waiting_for_stabilize_ || intersection_)
         {
-          std_msgs::Float32 msg;
-          msg.data = intersection_line_dist_;
+          custom_msgs::IntersectionStop msg;
+          msg.distance_in = intersection_line_dist_;
+          msg.distance_out = intersection_line_dist_ + 0.8;
           intersection_pub_.publish(msg);
         }
       }

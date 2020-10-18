@@ -20,5 +20,5 @@
       pkg="topic_tools"
       type="mux"
       name="drive_multiplexer"
-      args="drive/out drive/lane_control drive/park drive/starting_procedure mux:=drive_multiplexer" />
+      args="selfie_in/drive drive/lane_control drive/park drive/starting_procedure mux:=drive_multiplexer" />
 </launch>

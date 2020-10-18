@@ -24,10 +24,10 @@ Scheduler::Scheduler() :
 
     switchState_ = nh_.subscribe("switch_state", 10, &Scheduler::switchStateCallback, this);
 
-    clients_[STARTING] = new StartingProcedureClient("starting_procedure");
+    clients_[STARTING] = new StartingProcedureClient("task/starting_procedure");
     action_args_[STARTING] = start_distance_;
 
-    clients_[DRIVING] = new DriveClient("free_drive", pnh_);
+    clients_[DRIVING] = new DriveClient("task/free_drive", pnh_);
     action_args_[DRIVING] = [](bool x)
     {
         return x;
@@ -69,15 +69,15 @@ void Scheduler::setupActionClients(bool button_pressed)
 {
     if (button_pressed == 0)  // parking mode
     {
-        clients_[PARKING_SEARCH] = new SearchClient("search");
+        clients_[PARKING_SEARCH] = new SearchClient("task/parking_spot_detector");
         action_args_[PARKING_SEARCH] = parking_spot_;
 
-        clients_[PARK] = new ParkClient("park", pnh_);
-        action_args_[PARK] = [](geometry_msgs::Polygon x){return x;};
+        clients_[PARK] = new ParkClient("task/park", pnh_);
+        action_args_[PARK] = [](custom_msgs::Box2D x){return x;};
     }
     else  // intersection mode
     {
-        clients_[INTERSECTION] = new IntersectionClient("intersection");
+        clients_[INTERSECTION] = new IntersectionClient("task/intersection");
         action_args_[INTERSECTION] = static_cast<int>(0);  // empty goal
     }
 }

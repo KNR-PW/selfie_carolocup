@@ -8,13 +8,13 @@
 #include <rviz/properties/float_property.h>
 #include <rviz/frame_manager.h>
 
-#include "road_markings_visual.h"
-#include "road_markings_display.h"
+#include "road_lines_visual.h"
+#include "road_lines_display.h"
 
 namespace selfie_rviz
 {
 
-RoadMarkingsDisplay::RoadMarkingsDisplay() : visual_(nullptr)
+RoadLinesDisplay::RoadLinesDisplay() : visual_(nullptr)
 {
 	boundaries_color_property_ = new rviz::ColorProperty("Boundaries Color", QColor(255, 255, 0),
 	        "Color to draw the road boundaries.",
@@ -41,24 +41,24 @@ RoadMarkingsDisplay::RoadMarkingsDisplay() : visual_(nullptr)
 	        this, SLOT(updateRenderingRange()));
 }
 
-void RoadMarkingsDisplay::onInitialize()
+void RoadLinesDisplay::onInitialize()
 {
 	MFDClass::onInitialize();
 }
 
-RoadMarkingsDisplay::~RoadMarkingsDisplay()
+RoadLinesDisplay::~RoadLinesDisplay()
 {
 }
 
 // Clear the visual by deleting its object.
-void RoadMarkingsDisplay::reset()
+void RoadLinesDisplay::reset()
 {
 	MFDClass::reset();
 	if (visual_) delete visual_;
 }
 
 // Set the current colors and alpha values for the visual.
-void RoadMarkingsDisplay::updateColorsAndAlpha()
+void RoadLinesDisplay::updateColorsAndAlpha()
 {
 	if (!visual_) return;
 
@@ -70,7 +70,7 @@ void RoadMarkingsDisplay::updateColorsAndAlpha()
 }
 
 // Set the current rendering range for the visual.
-void RoadMarkingsDisplay::updateRenderingRange()
+void RoadLinesDisplay::updateRenderingRange()
 {
 	if (!visual_) return;
 
@@ -82,7 +82,7 @@ void RoadMarkingsDisplay::updateRenderingRange()
 }
 
 // This is our callback to handle an incoming message.
-void RoadMarkingsDisplay::processMessage(const custom_msgs::RoadMarkings::ConstPtr& msg)
+void RoadLinesDisplay::processMessage(const custom_msgs::RoadLines::ConstPtr& msg)
 {
 	// Here we call the rviz::FrameManager to get the transform from the
 	// fixed frame to the frame in the header of this Imu message.  If
@@ -101,7 +101,7 @@ void RoadMarkingsDisplay::processMessage(const custom_msgs::RoadMarkings::ConstP
 	// Create and configure new visual if it doesn't exist yet.
 	if (!visual_)
 	{
-		visual_ = new RoadMarkingsVisual(context_->getSceneManager(), scene_node_);
+		visual_ = new RoadLinesVisual(context_->getSceneManager(), scene_node_);
 
 		updateColorsAndAlpha();
 		updateRenderingRange();
@@ -118,4 +118,4 @@ void RoadMarkingsDisplay::processMessage(const custom_msgs::RoadMarkings::ConstP
 // Tell pluginlib about this class.  It is important to do this in
 // global scope, outside our package's namespace.
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(selfie_rviz::RoadMarkingsDisplay, rviz::Display)
+PLUGINLIB_EXPORT_CLASS(selfie_rviz::RoadLinesDisplay, rviz::Display)

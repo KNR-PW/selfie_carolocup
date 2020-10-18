@@ -9,7 +9,7 @@ ROS packages included:
 - selfie_basler_fisheye: package for selfie configuration
 
 ### Published topics
-- `/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
+- `camera_basler/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
   - Image after rectification
 
 ### Parameters

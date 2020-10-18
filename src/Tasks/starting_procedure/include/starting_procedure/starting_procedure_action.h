@@ -1,23 +1,25 @@
-/***Copyright ( c) 2019, KNR Selfie*
+/***Copyright ( c) 2020, KNR Selfie*
  * This code is licensed under BSD license (see LICENSE for details)
  **/
 #ifndef STARTING_PROCEDURE_STARTING_PROCEDURE_ACTION_H
 #define STARTING_PROCEDURE_STARTING_PROCEDURE_ACTION_H
 
 #include <ros/ros.h>
-#include <custom_msgs/startingAction.h>  // Note: "Action" is appended
 #include <actionlib/server/simple_action_server.h>
 #include <string>
 #include <std_msgs/Bool.h>
-#include <std_msgs/Float32.h>
 #include <std_msgs/Empty.h>
 #include <std_srvs/Empty.h>
 #include <nav_msgs/Odometry.h>
-#include <custom_msgs/enums.h>
-#include <ackermann_msgs/AckermannDriveStamped.h>
 #include <tf/tf.h>
 #include <starting_procedure/StartingProcedureConfig.h>
 #include <dynamic_reconfigure/server.h>
+
+#include <custom_msgs/startingAction.h>  // Note: "Action" is appended
+#include <custom_msgs/Motion.h>
+#include <custom_msgs/Buttons.h>
+#include <custom_msgs/enums.h>
+#include <custom_msgs/DriveCommand.h>
 
 class StartingProcedureAction
 {
@@ -38,8 +40,7 @@ protected:
   custom_msgs::startingResult result_;
 
   // subscribers
-  ros::Subscriber parking_button_sub_;
-  ros::Subscriber obstacle_button_sub_;
+  ros::Subscriber button_sub_;
   ros::Subscriber distance_sub_;
   ros::Subscriber qr_sub_;
   ros::Subscriber gate_scan_sub_;
@@ -63,9 +64,15 @@ private:
   };
   State state_;
 
+  enum Buttons
+  {
+    PARKING = 0,
+    FREE_DRIVE = 1
+  };
+
   float distance_goal_;
   float starting_distance_;
-  float distance_read_{0.0};
+  float distance_read_;
   tf::Pose init_pose_;
   tf::Pose current_pose_;
 
@@ -77,12 +84,10 @@ private:
   void executeCB();
   void preemptCB();
   void driveBoxOut(float speed);
-  void parkingButtonCB(const std_msgs::Empty& msg);
-  void obstacleButtonCB(const std_msgs::Empty& msg);
-  void distanceCB(const std_msgs::Float32ConstPtr& msg);
+  void ButtonCB(const custom_msgs::Buttons& msg);
+  void distanceCB(const custom_msgs::Motion& msg);
   void gateOpenCB(const std_msgs::Empty& msg);
   void odomCallback(const nav_msgs::Odometry& msg);
-  float angleDiff(float, float);
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig> dr_server_;
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig>::CallbackType dr_server_CB_;
   void reconfigureCB(starting_procedure::StartingProcedureConfig& config, uint32_t level);

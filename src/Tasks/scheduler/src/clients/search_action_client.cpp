@@ -72,7 +72,6 @@ void SearchClient::activeCb()
 
 void SearchClient::feedbackCb(const custom_msgs::searchFeedbackConstPtr& feedback)
 {
-  ROS_INFO("Search action feedback %d", feedback->action_status);
   action_state_ = (program_state)feedback->action_status;
 }
 
