@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
-  # TODO
+  cfg/vision.cfg
 )
 
 catkin_package(
@@ -53,7 +53,7 @@ install(PROGRAMS
 
 add_executable(vision  src/vision.cpp)
 target_link_libraries(vision ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(vision ${catkin_EXPORTED_TARGETS})
+add_dependencies(vision ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 install(TARGETS vision
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
