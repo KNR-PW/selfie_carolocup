@@ -51,7 +51,7 @@ install(PROGRAMS
     ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_executable(vision  src/vision.cpp)
+add_executable(vision  src/vision.cpp src/vision_manager.cpp)
 target_link_libraries(vision ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(vision ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 

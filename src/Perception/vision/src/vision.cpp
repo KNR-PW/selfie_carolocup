@@ -9,6 +9,8 @@
 #include <vision/units/preprocessing_unit.h>
 #include <vision/units/debugger_unit.h>
 
+#include <vision/vision_manager.h>
+
 int main()
 {
   std::cout<<"Hello"<<std::endl;
