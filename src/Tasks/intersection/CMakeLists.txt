@@ -18,7 +18,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES intersection
-  CATKIN_DEPENDS custom_msgs
+  CATKIN_DEPENDS custom_msgs roscpp actionlib
 #  DEPENDS system_lib
 )
 

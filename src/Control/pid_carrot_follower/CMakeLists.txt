@@ -18,7 +18,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS dynamic_reconfigure std_msgs nav_msgs geometry_msgs custom_msgs
+  CATKIN_DEPENDS dynamic_reconfigure std_msgs nav_msgs geometry_msgs custom_msgs roscpp pid
 )
 
 roslint_cpp()

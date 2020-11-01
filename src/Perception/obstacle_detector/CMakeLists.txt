@@ -27,6 +27,9 @@ catkin_package(
   geometry_msgs
   visualization_msgs
   sensor_msgs
+  tf
+  dynamic_reconfigure
+  roscpp
 )
 
 include_directories(

@@ -23,7 +23,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs visualization_msgs custom_msgs cv_bridge image_transport
+  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs visualization_msgs custom_msgs cv_bridge image_transport dynamic_reconfigure
 )
 
 include_directories(

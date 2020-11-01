@@ -50,7 +50,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lane_pilot
-  CATKIN_DEPENDS custom_msgs geometry_msgs roslint
+  CATKIN_DEPENDS custom_msgs geometry_msgs roslint roscpp dynamic_reconfigure actionlib
 #  DEPENDS system_lib
 )
 

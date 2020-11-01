@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system)
 
 catkin_package(
-  CATKIN_DEPENDS actionlib roscpp std_msgs custom_msgs
+  CATKIN_DEPENDS actionlib roscpp std_msgs custom_msgs topic_tools
 )
 
 include_directories(

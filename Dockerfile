@@ -28,5 +28,5 @@ RUN apt-get install -y python3-catkin-lint >/dev/null 2>&1
 COPY ./src /tmp/selfie/src
 WORKDIR /tmp/selfie
 RUN rosdep install -y --from-paths src --ignore-src
-WORKDIR /
+WORKDIR /root
 RUN rm -r /tmp/selfie

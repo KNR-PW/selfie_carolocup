@@ -23,4 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
   parking_spot_detector
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS tf
+)
