@@ -17,7 +17,7 @@ include_directories(
 )
 
 catkin_package(
-  CATKIN_DEPENDS std_msgs custom_msgs
+  CATKIN_DEPENDS std_msgs custom_msgs roscpp tf
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/

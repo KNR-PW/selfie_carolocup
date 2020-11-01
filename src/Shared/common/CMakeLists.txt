@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs std_msgs visualization_msgs custom_msgs
+  CATKIN_DEPENDS geometry_msgs std_msgs visualization_msgs custom_msgs roscpp
   INCLUDE_DIRS include
   LIBRARIES commonlib
 )

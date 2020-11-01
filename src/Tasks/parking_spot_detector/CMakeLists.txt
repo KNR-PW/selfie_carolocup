@@ -34,6 +34,9 @@ catkin_package(
   custom_msgs 
   visualization_msgs 
   geometry_msgs 
+  roscpp
+  actionlib
+  dynamic_reconfigure
 #  DEPENDS system_lib
 )
 

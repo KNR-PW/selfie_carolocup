@@ -30,6 +30,11 @@ catkin_package(
   custom_msgs
   nav_msgs
   actionlib_msgs
+  actionlib
+  roscpp
+  tf
+  dynamic_reconfigure
+  std_srvs
 )
 
 include_directories(

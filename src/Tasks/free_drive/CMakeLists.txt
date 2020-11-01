@@ -22,7 +22,7 @@ generate_dynamic_reconfigure_options(
 roslint_cpp()
 
 catkin_package(
-  CATKIN_DEPENDS std_msgs actionlib_msgs custom_msgs
+  CATKIN_DEPENDS std_msgs actionlib_msgs custom_msgs actionlib roscpp dynamic_reconfigure
 )
 
 include_directories(

@@ -16,6 +16,8 @@ catkin_package(
   CATKIN_DEPENDS
   nav_msgs
   custom_msgs
+  roscpp
+  tf
 )
 
 include_directories(

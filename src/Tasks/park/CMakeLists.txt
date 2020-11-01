@@ -27,6 +27,9 @@ catkin_package(
   geometry_msgs
   actionlib_msgs
   ackermann_msgs
+  actionlib
+  roscpp
+  dynamic_reconfigure
 )
 
 include_directories(
