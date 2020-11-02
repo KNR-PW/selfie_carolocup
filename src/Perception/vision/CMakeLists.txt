@@ -19,7 +19,11 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
-  cfg/vision.cfg
+  cfg/homography.cfg 
+  cfg/lane_detector.cfg
+  cfg/starting_line.cfg
+  cfg/intersection_stop.cfg
+  cfg/segmentation.cfg
 )
 
 catkin_package(

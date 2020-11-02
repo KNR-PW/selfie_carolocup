@@ -3,8 +3,9 @@
 #define LANE_DETECTOR_UNIT_H
 #include "vision_ros_unit_interface.h"
 #include <vision/storage/lane_detector_storage.h>
+#include <vision/LaneDetectorConfig.h>
 
-class LaneDetectorUnit: public VisionROSUnitInterface
+class LaneDetectorUnit: public VisionROSUnitInterface<vision::LaneDetectorConfig>
 {
   LaneDetectorStorage storage_;
 

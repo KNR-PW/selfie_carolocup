@@ -4,16 +4,16 @@
 
 #include "vision_unit_interface.h"
 #include <dynamic_reconfigure/server.h>
-#include <vision/VisionConfig.h>
 #include <string>
 
+template<typename Config>
 class VisionROSUnitInterface: public  VisionUnitInterface
 {
 
   ros::NodeHandle nh_;
   std::string name_;
-  dynamic_reconfigure::Server<vision::VisionConfig> dr_server_;
-  dynamic_reconfigure::Server<vision::VisionConfig>::CallbackType dr_server_CB_;
+  typename dynamic_reconfigure::Server<Config> dr_server_;
+  typename dynamic_reconfigure::Server<Config>::CallbackType dr_server_CB_;
 
   void virtual reconfigureCallback(){};
 };
