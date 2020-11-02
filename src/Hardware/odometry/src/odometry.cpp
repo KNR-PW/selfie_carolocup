@@ -1,7 +1,7 @@
-/** 
-* Copyright ( c ) 2019, KNR Selfie 
-* This code is licensed under BSD license (see LICENSE for details) 
-**/
+/**
+ * Copyright ( c ) 2019, KNR Selfie
+ * This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #include <odometry/odometry.h>
 #include <string>
@@ -30,14 +30,14 @@ Odometry::Odometry(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   pub_odom_ = nh_.advertise<nav_msgs::Odometry>("/odom", 50);
   sub_motion_ = nh_.subscribe("/selfie_out/motion", 50, &Odometry::motionCallback, this);
   rear_axis_frame_ = nh_.param<std::string>("rear_axis_frame", "base_link");
+  reset_odom_ = nh_.advertiseService("/reset/odom", &Odometry::resetOdom, this);
 }
 
-
-void Odometry::motionCallback(const custom_msgs::Motion &msg)
+void Odometry::motionCallback(const custom_msgs::Motion& msg)
 {
   current_time_ = ros::Time::now();
   currentDistance_ = msg.distance;
-  yaw_ = msg.yaw - base_yaw_;
+  yaw_ = angles::normalize_angle(msg.yaw - base_yaw_);
   vyaw_ = msg.speed_yaw;
   odom_quat_ = tf::createQuaternionMsgFromYaw(yaw_);
 
@@ -50,7 +50,7 @@ void Odometry::motionCallback(const custom_msgs::Motion &msg)
   {
     deltaDistance_ = currentDistance_ - lastDistance_;
     dt_ = (current_time_ - last_distance_update_).toSec();
-    if (dt_ != 0)
+    if (dt_ != 0.)
     {
       speed_ = deltaDistance_ / dt_;
       vx_ = speed_ * cos(yaw_);
@@ -79,7 +79,7 @@ void Odometry::publishOdometryTransform()
 
   odom_trans.transform.translation.x = x_;
   odom_trans.transform.translation.y = y_;
-  odom_trans.transform.translation.z = 0.0;
+  odom_trans.transform.translation.z = 0.;
   odom_trans.transform.rotation = odom_quat_;
 
   // send the transform
@@ -95,7 +95,7 @@ void Odometry::publishOdometryMessage()
   // set the position
   odom.pose.pose.position.x = x_;
   odom.pose.pose.position.y = y_;
-  odom.pose.pose.position.z = 0.0;
+  odom.pose.pose.position.z = 0.;
   odom.pose.pose.orientation = odom_quat_;
 
   // set the velocity
@@ -106,4 +106,13 @@ void Odometry::publishOdometryMessage()
 
   // publish the message
   pub_odom_.publish(odom);
+}
+
+bool Odometry::resetOdom(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  base_yaw_ = angles::normalize_angle(yaw_ + base_yaw_);
+  x_ = 0.;
+  y_ = 0.;
+  ROS_INFO("odometry is reset");
+  return true;
 }

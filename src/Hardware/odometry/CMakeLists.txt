@@ -8,7 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   custom_msgs
   tf
+  std_srvs
   roslint
+  angles
 )
 
 
@@ -16,6 +18,7 @@ catkin_package(
   CATKIN_DEPENDS
   nav_msgs
   custom_msgs
+  std_srvs
   roscpp
   tf
 )
