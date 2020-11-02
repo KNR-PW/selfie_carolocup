@@ -8,7 +8,9 @@
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <nav_msgs/Odometry.h>
+#include <std_srvs/Empty.h>
 #include "custom_msgs/Motion.h"
+#include <angles/angles.h>
 #include <string>
 
 #ifndef ODOMETRY_ODOMETRY_H
@@ -42,6 +44,7 @@ class Odometry
   ros::NodeHandle nh_, pnh_;
   ros::Publisher pub_odom_;
   ros::Subscriber sub_motion_;
+  ros::ServiceServer reset_odom_;
   geometry_msgs::Quaternion odom_quat_;
 
   tf::TransformBroadcaster odom_broadcaster_;
@@ -49,6 +52,8 @@ class Odometry
   const std::string ODOM_FRAME = "odom";
 
   void motionCallback(const custom_msgs::Motion &msg);
+  bool resetOdom(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+
 
 public:
   void publishOdometryTransform();
