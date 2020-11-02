@@ -1,3 +1,8 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
+
 #include <iostream>
 #include <vision/units/vision_unit_interface.h>
 #include <vision/units/vision_ros_unit_interface.h>
@@ -13,6 +18,6 @@
 
 int main()
 {
-  std::cout<<"Hello"<<std::endl;
+  std::cout << "Hello" << std::endl;
   return 0;
 }

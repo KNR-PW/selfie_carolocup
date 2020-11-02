@@ -1,16 +1,17 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef SEGMENTATION_UNIT_H
-#define SEGMENTATION_UNIT_H
-#include "vision_ros_unit_interface.h"
+#ifndef VISION_UNITS_SEGMENTATION_UNIT_H
+#define VISION_UNITS_SEGMENTATION_UNIT_H
+#include <vision/units/vision_ros_unit_interface.h>
 #include <vision/storage/segmentation_storage.h>
 #include <vision/SegmentationConfig.h>
 
-class SegmentationUnit: public VisionROSUnitInterface<vision::SegmentationConfig>
+class SegmentationUnit : public VisionROSUnitInterface<vision::SegmentationConfig>
 {
   SegmentationStorage storage_;
-
 };
 
-
-#endif
-
+#endif  // VISION_UNITS_SEGMENTATION_UNIT_H

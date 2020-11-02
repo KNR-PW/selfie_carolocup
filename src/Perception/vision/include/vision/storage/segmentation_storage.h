@@ -1,14 +1,15 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef SEGMENTATION_STORAGE_H
-#define SEGMENTATION_STORAGE_H
-#include "unit_storage_interface.h"
+#ifndef VISION_STORAGE_SEGMENTATION_STORAGE_H
+#define VISION_STORAGE_SEGMENTATION_STORAGE_H
+#include <vision/storage/unit_storage_interface.h>
 
-class SegmentationStorage: UnitStorageInterface
+class SegmentationStorage : UnitStorageInterface
 {
-
 };
 
-
-
-#endif
+#endif  // VISION_STORAGE_SEGMENTATION_STORAGE_H
 

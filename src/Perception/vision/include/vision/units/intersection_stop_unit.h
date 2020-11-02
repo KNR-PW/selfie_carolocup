@@ -1,14 +1,15 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef HOMOGRAPHY_UNIT_H
-#define HOMOGRAPHY_UNIT_H
-#include "vision_ros_unit_interface.h"
+#ifndef VISION_UNITS_INTERSECTION_STOP_UNIT_H
+#define VISION_UNITS_INTERSECTION_STOP_UNIT_H
+#include <vision/units/vision_ros_unit_interface.h>
 #include <vision/IntersectionStopConfig.h>
 
-class HomographyUnit: public VisionROSUnitInterface<vision::IntersectionStopConfig>
+class HomographyUnit : public VisionROSUnitInterface<vision::IntersectionStopConfig>
 {
-
 };
 
-
-#endif
-
+#endif  // VISION_UNITS_INTERSECTION_STOP_UNIT_H

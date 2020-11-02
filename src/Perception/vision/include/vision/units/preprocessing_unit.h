@@ -1,15 +1,16 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef PREPROCESSING_UNIT_H
-#define PREPROCESSING_UNIT_H
-#include "vision_unit_interface.h"
+#ifndef VISION_UNITS_PREPROCESSING_UNIT_H
+#define VISION_UNITS_PREPROCESSING_UNIT_H
+#include <vision/units/vision_unit_interface.h>
 #include <vision/storage/preprocessing_storage.h>
 
-class PreprocessingUnit: public VisionUnitInterface
+class PreprocessingUnit : public VisionUnitInterface
 {
   PreprocessingStorage storage_;
-
 };
 
-
-#endif
-
+#endif  // VISION_UNITS_PREPROCESSING_UNIT_H

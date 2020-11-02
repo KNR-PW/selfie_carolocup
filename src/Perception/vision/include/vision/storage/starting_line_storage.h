@@ -1,14 +1,14 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef STARTING_LINE_STORAGE_H
-#define STARTING_LINE_STORAGE_H
-#include "unit_storage_interface.h"
+#ifndef VISION_STORAGE_STARTING_LINE_STORAGE_H
+#define VISION_STORAGE_STARTING_LINE_STORAGE_H
+#include <vision/storage/unit_storage_interface.h>
 
-class StartingLineStorage: UnitStorageInterface
+class StartingLineStorage : UnitStorageInterface
 {
-
 };
 
-
-
-#endif
-
+#endif  // VISION_STORAGE_STARTING_LINE_STORAGE_H

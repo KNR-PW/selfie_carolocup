@@ -1,9 +1,12 @@
+/**
+ *Copyright ( c ) 2020, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
-#ifndef UNIT_STORAGE_INTERFACE_H
-#define UNIT_STORAGE_INTERFACE_H
+#ifndef VISION_STORAGE_UNIT_STORAGE_INTERFACE_H
+#define VISION_STORAGE_UNIT_STORAGE_INTERFACE_H
 
 class UnitStorageInterface
 {
-
 };
-#endif
+#endif  // VISION_STORAGE_UNIT_STORAGE_INTERFACE_H
