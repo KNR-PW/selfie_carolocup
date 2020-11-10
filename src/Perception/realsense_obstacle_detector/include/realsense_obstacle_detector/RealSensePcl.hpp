@@ -1,3 +1,4 @@
+#include <memory>
 #include <ros/ros.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
@@ -8,6 +9,15 @@
 #include <pcl/point_types_conversion.h>
 #include <dynamic_reconfigure/server.h>
 #include <realsense_obstacle_detector/RealsenseObstacleDetectorConfig.h>
+
+#include <pcl/ModelCoefficients.h>
+#include <pcl/filters/extract_indices.h>
+// #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/conditional_removal.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/segmentation/conditional_euclidean_clustering.h>
+
 
 
 class RealSensePcl
@@ -26,6 +36,8 @@ private:
   void pc2Callback(const sensor_msgs::PointCloud2 &msg);
   void filterColorFromPC(const pcl::PointCloud<pcl::PointXYZHSV>& input_pc,
                          pcl::PointCloud<pcl::PointXYZHSV>& output_pc);
+  void filterFloorFromPC(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
+                         pcl::PointCloud<pcl::PointXYZRGB>& output_pc);
   void convertPCXYZRGBtoXYZHSV(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
                                pcl::PointCloud<pcl::PointXYZHSV>& output_pc);
   void convertPCXYZHSVtoXYZRGB(const pcl::PointCloud<pcl::PointXYZHSV>& input_pc,
