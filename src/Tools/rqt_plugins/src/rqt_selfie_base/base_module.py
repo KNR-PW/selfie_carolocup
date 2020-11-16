@@ -43,7 +43,7 @@ class MyPlugin(Plugin):
         self._widget.button_rc_change.pressed.connect(self.change_rc_mode)
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
-        self._widget.button_rest_vision.pressed.connect(self.restart_vision)
+        self._widget.button_res_vision.pressed.connect(self.restart_vision)
 
     def press_button1(self):
         pass

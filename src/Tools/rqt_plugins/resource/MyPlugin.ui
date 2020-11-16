@@ -249,7 +249,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QPushButton" name="button_rest_vision">
+       <widget class="QPushButton" name="button_res_vision">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
