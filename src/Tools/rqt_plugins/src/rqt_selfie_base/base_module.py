@@ -1,6 +1,7 @@
 import os
 import rospy
 import rospkg
+import rosservice
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -14,6 +15,8 @@ class MyPlugin(Plugin):
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_VISION_SERVICE_NAME = "/reset_vison"
+
+    RC_MODES = {2: "manual mode", 1: "semi-autonomous", 0: "autonomous mode"}
 
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
@@ -52,12 +55,15 @@ class MyPlugin(Plugin):
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
 
         # init publishers and subscribers
-        self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME, Buttons)
+        self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME, Buttons , queue_size=1)
         self.srv_change_rc = None
         self.srv_res_lane = None
         self.srv_res_odometry = None
         self.srv_res_vision = rospy.ServiceProxy(
             self.RES_VISION_SERVICE_NAME, Empty)
+
+        #Other variables
+        self.rc_mode = 0
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")

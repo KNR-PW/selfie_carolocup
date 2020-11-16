@@ -83,7 +83,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>Auto</string>
         </property>
        </widget>
       </item>
