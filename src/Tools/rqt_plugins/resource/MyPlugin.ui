@@ -148,7 +148,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="button_1">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -167,7 +167,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="button_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -180,7 +180,7 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QPushButton" name="pushButton_5">
+       <widget class="QPushButton" name="button_rc_change">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -223,7 +223,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QPushButton" name="Test">
+       <widget class="QPushButton" name="button_res_lane">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -231,12 +231,12 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Restart Lane Control</string>
+         <string>Lane Control</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="button_res_odometry">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -244,12 +244,12 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Restart odometry</string>
+         <string>Odometry</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="button_rest_vision">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -257,7 +257,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Restart vision</string>
+         <string>Vision</string>
         </property>
        </widget>
       </item>
