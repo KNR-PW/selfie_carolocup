@@ -40,8 +40,33 @@ class MyPlugin(Plugin):
         # tell from pane to pane.
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+
         # Add widget to the user interface
         context.add_widget(self._widget)
+        self._widget.button_1.pressed.connect(self.press_button1)
+        self._widget.button_2.pressed.connect(self.press_button2)
+        self._widget.button_rc_change.pressed.connect(self.change_rc_mode)
+        self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
+        self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
+        self._widget.button_rest_vision.pressed.connect(self.restart_vision)
+
+    def press_button1(self):
+        pass
+
+    def press_button2(self):
+        pass
+
+    def change_rc_mode(self):
+        pass
+
+    def restart_lane_control(self):
+        pass
+
+    def restart_odometry(self):
+        pass
+
+    def restart_vision(self):
+        pass
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
