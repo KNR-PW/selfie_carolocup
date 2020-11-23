@@ -17,7 +17,7 @@ class MyPlugin(Plugin):
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_VISION_SERVICE_NAME = "/reset_vison"
 
-    RC_MODES = {2: "manual mode", 1: "semi-autonomous", 0: "autonomous mode"}
+    RC_MODES = {0: "manual mode", 1: "semi-autonomous", 2: "autonomous mode"}
 
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
