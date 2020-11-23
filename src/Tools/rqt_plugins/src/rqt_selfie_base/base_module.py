@@ -11,6 +11,7 @@ from std_srvs.srv import Empty
 
 from custom_msgs.msg import Buttons
 
+
 class MyPlugin(Plugin):
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
@@ -55,14 +56,16 @@ class MyPlugin(Plugin):
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
 
         # init publishers and subscribers
-        self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME, Buttons , queue_size=1)
-        self.pub_rc_state = rospy.Publisher(self.CHANGE_RC_SERVICE_NAME, UInt8 , queue_size=1)
+        self.pub_button = rospy.Publisher(
+            self.BUTTON_TOPIC_NAME, Buttons, queue_size=1)
+        self.pub_rc_state = rospy.Publisher(
+            self.CHANGE_RC_SERVICE_NAME, UInt8, queue_size=1)
         self.srv_res_lane = None
         self.srv_res_odometry = None
         self.srv_res_vision = rospy.ServiceProxy(
             self.RES_VISION_SERVICE_NAME, Empty)
 
-        #Other variables
+        # Other variables
         self.rc_mode = 0
 
     def press_button1(self):
