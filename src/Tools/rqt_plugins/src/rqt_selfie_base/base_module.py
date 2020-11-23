@@ -100,7 +100,7 @@ class MyPlugin(Plugin):
         rospy.logdebug("Pressed restart vision button")
         service_list = rosservice.get_service_list()
         if self.RES_VISION_SERVICE_NAME not in service_list:
-            rospy.WARN(self.RES_VISION_SERVICE_NAME +
+            rospy.logwarn(self.RES_VISION_SERVICE_NAME +
                        " service server is not active")
 
         response = self.srv_res_vision
