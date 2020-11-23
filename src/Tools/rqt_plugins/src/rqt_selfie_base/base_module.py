@@ -6,10 +6,10 @@ import rosservice
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
+from std_msgs.msg import UInt8
 from std_srvs.srv import Empty
 
 from custom_msgs.msg import Buttons
-
 
 class MyPlugin(Plugin):
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
@@ -56,7 +56,7 @@ class MyPlugin(Plugin):
 
         # init publishers and subscribers
         self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME, Buttons , queue_size=1)
-        self.srv_change_rc = None
+        self.pub_rc_state = rospy.Publisher(self.CHANGE_RC_SERVICE_NAME, UInt8 , queue_size=1)
         self.srv_res_lane = None
         self.srv_res_odometry = None
         self.srv_res_vision = rospy.ServiceProxy(
@@ -81,6 +81,11 @@ class MyPlugin(Plugin):
 
     def change_rc_mode(self):
         rospy.logdebug("Pressed change RC button")
+        self.rc_mode += 1
+        if self.rc_mode >= len(self.RC_MODES):
+            self.rc_mode -= len(self.RC_MODES)
+        self.pub_rc_state.publish(self.rc_mode)
+        self._widget.rc_label.setText(self.RC_MODES[self.rc_mode])
 
     def restart_lane_control(self):
         rospy.logdebug("Pressed restart lane_control button")
