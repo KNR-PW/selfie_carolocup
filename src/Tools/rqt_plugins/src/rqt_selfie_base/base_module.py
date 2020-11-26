@@ -15,6 +15,7 @@ from custom_msgs.msg import Buttons
 class MyPlugin(Plugin):
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
+    RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/reset_vison"
 
     RC_MODES = {-1: "itself", 0: "manual mode",
@@ -62,7 +63,8 @@ class MyPlugin(Plugin):
         self.pub_rc_state = rospy.Publisher(
             self.CHANGE_RC_SERVICE_NAME, UInt8, queue_size=1)
         self.srv_res_lane = None
-        self.srv_res_odometry = None
+        self.srv_res_odometry = rospy.ServiceProxy(
+            self.RES_ODOM_SERVICE_NAME, Empty)
         self.srv_res_vision = rospy.ServiceProxy(
             self.RES_VISION_SERVICE_NAME, Empty)
 
@@ -97,13 +99,19 @@ class MyPlugin(Plugin):
 
     def restart_odometry(self):
         rospy.logdebug("Pressed restart odometry button")
+        service_list = rosservice.get_service_list()
+        if self.RES_ODOM_SERVICE_NAME not in service_list:
+            rospy.logwarn(self.RES_ODOM_SERVICE_NAME +
+                          " service server is not active")
+        else:
+            response = self.srv_res_odometry()
 
     def restart_vision(self):
         rospy.logdebug("Pressed restart vision button")
         service_list = rosservice.get_service_list()
         if self.RES_VISION_SERVICE_NAME not in service_list:
             rospy.logwarn(self.RES_VISION_SERVICE_NAME +
-                       " service server is not active")
+                          " service server is not active")
 
         response = self.srv_res_vision
 
