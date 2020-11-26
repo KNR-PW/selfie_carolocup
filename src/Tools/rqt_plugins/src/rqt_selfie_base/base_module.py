@@ -16,7 +16,7 @@ class MyPlugin(Plugin):
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
-    RES_VISION_SERVICE_NAME = "/reset_vison"
+    RES_VISION_SERVICE_NAME = "/resetVision"
 
     RC_MODES = {-1: "itself", 0: "manual mode",
                 1: "semi-autonomous", 2: "autonomous mode"}
@@ -112,8 +112,8 @@ class MyPlugin(Plugin):
         if self.RES_VISION_SERVICE_NAME not in service_list:
             rospy.logwarn(self.RES_VISION_SERVICE_NAME +
                           " service server is not active")
-
-        response = self.srv_res_vision
+        else:
+            response = self.srv_res_vision()
 
     def shutdown_plugin(self):
         self.pub_button.unregister()
