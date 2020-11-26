@@ -21,6 +21,32 @@ class MyPlugin(Plugin):
     RC_MODES = {-1: "itself", 0: "manual mode",
                 1: "semi-autonomous", 2: "autonomous mode"}
 
+    TASKS = {0: "SELFIE_IDLE",
+             1: "SELFIE_READY",
+             2: "SELFIE_NO_ACTION",
+             3: "BUTTON_PARKING_DRIVE_PRESSED ",
+             4: "BUTTON_OBSTACLE_DRIVE_PRESSED",
+             5: "START_DRIVE",
+             6: "END_DRIVE",
+             7: "AUTONOMOUS_DRIVE ",
+             8: "DETECT_START_LINE",
+             9: "DETECT_CROSS_LINE",
+             10: "DETECT_CROSSROAD ",
+             11: "DETECT_OBSTACLE",
+             12: "CHANGE_LANE",
+             13: "START_SEARCHING_PLACE",
+             14: "FOUND_PLACE_MEASURING",
+             15: "FIND_PROPER_PLACE",
+             16: "START_PARK ",
+             17: "IN_PLACE ",
+             18: "OUT_PLACE",
+             19: "READY_TO_DRIVE ",
+             20: "APPROACHING_TO_INTERSECTION ",
+             21: "APPROACHING_TO_INTERSECTION2",
+             22: "STOPPED_ON_INTERSECTION ",
+             23: "WAITING_ON_INTERSECTION",
+             24: "ROAD_CLEAR"}
+
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
         # Give QObjects reasonable names
