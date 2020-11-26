@@ -17,7 +17,8 @@ class MyPlugin(Plugin):
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_VISION_SERVICE_NAME = "/reset_vison"
 
-    RC_MODES = {0: "manual mode", 1: "semi-autonomous", 2: "autonomous mode"}
+    RC_MODES = {-1: "itself", 0: "manual mode",
+                1: "semi-autonomous", 2: "autonomous mode"}
 
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
@@ -66,7 +67,8 @@ class MyPlugin(Plugin):
             self.RES_VISION_SERVICE_NAME, Empty)
 
         # Other variables
-        self.rc_mode = 0
+        self.rc_mode = -1
+        self._widget.rc_label.setText(self.RC_MODES[self.rc_mode])
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")
@@ -85,7 +87,7 @@ class MyPlugin(Plugin):
     def change_rc_mode(self):
         rospy.logdebug("Pressed change RC button")
         self.rc_mode += 1
-        if self.rc_mode >= len(self.RC_MODES):
+        if self.rc_mode >= len(self.RC_MODES) - 1:
             self.rc_mode -= len(self.RC_MODES)
         self.pub_rc_state.publish(self.rc_mode)
         self._widget.rc_label.setText(self.RC_MODES[self.rc_mode])
