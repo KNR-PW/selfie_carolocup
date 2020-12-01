@@ -16,13 +16,13 @@
             file="$(arg config_file)"  />
     </group>
 
-    <arg name="homography_file" default="/home/$(env USER)/.ros/homography_export.yaml" />
+    <arg name="homography_file" default="/home/$(env USER)/.ros/homography_sim.yaml" />
     <arg name="hom_cut_file" default="/home/$(env USER)/.ros/hom_cut.yaml" />
 
     <node
-        name="lane_detector"
-        pkg="lane_detector"
-        type="lane_detector"
+        name="vision"
+        pkg="vision"
+        type="vision"
         respawn="$(arg node_respawn)"
         output="$(arg node_output)" >
         

@@ -8,7 +8,7 @@
 #include <vision/units/vision_ros_unit_interface.h>
 #include <vision/IntersectionStopConfig.h>
 
-class HomographyUnit : public VisionROSUnitInterface<vision::IntersectionStopConfig>
+class IntersectionStopUnit : public VisionROSUnitInterface<vision::IntersectionStopConfig>
 {
 };
 

@@ -13,12 +13,16 @@
 template <typename Config>
 class VisionROSUnitInterface : public VisionUnitInterface
 {
-  ros::NodeHandle nh_;
+protected:
+  ros::NodeHandle nh_, pnh_;
   std::string name_;
   typename dynamic_reconfigure::Server<Config> dr_server_;
   typename dynamic_reconfigure::Server<Config>::CallbackType dr_server_CB_;
 
   void virtual reconfigureCallback() {}
+public:
+  VisionROSUnitInterface();
 };
+#include <vision/units/vision_ros_unit_interface.cpp>
 
 #endif  // VISION_UNITS_VISION_ROS_UNIT_INTERFACE_H

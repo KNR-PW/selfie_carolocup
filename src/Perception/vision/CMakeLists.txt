@@ -55,7 +55,7 @@ install(PROGRAMS
     ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_executable(vision  src/vision.cpp src/vision_manager.cpp)
+add_executable(vision  src/vision.cpp src/vision_manager.cpp src/units/homography_unit.cpp src/storage/homography_storage.cpp src/storage/debugger_storage.cpp src/units/debugger_unit.cpp)
 target_link_libraries(vision ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(vision ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
