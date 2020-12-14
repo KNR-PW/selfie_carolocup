@@ -5,7 +5,7 @@
 
 
 
-DebuggerUnit::DebuggerUnit(DebuggerStorage &storage):VisionROSUnitInterface<vision::DebuggerConfig>("debugger"), storage_(storage), it_(nh_)
+DebuggerUnit::DebuggerUnit(DebuggerStorage &storage):VisionROSUnitInterface<vision::DebuggerConfig>("~/debugger"), storage_(storage), it_(nh_)
 {
 }
 void DebuggerUnit::init()
