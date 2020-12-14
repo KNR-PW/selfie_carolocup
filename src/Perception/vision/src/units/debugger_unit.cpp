@@ -5,47 +5,52 @@
 
 
 
-DebuggerUnit::DebuggerUnit(DebuggerStorage &storage): storage_(storage)
+DebuggerUnit::DebuggerUnit(DebuggerStorage &storage):VisionROSUnitInterface<vision::DebuggerConfig>("debugger"), storage_(storage), it_(nh_)
 {
 }
 void DebuggerUnit::init()
 {
-  addVis("image_rect", storage_.image_rect_);
-  addVis("homography_frame", storage_.homography_frame_);
-  for (auto &vis: vis_)
-  {
-    cv::namedWindow(vis.first);
-  }
+  addVis("/image_rectaaaaaaa", storage_.image_rect_);
+  addVis("/homography_frameaaaaa", storage_.homography_frame_);
+  
 
 }
 
 void DebuggerUnit::trigger()
 {
-  for (auto &vis: vis_)
+  
+  //sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8",vis_.at("image_rect").get() ).toImageMsg();
+  //visp_.at("image_rect").publish(msg);
+  for(auto & v:vis_)
   {
-    cv::imshow(vis.first, vis.second.get());
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(),"mono8" ,v.second.second ).toImageMsg();
+ 
+    v.second.first.publish(msg);
+    std::cout<<"pub"<<std::endl;
+
+
   }
-  cv::waitKey(1);
 }
 
 void DebuggerUnit::addVis(const std::string & name, cv::Mat & mat)
 {
+  //std::reference_wrapper<cv::Mat> wrap(mat);
+  //std::pair<std::string, std::reference_wrapper<cv::Mat>>  vis(name, wrap);
+  //vis_.insert(vis);
+
+  //std::pair<std::string, image_transport::Publisher>  visp(name, it_.advertise(name, 1));
+  //visp_.insert(visp);
   std::reference_wrapper<cv::Mat> wrap(mat);
-  std::pair<std::string, std::reference_wrapper<cv::Mat>> pair(name, wrap);
-  vis_.insert(pair);
+  std::pair<image_transport::Publisher, std::reference_wrapper<cv::Mat>>  p(it_.advertise(name, 1), wrap);
+  std::pair<std::string, std::pair<image_transport::Publisher, std::reference_wrapper<cv::Mat>>> p2(name, p);
+  vis_.insert(p2);
+
 }
 
 void DebuggerUnit::removeVis(const std::string &name)
 {
-  auto it = vis_.find(name);
-  cv::destroyWindow(it->first);
-  vis_.erase(it);
 }
 
 DebuggerUnit::~DebuggerUnit()
 {
-  for (auto &vis: vis_)
-  {
-    cv::destroyWindow(vis.first);
-  }
 }

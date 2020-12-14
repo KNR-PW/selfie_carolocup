@@ -21,7 +21,7 @@ protected:
 
   void virtual reconfigureCallback() {}
 public:
-  VisionROSUnitInterface();
+  VisionROSUnitInterface(const std::string &name);
 };
 #include <vision/units/vision_ros_unit_interface.cpp>
 

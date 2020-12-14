@@ -5,6 +5,6 @@
 #include <vision/units/vision_ros_unit_interface.h>
 
 template<typename T>
-VisionROSUnitInterface<T>::VisionROSUnitInterface(): nh_(), pnh_("~")
+VisionROSUnitInterface<T>::VisionROSUnitInterface(const std::string & name): nh_(name)
 {
 }

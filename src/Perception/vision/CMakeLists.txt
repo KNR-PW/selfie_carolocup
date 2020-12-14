@@ -24,6 +24,7 @@ generate_dynamic_reconfigure_options(
   cfg/starting_line.cfg
   cfg/intersection_stop.cfg
   cfg/segmentation.cfg
+  cfg/debugger.cfg
 )
 
 catkin_package(

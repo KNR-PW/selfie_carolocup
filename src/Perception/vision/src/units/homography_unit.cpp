@@ -44,7 +44,7 @@ void HomographyUnit::trigger()
   homography();
 }
 
-HomographyUnit::HomographyUnit(HomographyStorage &storage): storage_(storage)
+HomographyUnit::HomographyUnit(HomographyStorage &storage):VisionROSUnitInterface<vision::HomographyConfig>("homography"), storage_(storage)
 {
 }
 void HomographyUnit::loadFiles()

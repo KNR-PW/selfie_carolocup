@@ -9,9 +9,9 @@
 class VisionUnitInterface
 {
 public:
-  void virtual init() {}
-  void virtual trigger() {}
-  void virtual reset() {}
+ virtual void init() {}
+ virtual void trigger() {}
+ virtual void reset() {}
 };
 
 #endif  // VISION_UNITS_VISION_UNIT_INTERFACE_H
