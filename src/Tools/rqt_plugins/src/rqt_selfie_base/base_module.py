@@ -15,6 +15,7 @@ from custom_msgs.msg import Buttons
 
 class MyPlugin(Plugin):
     LANE_PILOT_STATE_TOPIC = "/state/lane_control"
+    TASK_STATE_TOPIC = "/state/task"
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
@@ -107,6 +108,8 @@ class MyPlugin(Plugin):
 
         self.sub_lane_pilot_state = rospy.Subscriber(
             self.LANE_PILOT_STATE_TOPIC, Int8, self.lane_pilot_state_callback, queue_size=1)
+        self.sub_task_state = rospy.Subscriber(
+            self.TASK_STATE_TOPIC, UInt8, self.task_state_callback, queue_size=1)
 
         # Other variables
         self.rc_mode = -1
@@ -163,6 +166,9 @@ class MyPlugin(Plugin):
 
     def lane_pilot_state_callback(self, data: Int8):
         self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
+
+    def task_state_callback(self, data: UInt8):
+        self._widget.task_label.setText(self.TASKS[data.data])
 
     def shutdown_plugin(self):
         self.pub_button.unregister()
