@@ -7,12 +7,14 @@ from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
 from std_msgs.msg import UInt8
+from std_msgs.msg import Int8
 from std_srvs.srv import Empty
 
 from custom_msgs.msg import Buttons
 
 
 class MyPlugin(Plugin):
+    LANE_PILOT_STATE_TOPIC = "/state/lane_control"
     BUTTON_TOPIC_NAME = "selfie_out/buttons"
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
@@ -47,6 +49,13 @@ class MyPlugin(Plugin):
              22: "STOPPED_ON_INTERSECTION ",
              23: "WAITING_ON_INTERSECTION",
              24: "ROAD_CLEAR"}
+
+    LANE_MODES = {0: "UNINITIALIZED",
+                  1: "PASSIVE_RIGHT",
+                  2: "ON_RIGHT",
+                  3: "OVERTAKE",
+                  4: "ON_LEFT",
+                  5: "RETURN_RIGHT"}
 
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
@@ -95,6 +104,9 @@ class MyPlugin(Plugin):
             self.RES_ODOM_SERVICE_NAME, Empty)
         self.srv_res_vision = rospy.ServiceProxy(
             self.RES_VISION_SERVICE_NAME, Empty)
+
+        self.sub_lane_pilot_state = rospy.Subscriber(
+            self.LANE_PILOT_STATE_TOPIC, Int8, self.lane_pilot_state_callback, queue_size=1)
 
         # Other variables
         self.rc_mode = -1
@@ -148,6 +160,9 @@ class MyPlugin(Plugin):
                           " service server is not active")
         else:
             response = self.srv_res_vision()
+
+    def lane_pilot_state_callback(self, data: Int8):
+        self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
 
     def shutdown_plugin(self):
         self.pub_button.unregister()
