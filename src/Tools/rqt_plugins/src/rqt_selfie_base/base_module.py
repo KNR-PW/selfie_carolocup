@@ -17,6 +17,7 @@ class MyPlugin(Plugin):
     CHANGE_RC_SERVICE_NAME = "switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
+    RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
 
     RC_MODES = {-1: "itself", 0: "manual mode",
                 1: "semi-autonomous", 2: "autonomous mode"}
@@ -88,7 +89,8 @@ class MyPlugin(Plugin):
             self.BUTTON_TOPIC_NAME, Buttons, queue_size=1)
         self.pub_rc_state = rospy.Publisher(
             self.CHANGE_RC_SERVICE_NAME, UInt8, queue_size=1)
-        self.srv_res_lane = None
+        self.srv_res_lane = rospy.ServiceProxy(
+            self.RES_LANE_CONTROL_SERVICE_NAME, Empty)
         self.srv_res_odometry = rospy.ServiceProxy(
             self.RES_ODOM_SERVICE_NAME, Empty)
         self.srv_res_vision = rospy.ServiceProxy(
@@ -122,6 +124,12 @@ class MyPlugin(Plugin):
 
     def restart_lane_control(self):
         rospy.logdebug("Pressed restart lane_control button")
+        service_list = rosservice.get_service_list()
+        if self.RES_LANE_CONTROL_SERVICE_NAME not in service_list:
+            rospy.logwarn(self.RES_LANE_CONTROL_SERVICE_NAME +
+                          " service server is not active")
+        else:
+            response = self.srv_res_lane()
 
     def restart_odometry(self):
         rospy.logdebug("Pressed restart odometry button")
