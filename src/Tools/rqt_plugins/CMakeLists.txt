@@ -149,3 +149,6 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+install(FILES plugin.xml
+DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
