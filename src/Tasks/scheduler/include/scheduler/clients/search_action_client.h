@@ -9,7 +9,6 @@
 #include <scheduler/clients/client_interface.h>
 
 #include <custom_msgs/searchAction.h>
-#include <custom_msgs/enums.h>
 
 #include <string>
 
@@ -32,7 +31,6 @@ public:
     void doneCb(const actionlib::SimpleClientGoalState& state,
                     const custom_msgs::searchResultConstPtr& result);
     void activeCb();
-    void feedbackCb(const custom_msgs::searchFeedbackConstPtr& feedback);
     void getActionResult(boost::any &result);
     void prepareAction();
 };

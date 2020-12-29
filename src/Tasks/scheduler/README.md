@@ -16,28 +16,19 @@ In current implementation following clients are used:
 * intersection_action_client
 
 ### Subscribed topics
-`switch_state` ([std_msgs/Uint8](http://docs.ros.org/kinetic/api/std_msgs/html/msg/UInt8.html))
-- state of RC mode (0 - manual, 1 - half-autonomous, 2 - autonomous)
+`/state/rc` ([std_msgs/Int8](http://docs.ros.org/kinetic/api/std_msgs/html/msg/Int8.html))
+- state of RC task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/rc_enum.h))
+
+### Published topics
+-  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
+  - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ## Parameters
-`~begin_action` (*int*, default: 1)
-Indicates which action car should start at first. Possible values:
-  - 1 - STARTING_PROCEDURE
-  - 2 - FREE_DRIVE
-  - 3 - PARKING_SEARCH
-  - 4 - PARKING
-
 `~starting_distance` (*float*, default: 1.0)
 Distance car should cover to drive out of the starting box (m)
 
 `~parking_spot` (*float*, default: 0.5)
 Minimum parking spot width (m)
 
-`~parking_steering_mode`(*int*, default: 0)
-Steering mode during parking phase(0 - ackermann 1 - paralell)
-
-`~drive_steering_mode`(*int*, default 0)
-Steering mode during drive (0 - ackermann  1 - paralell 2 - front axis only) 
-
-
-
+`~num_park_to_complete` (*int*, default: 2)
+Number of successful parkings

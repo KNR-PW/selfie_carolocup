@@ -5,4 +5,3 @@ bool mode # 0 - parking, 1 - obstacles and intersections
 bool event # 0 - starting line, 1 - intersection
 ---
 #feedback
-uint32 action_status #one of enums describing state (see more on wiki)

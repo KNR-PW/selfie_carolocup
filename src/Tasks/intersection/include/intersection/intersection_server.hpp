@@ -12,8 +12,9 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <intersection/IntersectionServerConfig.h>
-#include <custom_msgs/enums.h>
 #include <common/marker_visualization.h>
+#include <common/state_publisher.h>
+#include <custom_msgs/task_enum.h>
 
 class IntersectionServer
 {
@@ -57,9 +58,9 @@ private:
 
   int num_corners_to_detect_;
   bool visualization_;
+  int state_{selfie::TASK_SHIFTING};
 
   std::vector<custom_msgs::Box2D> filtered_boxes_;
-  custom_msgs::intersectionFeedback action_status_;
   custom_msgs::intersectionGoal goal_;
   std_msgs::Float64 speed_;
 
@@ -68,6 +69,8 @@ private:
   dynamic_reconfigure::Server<intersection::IntersectionServerConfig> dr_server_;
   dynamic_reconfigure::Server<intersection::IntersectionServerConfig>::CallbackType dr_server_CB_;
 
+  StatePublisher state_publisher_;
+
   void init();
   void preemptCb();
   void manager(const custom_msgs::Box2DArray&);
@@ -75,7 +78,7 @@ private:
   void distanceCallback(const custom_msgs::Motion&);
   void filterBoxes(const custom_msgs::Box2DArray&);
   bool isPointInsideROI(const geometry_msgs::Point& p);
-  void publishFeedback(program_state newStatus);
+  void updateState(const int &state);
   void sendGoal();
   void reconfigureCB(intersection::IntersectionServerConfig& config, uint32_t level);
 };

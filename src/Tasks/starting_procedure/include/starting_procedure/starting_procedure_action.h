@@ -18,8 +18,11 @@
 #include <custom_msgs/startingAction.h>  // Note: "Action" is appended
 #include <custom_msgs/Motion.h>
 #include <custom_msgs/Buttons.h>
-#include <custom_msgs/enums.h>
 #include <custom_msgs/DriveCommand.h>
+
+#include <common/state_publisher.h>
+#include <custom_msgs/task_enum.h>
+
 
 class StartingProcedureAction
 {
@@ -34,9 +37,8 @@ protected:
   bool use_qr_;
   float Kp_;
 
-  // create messages that are used to published feedback/result
+  // create messages that are used to published result
   custom_msgs::startingGoal goal_;
-  custom_msgs::startingFeedback feedback_;
   custom_msgs::startingResult result_;
 
   // subscribers
@@ -51,19 +53,10 @@ protected:
   // publishers
   ros::Publisher drive_pub_;
 
-  feedback_variable button_status_;
+  int state_{selfie::TASK_SHIFTING};
+  StatePublisher state_publisher_{"/state/task"};
 
 private:
-  enum class State
-  {
-    IDLE,
-    WAIT_BUTTON,
-    WAIT_START,
-    START_MOVE,
-    END_MOVE
-  };
-  State state_;
-
   enum Buttons
   {
     PARKING = 0,
@@ -79,12 +72,12 @@ private:
   ros::Time min_second_press_time_;
   ros::Duration debounce_duration_;
 
-  void publishFeedback(feedback_variable program_state);
+  inline void updateState(const int &state);
 
   void executeCB();
   void preemptCB();
   void driveBoxOut(float speed);
-  void ButtonCB(const custom_msgs::Buttons& msg);
+  void buttonCB(const custom_msgs::Buttons& msg);
   void distanceCB(const custom_msgs::Motion& msg);
   void gateOpenCB(const std_msgs::Empty& msg);
   void odomCallback(const nav_msgs::Odometry& msg);

@@ -15,6 +15,10 @@
 - `odom` ([nav_msgs/Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html))
   - odometry data
 
+### Called services
+- `/reset/odom` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
+  - Reset odometry
+
 ## Parameters
 
 - `~rear_axis_frame` (*string*, default: base_link)

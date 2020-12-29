@@ -14,13 +14,15 @@
 #include <custom_msgs/DriveCommand.h>
 #include <vector>
 #include <string>
-#include <custom_msgs/enums.h>
 #include <park/ParkConfig.h>
 #include <dynamic_reconfigure/server.h>
 #include <algorithm>
 #include <std_srvs/Empty.h>
 #include <custom_msgs/RoadLines.h>
 #include <custom_msgs/Box2D.h>
+
+#include <common/state_publisher.h>
+#include <custom_msgs/task_enum.h>
 
 class Park
 {
@@ -47,6 +49,8 @@ private:
   void markingsCallback(const custom_msgs::RoadLines& msg);
   void goalCB();
   void preemptCB();
+  void updateState(const int &state);
+
 
   void drive(float speed, float steering_angle_front, float steering_angle_rear);
   bool toParkingSpot();
@@ -68,7 +72,8 @@ private:
   };
   Parking_State parking_state_;
 
-  feedback_variable action_status_;
+  int state_{selfie::TASK_SHIFTING};
+  StatePublisher state_publisher_;
 
   float parking_speed_;
 

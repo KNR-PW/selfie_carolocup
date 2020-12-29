@@ -11,9 +11,7 @@
 StartingProcedureClient::StartingProcedureClient(std::string name):
     ac_(name, true)
 {
-    result_flag_ = EMPTY;
-    next_action_ = DRIVING;
-    action_state_ = SELFIE_IDLE;
+    next_action_ = selfie::FREE_DRIVE;
 
     muxDriveSelect_ = nh_.serviceClient<topic_tools::MuxSelect>("drive_multiplexer/select");
 }
@@ -36,8 +34,8 @@ void StartingProcedureClient::setGoal(boost::any goal)
     }
     goal_.distance = distance;
     ac_.sendGoal(goal_, boost::bind(&StartingProcedureClient::doneCb, this, _1, _2),
-                boost::bind(&StartingProcedureClient::activeCb, this),
-                boost::bind(&StartingProcedureClient::feedbackCb, this, _1));
+                boost::bind(&StartingProcedureClient::activeCb, this));
+    goal_state_flag_ = SENT;
 }
 
 bool StartingProcedureClient::waitForResult(float timeout)
@@ -47,7 +45,7 @@ bool StartingProcedureClient::waitForResult(float timeout)
 
 bool StartingProcedureClient::waitForServer(float timeout)
 {
-    result_flag_ = EMPTY;
+    goal_state_flag_ = NOT_SEND;
     ROS_INFO("Wait for starting procedure action server");
     return ac_.waitForServer(ros::Duration(timeout));
 }
@@ -58,25 +56,19 @@ void StartingProcedureClient::doneCb(const actionlib::SimpleClientGoalState& sta
   ROS_INFO("Finished starting in state [%s]", state.toString().c_str());
   if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED)
   {
-      result_flag_ = ABORTED;
+      goal_state_flag_ = ABORTED;
   }
   else
   {
       ROS_INFO("starting result: %i", result->drive_mode);
       result_ = result->drive_mode;
-      result_flag_ = SUCCESS;
+      goal_state_flag_ = SUCCESS;
   }
 }
 
 void StartingProcedureClient::activeCb()
 {
   ROS_INFO("Starting procedure server active");
-}
-
-void StartingProcedureClient::feedbackCb(const custom_msgs::startingFeedbackConstPtr& feedback)
-{
-  ROS_INFO("Starting procedure feedback %d", feedback->action_status);
-  action_state_ = (program_state)feedback->action_status;
 }
 
 void StartingProcedureClient::cancelAction()
@@ -91,6 +83,7 @@ void StartingProcedureClient::getActionResult(boost::any &result)
 
 void StartingProcedureClient::prepareAction()
 {
+    goal_state_flag_ = NOT_SEND;
     topic_tools::MuxSelect topic_sel;
     topic_sel.request.topic = "drive/starting_procedure";
     muxDriveSelect_.call(topic_sel);

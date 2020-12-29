@@ -12,120 +12,148 @@
 
 Scheduler::Scheduler() :
     pnh_("~"),
-    begin_action_(STARTING),
     start_distance_(1.0),
-    parking_spot_(0.6)
+    parking_spot_(0.6),
+    num_park_to_complete_(2),
+    park_counter_(0)
 {
-    pnh_.getParam("begin_action", begin_action_);
     pnh_.getParam("starting_distance", start_distance_);
     pnh_.getParam("parking_spot", parking_spot_);
+    pnh_.getParam("num_park_to_complete", num_park_to_complete_);
 
-    ROS_INFO("Created scheduler with params: BA: %d, SD: %f, PS: %f", begin_action_, start_distance_, parking_spot_);
+    ROS_INFO("Created scheduler with params: PC: %d SD: %f, PS: %f", num_park_to_complete_,
+                                                                     start_distance_,
+                                                                     parking_spot_);
 
-    switchState_ = nh_.subscribe("switch_state", 10, &Scheduler::switchStateCallback, this);
+    task_state_sub = nh_.subscribe("/state/task", 10, &Scheduler::taskStateCallback, this);
+    rc_state_sub = nh_.subscribe("/state/rc", 10, &Scheduler::rcStateCallback, this);
 
-    clients_[STARTING] = new StartingProcedureClient("task/starting_procedure");
-    action_args_[STARTING] = start_distance_;
+    clients_[selfie::STARTING_PROCEDURE] = new StartingProcedureClient("task/starting_procedure");
+    action_args_[selfie::STARTING_PROCEDURE] = start_distance_;
 
-    clients_[DRIVING] = new DriveClient("task/free_drive", pnh_);
-    action_args_[DRIVING] = [](bool x)
+    clients_[selfie::FREE_DRIVE] = new DriveClient("task/free_drive", pnh_);
+    action_args_[selfie::FREE_DRIVE] = [](bool x)
     {
         return x;
     }
     (false);
 
-    previousRcState_ = RC_UNINTIALIZED;
-    currentRcState_ = RC_UNINTIALIZED;
-    previous_car_state_ = SELFIE_IDLE;
-    current_car_state_ = SELFIE_READY;
-
     ROS_INFO("Clients created successfully");
 }
+
 Scheduler::~Scheduler()
 {
     pnh_.deleteParam("begin_action");
+    pnh_.deleteParam("starting_distance");
+    pnh_.deleteParam("parking_spot");
 }
+
 void Scheduler::waitForStart()
 {
     while (ros::ok())
     {
-        if (checkIfActionFinished() == SUCCESS)
+        if (checkIfCurrentActionFinished() == SUCCESS)
         {
             boost::any result;
             current_client_ptr_->getActionResult(result);
 
-            DriveClient* drive_client = dynamic_cast<DriveClient*>(clients_[DRIVING]);
+            DriveClient* drive_client = dynamic_cast<DriveClient*>(clients_[selfie::FREE_DRIVE]);
             bool drive_mode = boost::any_cast<bool>(result);
 
             drive_client->setScenario(drive_mode);
             setupActionClients(drive_mode);
             break;
         }
-        else if (checkIfActionFinished() == ABORTED)
+        else if (checkIfCurrentActionFinished() == ABORTED)
             break;
     }
 }
+
 void Scheduler::setupActionClients(bool button_pressed)
 {
     if (button_pressed == 0)  // parking mode
     {
-        clients_[PARKING_SEARCH] = new SearchClient("task/parking_spot_detector");
-        action_args_[PARKING_SEARCH] = parking_spot_;
+        clients_[selfie::PARKING_SPOT_SEARCH] = new SearchClient("task/parking_spot_detector");
+        action_args_[selfie::PARKING_SPOT_SEARCH] = parking_spot_;
 
-        clients_[PARK] = new ParkClient("task/park", pnh_);
-        action_args_[PARK] = [](custom_msgs::Box2D x){return x;};
+        clients_[selfie::PARK] = new ParkClient("task/park", pnh_);
+        action_args_[selfie::PARK] = [](custom_msgs::Box2D x){return x;};
     }
     else  // intersection mode
     {
-        clients_[INTERSECTION] = new IntersectionClient("task/intersection");
-        action_args_[INTERSECTION] = static_cast<int>(0);  // empty goal
+        clients_[selfie::INTERSECTION_STOP] = new IntersectionClient("task/intersection");
+        action_args_[selfie::INTERSECTION_STOP] = static_cast<int>(0);  // empty goal
     }
 }
+
 void Scheduler::init()
 {
-    startAction((action)begin_action_);
+    startAction(selfie::STARTING_PROCEDURE);
 }
-void Scheduler::startAction(action action_to_set)
+
+void Scheduler::startAction(selfie::EnumAction action_to_set)
 {
+    task_state_publisher_.updateState(selfie::TASK_SHIFTING);
+    current_action_state_ = action_to_set;
     current_client_ptr_ = clients_[action_to_set];
     current_client_ptr_->waitForServer(200);
     current_client_ptr_->prepareAction();
     current_client_ptr_->setGoal(action_args_[action_to_set]);
 }
+
 void Scheduler::startNextAction()
 {
-    action next_action = current_client_ptr_->getNextAction();
+    selfie::EnumAction next_action = current_client_ptr_->getNextAction();
+
+    if (next_action == current_action_state_)
+    {
+        return;
+    }
+
+    task_state_publisher_.updateState(selfie::TASK_SHIFTING);
     current_client_ptr_ = clients_[next_action];
+    current_action_state_ = next_action;
     current_client_ptr_->waitForServer(200);
     current_client_ptr_->prepareAction();
     current_client_ptr_->setGoal(action_args_[next_action]);
 }
-int Scheduler::checkIfActionFinished()
+
+int Scheduler::checkIfCurrentActionFinished()
 {
-    return current_client_ptr_->getClientGoalState();
+    return current_client_ptr_->getGoalState();
 }
+
 void Scheduler::loop()
 {
-    if (checkIfActionFinished() == SUCCESS)
+    if (checkIfCurrentActionFinished() == SUCCESS)
     {
+        if (current_action_state_ == selfie::PARK)
+        {
+            ++park_counter_;
+            if (park_counter_ >= num_park_to_complete_)
+            {
+                DriveClient* drive_client = dynamic_cast<DriveClient*>(clients_[selfie::FREE_DRIVE]);
+                drive_client->removeNextAction();
+            }
+        }
         current_client_ptr_->getActionResult(action_args_[current_client_ptr_->getNextAction()]);
         startNextAction();
     }
-    else if (checkIfActionFinished() == ABORTED)
+    else if (checkIfCurrentActionFinished() == ABORTED)
     {
         // abort caused by RC
-        if (currentRcState_ == RC_MANUAL)
+        if (current_rc_state_ == selfie::RC_MANUAL)
         {
             // empty state
         }
         else  // abort caused by server
         {
             stopAction();
-            startAction(DRIVING);
+            startAction(selfie::FREE_DRIVE);
         }
     }
-    stateMachine();
 }
+
 template <typename T>
 bool Scheduler::checkCurrentClientType()
 {
@@ -136,66 +164,38 @@ bool Scheduler::checkCurrentClientType()
     }
     return false;
 }
-void Scheduler::stateMachine()
-{
-    current_car_state_ = current_client_ptr_->getActionState();
 
-    if (current_car_state_ == previous_car_state_)
-    {
-        return;
-    }
-    switch (current_car_state_)
-    {
-        case SELFIE_READY:
-            ROS_INFO("STATE_SELFIE_READY");
-            previous_car_state_ = SELFIE_READY;
-            break;
-        case BUTTON_PARKING_DRIVE_PRESSED:
-            ROS_INFO("BUTTON_PARKING_DRIVE_PRESSED");
-            previous_car_state_ = BUTTON_PARKING_DRIVE_PRESSED;
-            break;
-        case BUTTON_OBSTACLE_DRIVE_PRESSED:
-            ROS_INFO("BUTTON_OBSTACLE_DRIVE_PRESSED");
-            previous_car_state_ = BUTTON_OBSTACLE_DRIVE_PRESSED;
-            break;
-        case START_DRIVE:
-            ROS_INFO("START_DRIVE");
-            previous_car_state_ = START_DRIVE;
-            break;
-        case END_DRIVE:
-            ROS_INFO("END DRIVE");
-            previous_car_state_ = END_DRIVE;
-            break;
-    }
-}
 void Scheduler::stopAction()
 {
     current_client_ptr_->cancelAction();
     ROS_WARN("STOP current action");
 }
-void Scheduler::switchStateCallback(const std_msgs::UInt8ConstPtr &msg)
-{
-    // prevent from execution on the beginning
-    if (current_car_state_ > SELFIE_READY)
-    {
-        currentRcState_ = (rc_state)msg->data;
 
-        if (previousRcState_ != currentRcState_)
+void Scheduler::taskStateCallback(const std_msgs::Int8ConstPtr &msg)
+{
+    previous_task_state_ = current_task_state_;
+    current_task_state_ = static_cast<selfie::EnumTask>(msg->data);
+}
+
+void Scheduler::rcStateCallback(const std_msgs::Int8ConstPtr &msg)
+{
+    previous_rc_state_ = current_rc_state_;
+    current_rc_state_ = static_cast<selfie::EnumRC>(msg->data);
+
+    // prevent from execution on the beginning
+    if (current_task_state_ != selfie::TASK_SHIFTING && current_task_state_ != selfie::WAITING_FOR_BUTTON)
+    {
+        if (current_rc_state_ == selfie::RC_MANUAL &&
+                                 (previous_rc_state_ == selfie::RC_AUTONOMOUS ||
+                                 previous_rc_state_ == selfie::RC_HALF_AUTONOMOUS))
         {
-            if (currentRcState_ == RC_MANUAL &&
-                                   (previousRcState_ == RC_AUTONOMOUS || previousRcState_ == RC_HALF_AUTONOMOUS))
-            {
-                stopAction();
-            }
-            else if (currentRcState_ == RC_AUTONOMOUS && previousRcState_ == RC_MANUAL)
-            {
-                startAction(DRIVING);
-            }
-            else if (currentRcState_ == RC_HALF_AUTONOMOUS && previousRcState_ == RC_MANUAL)
-            {
-                startAction(DRIVING);
-            }
-            previousRcState_ = currentRcState_;
+            stopAction();
+        }
+        else if ((current_rc_state_ == selfie::RC_AUTONOMOUS ||
+                 current_rc_state_ == selfie::RC_HALF_AUTONOMOUS) &&
+                 previous_rc_state_ == selfie::RC_MANUAL)
+        {
+            startAction(selfie::FREE_DRIVE);
         }
     }
 }

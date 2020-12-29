@@ -19,7 +19,12 @@ class StatePublisher
     std_msgs::Int8 state_;
 
 public:
+    // Timer mode
     StatePublisher(const std::string& topic_name, float pub_freq);
+
+    // Latching mode
+    explicit StatePublisher(const std::string& topic_name);
+
     void updateState(int8_t new_state);
     void updateState(std_msgs::Int8 new_state);
 

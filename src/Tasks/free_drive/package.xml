@@ -17,5 +17,6 @@
   <depend>dynamic_reconfigure</depend>
   <depend>actionlib_msgs</depend>
   <depend>custom_msgs</depend>
+  <depend>common</depend>
 
 </package>

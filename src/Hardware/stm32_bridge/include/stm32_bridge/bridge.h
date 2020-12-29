@@ -7,7 +7,6 @@
 #define STM32_BRIDGE_BRIDGE_H
 
 #include "ros/ros.h"
-#include "std_msgs/UInt8.h"
 #include "custom_msgs/Motion.h"
 #include "custom_msgs/Buttons.h"
 #include "custom_msgs/Indicators.h"
@@ -44,7 +43,7 @@ public:
     custom_msgs::Motion motion_msg;
     custom_msgs::Buttons buttons_msg;
 
-    std_msgs::UInt8 futaba_state;
+    int rc_state;
 };
 
 class Sub_messages

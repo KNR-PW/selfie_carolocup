@@ -11,9 +11,7 @@
 IntersectionClient::IntersectionClient(std::string name):
     ac_(name, true)
 {
-    result_flag_ = EMPTY;
-    next_action_ = DRIVING;
-    action_state_ = SELFIE_IDLE;
+    next_action_ = selfie::FREE_DRIVE;
     avoidingObstSetPassive_ = nh_.serviceClient<std_srvs::Empty>("avoiding_obst_set_passive");
     resetLaneController_ = nh_.serviceClient<std_srvs::Empty>("resetLaneControl");
 }
@@ -24,8 +22,8 @@ IntersectionClient::~IntersectionClient()
 void IntersectionClient::setGoal(boost::any goal)
 {
     ac_.sendGoal(goal_, boost::bind(&IntersectionClient::doneCb, this, _1, _2),
-                boost::bind(&IntersectionClient::activeCb, this),
-                boost::bind(&IntersectionClient::feedbackCb, this, _1));
+                boost::bind(&IntersectionClient::activeCb, this));
+    goal_state_flag_ = SENT;
 }
 
 bool IntersectionClient::waitForResult(float timeout)
@@ -35,7 +33,7 @@ bool IntersectionClient::waitForResult(float timeout)
 
 bool IntersectionClient::waitForServer(float timeout)
 {
-    result_flag_ = EMPTY;
+    goal_state_flag_ = NOT_SEND;
     ROS_INFO("Wait for itersection action server");
     return ac_.waitForServer(ros::Duration(timeout));
 }
@@ -45,25 +43,20 @@ void IntersectionClient::doneCb(const actionlib::SimpleClientGoalState& state,
 {
     ROS_INFO("Finished itersection in state [%s]", state.toString().c_str());
     ROS_INFO("itersection result: %d", result->done);
-    if (state == State::ABORTED)
+    if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED)
     {
-        result_flag_ = ABORTED;
+        goal_state_flag_ = ABORTED;
     }
-    else if (state == State::SUCCEEDED)
+    else if (state == actionlib::SimpleClientGoalState::StateEnum::SUCCEEDED)
     {
         result_ = result->done;
-        result_flag_ = SUCCESS;
+        goal_state_flag_ = SUCCESS;
     }
 }
 
 void IntersectionClient::activeCb()
 {
     ROS_INFO("itersection next_action_tion server active");
-}
-
-void IntersectionClient::feedbackCb(const custom_msgs::intersectionFeedbackConstPtr& feedback)
-{
-  action_state_ = (program_state)feedback->action_status;
 }
 
 void IntersectionClient::cancelAction()
@@ -79,6 +72,7 @@ void IntersectionClient::getActionResult(boost::any &result)
 
 void IntersectionClient::prepareAction()
 {
+    goal_state_flag_ = NOT_SEND;
     std_srvs::Empty empty_msg;
     resetLaneController_.call(empty_msg);
     avoidingObstSetPassive_.call(empty_msg);

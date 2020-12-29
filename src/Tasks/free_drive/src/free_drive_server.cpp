@@ -3,11 +3,16 @@
 *This code is licensed under BSD license (see LICENSE for details)
 **/ 
 
+#include <string>
+
 #include <free_drive/free_drive_server.h>
 
-FreeDriveServer::FreeDriveServer(const ros::NodeHandle &nh, const ros::NodeHandle &pnh) :
+FreeDriveServer::FreeDriveServer(const ros::NodeHandle &nh,
+                                 const ros::NodeHandle &pnh,
+                                 const std::string &state_pub_topic_name) :
   nh_(nh),
   pnh_(pnh),
+  state_publisher_(state_pub_topic_name),
   as_(nh_, "task/free_drive", false),
   distance_to_event_(100),
   starting_line_distance_to_end_(0.45),
@@ -44,7 +49,7 @@ void FreeDriveServer::registerGoal()
   ROS_INFO("mode 0 - no obstacles");
   ROS_INFO("mode 1 - obstacles");
   ROS_INFO("received goal: mode %d", goal_.mode);
-  publishFeedback(AUTONOMOUS_DRIVE);
+  updateState(selfie::AUTONOMOUS_DRIVE);
 
   distance_to_event_ = 100;
   if (!event_verified_)
@@ -60,6 +65,7 @@ void FreeDriveServer::registerGoal()
     event_distance_to_end_ = intersection_distance_to_end_;
     intersection_sub_ = nh_.subscribe("/intersection/stop", 100, &FreeDriveServer::intersectionCB, this);
   }
+
   executeLoop();
 }
 
@@ -69,28 +75,25 @@ void FreeDriveServer::executeLoop()
 
   while (!(distance_to_event_ < event_distance_to_end_) && ros::ok())
   {
-    if (event_detected_ && last_feedback_ == AUTONOMOUS_DRIVE)
+    if (event_detected_ && state_ == selfie::AUTONOMOUS_DRIVE)
     {
       if (goal_.mode == 0)
       {
-        publishFeedback(DETECT_START_LINE);
-        last_feedback_ = DETECT_START_LINE;
+        updateState(selfie::STARTING_LINE_DETECTED);
       }
       else
       {
-        publishFeedback(DETECT_CROSSROAD);
-        last_feedback_ = DETECT_CROSSROAD;
+        updateState(selfie::INTERSECTION_STOP_DETECTED);
       }
       event_detected_ = false;
     }
     else
     {
-      if (last_feedback_ != AUTONOMOUS_DRIVE &&
+      if (state_ != selfie::AUTONOMOUS_DRIVE &&
           std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_event_time_)
           > std::chrono::seconds(1))
       {
-        publishFeedback(AUTONOMOUS_DRIVE);
-        last_feedback_ = AUTONOMOUS_DRIVE;
+        updateState(selfie::AUTONOMOUS_DRIVE);
         event_detected_ = false;
       }
     }
@@ -111,6 +114,7 @@ void FreeDriveServer::executeLoop()
   }
 
   //  publish result
+  updateState(selfie::EVENT_SENT);
   if (goal_.mode == 0)
   {
     ROS_INFO("PARKING AREA DETECTED");
@@ -142,12 +146,6 @@ void FreeDriveServer::intersectionCB(const custom_msgs::IntersectionStop &msg)
   if (event_verified_)
     distance_to_event_ = msg.distance_in;
   last_event_time_ = std::chrono::steady_clock::now();
-}
-
-inline void FreeDriveServer::publishFeedback(feedback_variable program_state)
-{
-  feedback_.action_status = program_state;
-  as_.publishFeedback(feedback_);
 }
 
 inline void FreeDriveServer::maxSpeedPub()
@@ -211,4 +209,10 @@ void FreeDriveServer::distanceCB(const custom_msgs::Motion &msg)
       distance_sub_.shutdown();
     }
   }
+}
+
+inline void FreeDriveServer::updateState(const int &state)
+{
+  state_publisher_.updateState(state);
+  state_ = state;
 }

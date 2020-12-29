@@ -21,6 +21,7 @@
   <depend>nav_msgs</depend>
   <depend>custom_msgs</depend>
   <depend>tf</depend>
+  <depend>common</depend>
 
 
 </package>

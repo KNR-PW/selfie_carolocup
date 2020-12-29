@@ -22,13 +22,16 @@
 
 #include <lane_pilot/LaneControllerConfig.h>
 #include <common/marker_visualization.h>
+#include <common/state_publisher.h>
 #include <custom_msgs/Indicators.h>
 #include <custom_msgs/Motion.h>
 #include <custom_msgs/Box2DArray.h>
 #include <custom_msgs/Box2D.h>
 #include <custom_msgs/RoadLines.h>
+#include <custom_msgs/lane_control_enum.h>
 
 using dynamic_reconfigure::Client;
+using selfie::EnumLaneControl;
 
 class RoadObstacleDetector
 {
@@ -37,14 +40,6 @@ public:
   ~RoadObstacleDetector();
 
 private:
-  enum status
-  {
-    ON_RIGHT,
-    OVERTAKE,
-    ON_LEFT,
-    RETURN,
-    PASSIVE,
-  };
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
   ros::Subscriber obstacles_sub_;
@@ -105,6 +100,8 @@ private:
   int num_proof_to_return_;
   int num_corners_to_detect_;
 
+  StatePublisher state_publisher_;
+
   std::list<custom_msgs::Box2D> filtered_boxes_;  // boxes are sorted by x value
                                                   // ascendend (near->far)
   std::list<custom_msgs::Box2D>::iterator nearest_box_in_front_of_car_;
@@ -114,7 +111,7 @@ private:
   bool ackermann_mode_;
   bool are_road_lines_received_;
   bool return_distance_calculated_;
-  status status_;
+  selfie::EnumLaneControl state_;
 
   custom_msgs::Box2D area_of_interest_box_;
   custom_msgs::Box2D right_obst_area_box_;
@@ -123,6 +120,7 @@ private:
   dynamic_reconfigure::Server<lane_pilot::LaneControllerConfig>::CallbackType dr_server_CB_;
 
   void reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level);
+  void updateState(const selfie::EnumLaneControl &state);
 
   void filterBoxes(const custom_msgs::Box2DArray&);            // filters boxes and saves in filtered_boxes_
   void roadLinesCallback(const custom_msgs::RoadLines&);  // checks if boxes from filtered_boxes_ are on right

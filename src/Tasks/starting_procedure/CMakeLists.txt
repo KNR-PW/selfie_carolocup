@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   actionlib
   actionlib_msgs
+  common
   std_msgs
   dynamic_reconfigure
   roslint
@@ -14,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   nav_msgs
   custom_msgs
+  common
   tf
 )
 
@@ -35,6 +37,7 @@ catkin_package(
   tf
   dynamic_reconfigure
   std_srvs
+  common
 )
 
 include_directories(

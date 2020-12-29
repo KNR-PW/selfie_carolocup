@@ -15,5 +15,6 @@
   <depend>custom_msgs</depend>
   <depend>roslint</depend>
   <depend>tf</depend>
+  <depend>common</depend>
 
 </package>

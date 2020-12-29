@@ -68,11 +68,11 @@ public:
         ROS_INFO("Starting procedure goal is %f", goal->distance);
 
         waitGivenTime(1);
-        custom_msgs::startingFeedback starting_feedback;
-        starting_feedback.action_status = BUTTON_PARKING_DRIVE_PRESSED;
+        // custom_msgs::startingFeedback starting_feedback;
+        // starting_feedback.action_status = BUTTON_PARKING_DRIVE_PRESSED;
         waitGivenTime(action_time_);
 
-        starting_action_.publishFeedback(starting_feedback);
+        // starting_action_.publishFeedback(starting_feedback);
 
         if (starting_action_.isActive())
         {
@@ -89,9 +89,9 @@ public:
     void drive_action_goalCB(const custom_msgs::drivingGoalConstPtr &goal)
     {
         ROS_INFO("Drive goal is %d", goal->mode);
-        custom_msgs::drivingFeedback drive_feedback;
-        drive_feedback.action_status = AUTONOMOUS_DRIVE;
-        drive_action_.publishFeedback(drive_feedback);
+        // custom_msgs::drivingFeedback drive_feedback;
+        // drive_feedback.action_status = AUTONOMOUS_DRIVE;
+        // drive_action_.publishFeedback(drive_feedback);
         waitGivenTime(action_time_);
         if (drive_action_.isActive())
         {
@@ -108,9 +108,9 @@ public:
     void park_action_goalCB(const custom_msgs::parkGoalConstPtr &goal)
     {
         ROS_INFO("Park goal is");
-        custom_msgs::parkFeedback park_feedback;
-        park_feedback.action_status = START_PARK;
-        park_action_.publishFeedback(park_feedback);
+        // custom_msgs::parkFeedback park_feedback;
+        // park_feedback.action_status = START_PARK;
+        // park_action_.publishFeedback(park_feedback);
         waitGivenTime(action_time_);
         if (park_action_.isActive())
         {

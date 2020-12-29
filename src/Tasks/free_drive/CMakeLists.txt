@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   custom_msgs
   dynamic_reconfigure
   roslint
+  common
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -38,7 +39,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 add_executable(free_drive src/free_drive_server.cpp src/free_drive.cpp)
-target_link_libraries(free_drive ${catkin_LIBRARIES})
+target_link_libraries(free_drive ${catkin_LIBRARIES} commonlib)
 add_dependencies(free_drive ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 install(TARGETS free_drive

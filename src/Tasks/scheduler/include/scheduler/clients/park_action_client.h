@@ -9,7 +9,6 @@
 #include <scheduler/clients/client_interface.h>
 
 #include <custom_msgs/parkAction.h>
-#include <custom_msgs/enums.h>
 
 #include <string>
 
@@ -20,13 +19,7 @@ protected:
     custom_msgs::parkGoal goal_;
     int result_;
     ros::NodeHandle pnh_;
-    int parking_steering_mode_;
     ros::ServiceClient muxDriveSelect_;
-    ros::ServiceClient steeringModeSetAckermann_;
-    ros::ServiceClient steeringModeSetParallel_;
-
-    int sucessful_park_counter_;
-    int park_atttempts_counter_;
 
 public:
     explicit ParkClient(std::string name, const ros::NodeHandle &pnh);
@@ -40,10 +33,8 @@ public:
     void doneCb(const actionlib::SimpleClientGoalState& state,
                     const custom_msgs::parkResultConstPtr& result);
     void activeCb();
-    void feedbackCb(const custom_msgs::parkFeedbackConstPtr& feedback);
     bool getResult();
     void getActionResult(boost::any &result);
-    void setParkSteeringMode();
     void prepareAction();
 };
 

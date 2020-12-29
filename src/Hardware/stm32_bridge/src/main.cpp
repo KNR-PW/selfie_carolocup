@@ -10,6 +10,7 @@
 #include "custom_msgs/Buttons.h"
 #include "custom_msgs/Indicators.h"
 #include "custom_msgs/DriveCommand.h"
+#include <common/state_publisher.h>
 
 #include <stm32_bridge/usb.hpp>
 #include <stm32_bridge/bridge.h>
@@ -30,12 +31,21 @@ int main(int argc, char **argv)
     ros::NodeHandle pnh("~");
 
     ros::Publisher motion_publisher = n.advertise<custom_msgs::Motion>("selfie_out/motion", 100);
-    ros::Publisher buttons_publisher = n.advertise<custom_msgs::Buttons>("selfie_out/buttons", 100);
+    ros::Publisher buttons_publisher = n.advertise<custom_msgs::Buttons>("selfie_out/buttons", 100, true);
 
-    ros::Publisher switch_state_publisher = n.advertise<std_msgs::UInt8>("switch_state", 50);
+    StatePublisher state_rc_publisher_("/state/rc");
 
     ros::Subscriber ackerman_subscriber = n.subscribe("selfie_in/drive", 1, driveCallback);
     ros::Subscriber indicators_subscriber = n.subscribe("selfie_in/indicators", 1, indicatorsCallback);
+
+    bool first_button_state_last_time = false;
+    bool second_button_state_last_time = false;
+    int rc_state_last_time = 0;
+
+    // Publish for the first time
+    pub_messages.buttons_msg.is_pressed_first = false;
+    pub_messages.buttons_msg.is_pressed_second = false;
+    buttons_publisher.publish(pub_messages.buttons_msg);
 
     Usb.init();
     Time time;
@@ -50,11 +60,19 @@ int main(int argc, char **argv)
 
             // publishing msg
             motion_publisher.publish(pub_messages.motion_msg);
-            switch_state_publisher.publish(pub_messages.futaba_state);
 
-            if (pub_messages.buttons_msg.is_pressed_first || pub_messages.buttons_msg.is_pressed_second)
+            if (pub_messages.buttons_msg.is_pressed_first !=  first_button_state_last_time ||
+                pub_messages.buttons_msg.is_pressed_second !=  second_button_state_last_time)
             {
                 buttons_publisher.publish(pub_messages.buttons_msg);
+                first_button_state_last_time = pub_messages.buttons_msg.is_pressed_first;
+                second_button_state_last_time = pub_messages.buttons_msg.is_pressed_second;
+            }
+
+            if (pub_messages.rc_state != rc_state_last_time)
+            {
+                rc_state_last_time = pub_messages.rc_state;
+                state_rc_publisher_.updateState(pub_messages.rc_state);
             }
         }
 

@@ -28,6 +28,8 @@ roslaunch intersection intersection_example.launch
    - current speed of car
 -  `/visualization/intersection` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
    - (only when parameter `visualization=true` visualizes found obstacles)
+-  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
+   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ## Parameters
 -  `distance_to_intersection` (*float*)

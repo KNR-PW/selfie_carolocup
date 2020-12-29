@@ -7,20 +7,16 @@
 #define SCHEDULER_SCHEDULER_H
 
 #include <boost/any.hpp>
-#include <std_msgs/UInt8.h>
+#include <map>
+#include <std_msgs/Int8.h>
 
-#include <custom_msgs/enums.h>
 #include <scheduler/clients/client_interface.h>
 
-#include <map>
+#include <custom_msgs/action_enum.h>
+#include <custom_msgs/task_enum.h>
+#include <custom_msgs/rc_enum.h>
 
-/*
-Params:
-- start action + default arguments (pressed button, detected parking spot)
-- starting_distance
-- parking_spot
--
-*/
+#include <common/state_publisher.h>
 
 class Scheduler
 {
@@ -28,26 +24,31 @@ class Scheduler
     ros::NodeHandle pnh_;
 
     // params
-    int begin_action_;
     float start_distance_;
     float parking_spot_;
+    int num_park_to_complete_;
 
-    program_state current_car_state_;
-    program_state previous_car_state_;
-    action current_action_state_;
+    int park_counter_;
 
-    std::map<action, ClientInterface*> clients_;
-    std::map<action, boost::any> action_args_;
+    ros::Subscriber task_state_sub;
+    void taskStateCallback(const std_msgs::Int8ConstPtr &msg);
+    selfie::EnumTask current_task_state_{selfie::TASK_SHIFTING};
+    selfie::EnumTask previous_task_state_{selfie::TASK_SHIFTING};
+
+    selfie::EnumAction current_action_state_{selfie::ACTION_NONE};
+    std::map<selfie::EnumAction, ClientInterface*> clients_;
+    std::map<selfie::EnumAction, boost::any> action_args_;
     ClientInterface *current_client_ptr_;
 
-    ros::Subscriber switchState_;
-    void switchStateCallback(const std_msgs::UInt8ConstPtr &msg);
-    rc_state previousRcState_;
-    rc_state currentRcState_;
+    ros::Subscriber rc_state_sub;
+    void rcStateCallback(const std_msgs::Int8ConstPtr &msg);
+    selfie::EnumRC previous_rc_state_{selfie::RC_UNINITIALIZED};
+    selfie::EnumRC current_rc_state_{selfie::RC_UNINITIALIZED};
+
+    StatePublisher task_state_publisher_{"/state/task"};
 
     template <typename T> bool checkCurrentClientType();
-    void stateMachine();
-    void startAction(action action_to_set);
+    void startAction(selfie::EnumAction action_to_set);
     void startNextAction();
     void stopAction();
 
@@ -59,18 +60,13 @@ public:
 
     void loop();
 
-    void actionSetup();  // begin action
-    void logFeedback();
-    void feedbackStateMachine();
+    void actionSetup();
 
     void setupActionClients(bool button_pressed);
     void waitForStart();
 
-    action getBeginAction();  // get first action from argument
-    void shiftAction();
-
     void actionStateMachine();
-    int checkIfActionFinished();
+    int checkIfCurrentActionFinished();
 };
 
 #endif  // SCHEDULER_SCHEDULER_H

@@ -69,14 +69,6 @@ typedef enum rc_state
 }
 rc_state_variable;
 
-typedef enum client_goal_state
-{
-  EMPTY,
-  ABORTED,
-  SUCCESS,
-}
-client_goal_state_variable;
-
 typedef enum steering_mode
 {
   ACKERMANN = 0,
