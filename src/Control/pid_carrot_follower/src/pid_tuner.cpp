@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-#include <std_msgs/Float32.h>
 #include <std_srvs/Empty.h>
 #include <pid_carrot_follower/pid_tuner.h>
 
@@ -12,6 +11,8 @@ PidTuner::PidTuner()
 {
   dr_server_.setCallback(dr_server_CB_);
 
+  sub_motion_ = nh_.subscribe("/selfie_out/motion", 50, &PidTuner::speedCallback, this);
+
   pnh_.getParam("L_Kp", L_Kp);
   pnh_.getParam("L_Ki", L_Ki);
   pnh_.getParam("L_Kd", L_Kd);
@@ -23,6 +24,36 @@ PidTuner::PidTuner()
   pnh_.getParam("H_Kp", H_Kp);
   pnh_.getParam("H_Ki", H_Ki);
   pnh_.getParam("H_Kd", H_Kd);
+
+  pnh_.getParam("H_speed", H_speed);
+  pnh_.getParam("M_speed", M_speed);
+
+}
+
+void PidTuner::speedCallback(const custom_msgs::Motion &msg)
+{
+  if(act_speed_ != msg.speed_linear)
+  {
+    act_speed_ = msg.speed_linear;
+    if(act_speed_ < M_speed) 
+    {
+      setKp(L_Kp);
+      setKd(L_Kd);
+      setKi(L_Ki);
+    }
+    else if(act_speed_ < H_speed)
+    {
+      setKp(M_Kp);
+      setKd(M_Kd);
+      setKi(M_Ki);
+    }
+    else
+    {
+      setKp(H_Kp);
+      setKd(H_Kd);
+      setKi(H_Ki);
+    }
+  }
 }
 
 void PidTuner::setKd(float Kd)
@@ -175,5 +206,15 @@ void PidTuner::reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32
   {
     L_Kd = config.L_Kd;
     ROS_INFO("L_Kd new value %f", L_Kd);
+  }
+  if(M_speed != (float)config.M_speed)
+  {
+    M_speed = config.M_speed;
+    ROS_INFO("M_speed new value %f",M_speed);
+  }
+  if(H_speed != (float)config.H_speed)
+  {
+    M_speed = config.M_speed;
+    ROS_INFO("H_speed new value %f",H_speed);
   }
 }

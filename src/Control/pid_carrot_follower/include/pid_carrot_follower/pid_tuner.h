@@ -9,12 +9,15 @@
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <pid_carrot_follower/PIDTunerConfig.h>
-
+#include <std_msgs/Float32.h>
+#include "custom_msgs/Motion.h"
 
 class PidTuner 
 {
     ros::NodeHandle pnh_;
     ros::NodeHandle nh_;
+
+    ros::Subscriber sub_motion_;
     // variables used for changing settings of PID
     dynamic_reconfigure::ReconfigureRequest srv_req_;
     dynamic_reconfigure::ReconfigureResponse srv_resp_;
@@ -45,6 +48,10 @@ class PidTuner
     float H_Ki;
     float H_Kd;
 
+    float M_speed;
+    float H_speed;
+    float act_speed_;
+
 public:
     PidTuner();
     void setKd(float Kd);
@@ -52,6 +59,7 @@ public:
     void setKi(float Ki);
 private: 
     void reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
+    void speedCallback(const custom_msgs::Motion &msg);
 
 };
 #endif //PARK_PARK_H
