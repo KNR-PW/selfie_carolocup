@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   custom_msgs
   roslint
   tf
+  common
 )
 
 include_directories(

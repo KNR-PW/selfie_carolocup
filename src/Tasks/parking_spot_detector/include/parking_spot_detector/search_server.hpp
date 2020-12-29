@@ -23,10 +23,11 @@
 #include <parking_spot_detector/DetectParkingSpotConfig.h>
 
 #include <custom_msgs/Motion.h>
-#include <custom_msgs/enums.h>
 #include <custom_msgs/Box2DArray.h>
 #include <custom_msgs/Box2D.h>
 #include <common/marker_visualization.h>
+#include <common/state_publisher.h>
+#include <custom_msgs/task_enum.h>
 
 using namespace std;
 
@@ -65,8 +66,9 @@ private:
   float speed_when_found_place;
   std_msgs::Float64 speed_current;
 
-  custom_msgs::searchFeedback action_status;
-  void publishFeedback(unsigned int);
+  int state_{selfie::TASK_SHIFTING};
+  StatePublisher state_publisher_;
+
   custom_msgs::searchResult result;
 
   dynamic_reconfigure::Server<parking_spot_detector::DetectParkingSpotConfig> dr_server_;
@@ -80,6 +82,7 @@ private:
   float ROI_min_y_;
   float ROI_max_y_;
 
+  void updateState(const int &state);
   bool init();
   void preemptCB();
   void endAction();

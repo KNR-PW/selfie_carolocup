@@ -8,6 +8,7 @@
 IntersectionServer::IntersectionServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
   , pnh_(pnh)
+  , state_publisher_("/state/task")
   , intersectionServer_(nh_, "task/intersection", false)
   , point_max_x_(0.95)  // Width of road
   , dr_server_CB_(boost::bind(&IntersectionServer::reconfigureCB, this, _1, _2))
@@ -49,7 +50,7 @@ void IntersectionServer::init()
   speed_publisher_ = nh_.advertise<std_msgs::Float64>("/max_speed", 2);
   speed_.data = speed_default_;
   speed_publisher_.publish(speed_);
-  publishFeedback(APPROACHING_TO_INTERSECTION);
+  updateState(selfie::APPROACHING_TO_INTERSECTION);
   time_started_ = false;
   approached_blindly_ = false;
   ROS_INFO("Goal received - node activated");
@@ -73,7 +74,7 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
   {
     speed_.data = speed_default_;
     speed_publisher_.publish(speed_);
-    publishFeedback(APPROACHING_TO_INTERSECTION);
+    updateState(selfie::APPROACHING_TO_INTERSECTION);
   }
   else
   {
@@ -94,11 +95,11 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
         selfie::visualizeBox2D(point_min_x_, point_max_x_, point_min_y_, point_max_y_, visualize_intersection_,
                                   "area_of_interest", 0.9, 0.9, 0.1);
       }
-      if (action_status_.action_status != STOPPED_ON_INTERSECTION)
+      if (state_ != selfie::STOP_OBSTACLE_ON_INTERSECTION)
       {
         speed_.data = 0;
         speed_publisher_.publish(speed_);
-        publishFeedback(STOPPED_ON_INTERSECTION);
+        updateState(selfie::STOP_OBSTACLE_ON_INTERSECTION);
       }
     }
     else
@@ -107,7 +108,7 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
       difftime_ = current_time_ - beginning_time_;
       if (difftime_ >= stop_time_)
       {
-        publishFeedback(ROAD_CLEAR);
+        updateState(selfie::PASSING_INTERSECTION);
         ROS_INFO("Road clear, intersection action finished");
         sendGoal();
       }
@@ -117,12 +118,12 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
         {
           speed_.data = 0;
           speed_publisher_.publish(speed_);
-          publishFeedback(WAITING_ON_INTERSECTION);
+          updateState(selfie::STOP_TIME_ON_INTERSECTION);
           ROS_INFO_THROTTLE(0.3, "Waiting (%lf s left) on intersection", stop_time_ - difftime_);
         }
         else
         {
-          if (action_status_.action_status != APPROACHING_TO_INTERSECTION2)
+          if (state_!= selfie::BLIND_APPROACHING)
           {
             distance_to_stop_blind_approaching_ = current_distance_ + distance_of_blind_approaching_;
             ROS_INFO("Approaching blindly");
@@ -130,7 +131,7 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
 
           speed_.data = speed_default_;
           speed_publisher_.publish(speed_);
-          publishFeedback(APPROACHING_TO_INTERSECTION2);
+          updateState(selfie::BLIND_APPROACHING);
         }
       }
     }
@@ -139,7 +140,7 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
 
 void IntersectionServer::intersectionCallback(const custom_msgs::IntersectionStop& msg)
 {
-  if (action_status_.action_status != APPROACHING_TO_INTERSECTION2)
+  if (state_ != selfie::BLIND_APPROACHING)
   {
     point_min_x_ = msg.distance_in;
     if (!is_distance_to_intersection_saved_)
@@ -175,7 +176,7 @@ void IntersectionServer::distanceCallback(const custom_msgs::Motion& msg)
       sendGoal();
     }
   }
-  if (!approached_blindly_ && action_status_.action_status == APPROACHING_TO_INTERSECTION2)
+  if (!approached_blindly_ && state_ == selfie::BLIND_APPROACHING)
   {
     if (current_distance_ >= distance_to_stop_blind_approaching_)
     {
@@ -234,10 +235,10 @@ bool IntersectionServer::isPointInsideROI(const geometry_msgs::Point& p)
   return !(p.x < point_min_x_ || p.x > point_max_x_ || p.y < point_min_y_ || p.y > point_max_y_);
 }
 
-void IntersectionServer::publishFeedback(program_state newStatus)
+void IntersectionServer::updateState(const int &state)
 {
-  action_status_.action_status = newStatus;
-  intersectionServer_.publishFeedback(action_status_);
+  state_publisher_.updateState(state);
+  state_ = state;
 }
 
 void IntersectionServer::preemptCb()

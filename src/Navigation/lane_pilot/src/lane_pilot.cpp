@@ -8,6 +8,7 @@
 RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
   , pnh_(pnh)
+  , state_publisher_("/state/lane_control")
   , are_road_lines_received_(false)
   , max_distance_to_obstacle_(0.5)
   , proof_slowdown_(0)
@@ -15,6 +16,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   , current_distance_(0)
   , current_offset_(0)
   , return_distance_calculated_(false)
+  , state_(EnumLaneControl::UNINITIALIZED)
   , dr_server_CB_(boost::bind(&RoadObstacleDetector::reconfigureCB, this, _1, _2))
 {
   pnh_.param<bool>("visualization", visualization_, true);
@@ -48,7 +50,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   reset_node_service_ = nh_.advertiseService("/resetLaneControl", &RoadObstacleDetector::resetNode, this);
   offset_pub_ = nh_.advertise<std_msgs::Float64>("/path_offset", 1);
   speed_pub_ = nh_.advertise<std_msgs::Float64>("/max_speed", 1);
-  indicators_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20);
+  indicators_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20, true);
 
   speed_message_.data = max_speed_;
 
@@ -86,27 +88,33 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
     p.y = right_obst_area_max_y_;
     right_obst_area_box_.tl = p;
   }
-  status_ = PASSIVE;
   offset_value_.data = right_lane_offset_;
   timer_ = nh_.createTimer(ros::Duration(0.5), &RoadObstacleDetector::passiveTimerCallback, this);
   timer_.start();
 
   ROS_INFO("road_obstacle_detector initialized ");
+  updateState(EnumLaneControl::PASSIVE_RIGHT);
 }
 
 RoadObstacleDetector::~RoadObstacleDetector()
 {
 }
 
+void RoadObstacleDetector::updateState(const selfie::EnumLaneControl &state)
+{
+  state_publisher_.updateState(state);
+  state_ = state;
+}
+
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 {
-  if (status_ != OVERTAKE && status_ != ON_LEFT)
+  if (state_ != EnumLaneControl::OVERTAKE && state_ != EnumLaneControl::ON_LEFT)
   {
     filterBoxes(msg);
     if (!filtered_boxes_.empty())
     {
       ++proof_slowdown_;
-      if ((status_ == ON_RIGHT || status_ == RETURN) &&
+      if ((state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
           (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
            nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
       {
@@ -119,7 +127,7 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
         }
         distance_when_started_changing_lane_ = current_distance_;
         ROS_INFO("LC: OVERTAKE");
-        status_ = OVERTAKE;
+        updateState(EnumLaneControl::OVERTAKE);
       }
     }
     else
@@ -130,7 +138,7 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
       }
     }
   }
-  else if (status_ == ON_LEFT)
+  else if (state_ == EnumLaneControl::ON_LEFT)
   {
     if (!isObstacleNextToCar(msg))
     {
@@ -148,7 +156,7 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
         std_srvs::Empty e;
         ackerman_steering_service_.call(e);
       }
-      status_ = RETURN;
+      updateState(EnumLaneControl::RETURN_RIGHT);
       ROS_INFO("LC: RETURN");
       return_distance_calculated_ = false;
       distance_when_started_changing_lane_ = current_distance_;
@@ -156,9 +164,9 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
       obstacleCallback(temp);
     }
   }
-  switch (status_)
+  switch (state_)
   {
-    case ON_RIGHT:
+    case EnumLaneControl::ON_RIGHT:
       offset_value_.data = right_lane_offset_;
 
       if (proof_slowdown_ >= num_proof_to_slowdown_)
@@ -167,21 +175,21 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
         speed_message_.data = max_speed_;
 
       break;
-    case OVERTAKE:
+    case EnumLaneControl::OVERTAKE:
       sendIndicators(true, false);
       offset_value_.data = left_lane_offset_;
       speed_message_.data = lane_change_speed_;
       break;
-    case ON_LEFT:
+    case EnumLaneControl::ON_LEFT:
       offset_value_.data = left_lane_offset_;
       speed_message_.data = max_speed_;
       break;
-    case RETURN:
+    case EnumLaneControl::RETURN_RIGHT:
       sendIndicators(false, true);
       offset_value_.data = right_lane_offset_;
       speed_message_.data = lane_change_speed_;
       break;
-    case PASSIVE:
+    case EnumLaneControl::UNINITIALIZED:
       return;
     default:
       ROS_ERROR("Wrong avoiding_obstacle action status");
@@ -340,28 +348,30 @@ void RoadObstacleDetector::visualizeBoxes()
 void RoadObstacleDetector::motionCallback(const custom_msgs::Motion& msg)
 {
   current_distance_ = msg.distance;
-  if (status_ == OVERTAKE && current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
+  if (state_ == EnumLaneControl::OVERTAKE &&
+      current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
     if (ackermann_mode_)
     {
       std_srvs::Empty e;
       front_axis_steering_service_.call(e);
     }
-    status_ = ON_LEFT;
+    updateState(EnumLaneControl::ON_LEFT);
     proof_return_ = 0;
     ROS_INFO("LC: ON_LEFT");
     sendIndicators(false, false);
     custom_msgs::Box2DArray temp;
     obstacleCallback(temp);
   }
-  else if (status_ == RETURN && current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
+  else if (state_ == EnumLaneControl::RETURN_RIGHT &&
+           current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
     if (ackermann_mode_)
     {
       std_srvs::Empty e;
       front_axis_steering_service_.call(e);
     }
-    status_ = ON_RIGHT;
+    updateState(EnumLaneControl::ON_RIGHT);
     ROS_INFO("LC: ON_RIGHT");
     sendIndicators(false, false);
     custom_msgs::Box2DArray temp;
@@ -378,7 +388,7 @@ void RoadObstacleDetector::passiveTimerCallback(const ros::TimerEvent& time)
 bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("lane control set to active");
-  if (status_ != PASSIVE)
+  if (state_ != EnumLaneControl::PASSIVE_RIGHT && state_ != EnumLaneControl::UNINITIALIZED)
   {
     ROS_WARN("Switched to active when node is active");
     return false;
@@ -390,7 +400,7 @@ bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std
   return_distance_calculated_ = false;
   proof_slowdown_ = 0;
   timer_.stop();
-  status_ = ON_RIGHT;
+  updateState(EnumLaneControl::ON_RIGHT);
   if (ackermann_mode_)
   {
     ackerman_steering_service_ = nh_.serviceClient<std_srvs::Empty>("/steering_ackerman");
@@ -410,7 +420,7 @@ bool RoadObstacleDetector::switchToPassive(std_srvs::Empty::Request& request, st
   speed_message_.data = max_speed_;
   offset_pub_.publish(offset_value_);
   speed_pub_.publish(speed_message_);
-  status_ = PASSIVE;
+  updateState(EnumLaneControl::PASSIVE_RIGHT);
   timer_.start();
   ROS_INFO("Lane control passive mode");
   return true;
@@ -419,7 +429,7 @@ bool RoadObstacleDetector::switchToPassive(std_srvs::Empty::Request& request, st
 bool RoadObstacleDetector::resetNode(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("Lane control reset");
-  if (status_ != PASSIVE)
+  if (state_ = EnumLaneControl::PASSIVE_RIGHT)
   {
     switchToPassive(request, response);
     switchToActive(request, response);

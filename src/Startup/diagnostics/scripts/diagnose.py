@@ -15,7 +15,7 @@ class Diagnose:
     def __init__(self):
         # ros communication
         self.pub_ = rospy.Publisher('/selfie_diagnostics', String, queue_size=10)  # warning, errors publishers
-        self.indicators_pub_ = rospy.Publisher("/selfie_in/indicators", Indicators, queue_size=10)
+        self.indicators_pub_ = rospy.Publisher("/selfie_in/indicators", Indicators, queue_size=10, latch=True)
         rospy.on_shutdown(self.shutdownPerformance)
         rospy.loginfo("[Diagnostic Node] Starting  Selfie Diagnostics")
 

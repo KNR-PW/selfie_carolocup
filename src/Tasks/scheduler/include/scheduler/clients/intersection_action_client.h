@@ -9,7 +9,6 @@
 #include <scheduler/clients/client_interface.h>
 
 #include <custom_msgs/intersectionAction.h>
-#include <custom_msgs/enums.h>
 
 #include <string>
 
@@ -33,7 +32,6 @@ public:
     void doneCb(const actionlib::SimpleClientGoalState& state,
                     const custom_msgs::intersectionResultConstPtr& result);
     void activeCb();
-    void feedbackCb(const custom_msgs::intersectionFeedbackConstPtr& feedback);
     bool getResult();
     void getActionResult(boost::any &result);
     void prepareAction();

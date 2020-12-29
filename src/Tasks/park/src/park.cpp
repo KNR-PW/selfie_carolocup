@@ -6,7 +6,11 @@
 #include <park/park.h>
 
 Park::Park(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
-  : nh_(nh), pnh_(pnh), as_(nh_, "task/park", false), dr_server_CB_(boost::bind(&Park::reconfigureCB, this, _1, _2))
+  : nh_(nh)
+  , pnh_(pnh)
+  , state_publisher_("/state/task")
+  , as_(nh_, "task/park", false)
+  , dr_server_CB_(boost::bind(&Park::reconfigureCB, this, _1, _2))
 {
   pnh_.param<bool>("state_msgs", state_msgs_, false);
   pnh_.param<float>("parking_speed", parking_speed_, 0.8);
@@ -32,14 +36,13 @@ Park::Park(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   as_.start();
   dist_sub_ = nh_.subscribe("/selfie_out/motion", 1, &Park::distanceCallback, this);
   drive_pub_ = nh_.advertise<custom_msgs::DriveCommand>("/drive_park", 10);
-  indicator_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20);
+  indicator_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20, true);
   markings_sub_ = nh_.subscribe("/road_lines", 10, &Park::markingsCallback, this);
 }
 
 void Park::distanceCallback(const custom_msgs::Motion& msg)
 {
   actual_dist_ = msg.distance;
-  custom_msgs::parkFeedback feedback;
   switch (parking_state_)
   {
     case go_to_parking_spot:
@@ -55,6 +58,7 @@ void Park::distanceCallback(const custom_msgs::Motion& msg)
       break;
 
     case going_in:
+      updateState(selfie::ENTRY_PARKING_SPOT);
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "get_in");
       if (park())
@@ -67,14 +71,14 @@ void Park::distanceCallback(const custom_msgs::Motion& msg)
         ROS_INFO_THROTTLE(5, "parked");
       drive(0., 0., 0.);
       blink(true, true);
-      feedback.action_status = IN_PLACE;
-      as_.publishFeedback(feedback);
+      updateState(selfie::PARKING_IDLE);
       ros::Duration(idle_time_).sleep();
       parking_state_ = going_out;
       break;
 
     case going_out:
       blink(true, false);
+      updateState(selfie::EXIT_PARKING_SPOT);
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "get_out");
       if (leave())
@@ -82,14 +86,11 @@ void Park::distanceCallback(const custom_msgs::Motion& msg)
       break;
 
     case out:
-      feedback.action_status = OUT_PLACE;
-      as_.publishFeedback(feedback);
       blink(false, false);
       if (state_msgs_)
         ROS_INFO_THROTTLE(5, "out");
       drive(parking_speed_, 0., 0.);
-      feedback.action_status = READY_TO_DRIVE;
-      as_.publishFeedback(feedback);
+      updateState(selfie::PARKING_COMPLETED);
       custom_msgs::parkResult result;
       result.done = true;
       as_.setSucceeded(result);
@@ -102,9 +103,7 @@ void Park::goalCB()
 {
   custom_msgs::parkGoal goal = *as_.acceptNewGoal();
   initParkingSpot(goal.parking_spot);
-  custom_msgs::parkFeedback feedback;
-  feedback.action_status = START_PARK;
-  as_.publishFeedback(feedback);
+  updateState(selfie::APPROACHING_TO_PARKING_SPOT);
   parking_state_ = go_to_parking_spot;
 }
 
@@ -115,6 +114,12 @@ void Park::preemptCB()
   parking_state_ = not_parking;
   move_state_ = first_phase;
   as_.setAborted();
+}
+
+void Park::updateState(const int &state)
+{
+  state_publisher_.updateState(state);
+  state_ = state;
 }
 
 void Park::initParkingSpot(const custom_msgs::Box2D& msg)

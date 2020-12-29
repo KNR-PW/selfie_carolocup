@@ -10,9 +10,7 @@
 SearchClient::SearchClient(std::string name):
     ac_(name, true)
 {
-    next_action_ = PARK;
-    result_flag_ = EMPTY;
-    action_state_ = SELFIE_IDLE;
+    next_action_ = selfie::PARK;
 }
 
 SearchClient::~SearchClient()
@@ -34,8 +32,8 @@ void SearchClient::setGoal(boost::any goal)
     }
     goal_.min_spot_lenght = parking_spot;
     ac_.sendGoal(goal_, boost::bind(&SearchClient::doneCb, this, _1, _2),
-                boost::bind(&SearchClient::activeCb, this),
-                boost::bind(&SearchClient::feedbackCb, this, _1));
+                boost::bind(&SearchClient::activeCb, this));
+    goal_state_flag_ = SENT;
 }
 bool SearchClient::waitForResult(float timeout)
 {
@@ -44,7 +42,7 @@ bool SearchClient::waitForResult(float timeout)
 
 bool SearchClient::waitForServer(float timeout)
 {
-    result_flag_ = EMPTY;
+    goal_state_flag_ = NOT_SEND;
     ROS_INFO("Wait for search action server");
     return ac_.waitForServer(ros::Duration(timeout));
 }
@@ -56,23 +54,18 @@ void SearchClient::doneCb(const actionlib::SimpleClientGoalState& state,
 
     if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED)
     {
-        result_flag_ = ABORTED;
+        goal_state_flag_ = ABORTED;
     }
     else
     {
         result_ = result->parking_spot;
-        result_flag_ = SUCCESS;
+        goal_state_flag_ = SUCCESS;
     }
 }
 
 void SearchClient::activeCb()
 {
     ROS_INFO("Search action server active");
-}
-
-void SearchClient::feedbackCb(const custom_msgs::searchFeedbackConstPtr& feedback)
-{
-  action_state_ = (program_state)feedback->action_status;
 }
 
 void SearchClient::cancelAction()
@@ -87,4 +80,5 @@ void SearchClient::getActionResult(boost::any &goal)
 
 void SearchClient::prepareAction()
 {
+    goal_state_flag_ = NOT_SEND;
 }

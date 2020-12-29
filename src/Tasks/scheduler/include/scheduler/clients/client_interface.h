@@ -12,15 +12,23 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
-#include <custom_msgs/enums.h>
+#include <custom_msgs/action_enum.h>
+
+typedef enum GoalState
+{
+    NOT_SEND,
+    SENT,
+    ABORTED,
+    SUCCESS,
+}
+GoalState;
 
 class ClientInterface
 {
 protected:
     ros::NodeHandle nh_;
-    program_state action_state_;
-    client_goal_state result_flag_;
-    action next_action_;
+    GoalState goal_state_flag_{NOT_SEND};
+    selfie::EnumAction next_action_;
 
 public:
     virtual ~ClientInterface() = 0;
@@ -31,12 +39,7 @@ public:
     virtual void getActionResult(boost::any &result) = 0;
     virtual void prepareAction() = 0;
 
-    client_goal_state getClientGoalState() {return result_flag_;}
-    action getNextAction() {return next_action_;}
-    program_state getActionState()
-    {
-        if (action_state_ != SELFIE_IDLE)
-            return action_state_;
-    }
+    GoalState getGoalState() {return goal_state_flag_;}
+    selfie::EnumAction getNextAction() {return next_action_;}
 };
 #endif  // SCHEDULER_CLIENTS_CLIENT_INTERFACE_H

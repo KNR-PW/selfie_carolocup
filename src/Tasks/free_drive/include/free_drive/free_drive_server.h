@@ -17,9 +17,10 @@
 #include <dynamic_reconfigure/server.h>
 
 #include <custom_msgs/drivingAction.h>  // Note: "Action" is appended
-#include <custom_msgs/enums.h>
 #include <custom_msgs/IntersectionStop.h>
 #include <free_drive/FreeDriveConfig.h>
+#include <custom_msgs/task_enum.h>
+#include <common/state_publisher.h>
 
 class FreeDriveServer
 {
@@ -29,8 +30,7 @@ protected:
   // NodeHandle instance must be created before this line. Otherwise strange error occurs.
   actionlib::SimpleActionServer<custom_msgs::drivingAction> as_;
 
-  // create messages that are used to published feedback/result
-  custom_msgs::drivingFeedback feedback_;
+  // create action server msgs
   custom_msgs::drivingResult result_;
   custom_msgs::drivingGoal goal_;
 
@@ -55,7 +55,9 @@ protected:
   float distance_to_verify_event_      {2.0};
 
   float max_speed_;
-  int last_feedback_ {AUTONOMOUS_DRIVE};
+  int state_{selfie::TASK_SHIFTING};
+
+  StatePublisher state_publisher_;
 
   dynamic_reconfigure::Server<free_drive::FreeDriveConfig> dr_server_;
   dynamic_reconfigure::Server<free_drive::FreeDriveConfig>::CallbackType dr_server_CB_;
@@ -63,10 +65,10 @@ protected:
 
 
 public:
-  FreeDriveServer(const ros::NodeHandle &nh, const ros::NodeHandle &pnh);
+  FreeDriveServer(const ros::NodeHandle &nh, const ros::NodeHandle &pnh,
+                  const std::string &state_pub_topic_name = "/state/task");
   ~FreeDriveServer(void);
 
-  inline void publishFeedback(feedback_variable program_state);
   inline void maxSpeedPub();
 
   void registerGoal();
@@ -75,5 +77,6 @@ public:
   void startingLineCB(const std_msgs::Float32 &msg);
   void intersectionCB(const custom_msgs::IntersectionStop &msg);
   void distanceCB(const custom_msgs::Motion &msg);
+  inline void updateState(const int &state);
 };
 #endif  // FREE_DRIVE_FREE_DRIVE_SERVER_H

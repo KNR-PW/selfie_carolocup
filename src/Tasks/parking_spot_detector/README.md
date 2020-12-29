@@ -21,6 +21,8 @@ rosrun selfie_park detect_parking_spot
   - current speed of car
 - `/free_place` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
   - (only when parameter `visualization=true` visualizes found boxes and places in rviz)
+-  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
+  - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 
 ## Parameters

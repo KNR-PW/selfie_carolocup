@@ -16,6 +16,8 @@ parking position is determined relative to the right lane marking
 - `/drive/park` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 steering commands
 - `/selfie_in/indicators` ([custom_msgs/Indicators](./../../Shared/custom_msgs/msg/Indicators.msg))
+-  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
+   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ## Called Services
 - `/steering_parallel` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))

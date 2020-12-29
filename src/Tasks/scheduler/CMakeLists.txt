@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   custom_msgs
   topic_tools
+  common
 )
 
 find_package(Boost REQUIRED COMPONENTS system)

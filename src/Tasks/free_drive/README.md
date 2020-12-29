@@ -26,6 +26,8 @@ roslaunch free_drive free_drive_example.launch
 ### Published topics
 -  `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
    - current speed of car
+-  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
+   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ## Parameters
 -  `max_speed` (*float*)

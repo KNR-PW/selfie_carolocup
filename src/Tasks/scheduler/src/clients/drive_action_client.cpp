@@ -12,22 +12,13 @@
 
 DriveClient::DriveClient(std::string name, const ros::NodeHandle &pnh):
     ac_(name, true),
-    pnh_(pnh),
-    drive_steering_mode_(ACKERMANN),
-    park_complete_(false)
+    pnh_(pnh)
 {
-    next_action_ = DRIVING;
-    action_state_ = SELFIE_IDLE;
-    result_flag_ = EMPTY;
-
-    pnh_.getParam("drive_steering_mode", drive_steering_mode_);
+    next_action_ = selfie::FREE_DRIVE;
 
     visionReset_ = nh_.serviceClient<std_srvs::Empty>("resetVision");
     resetLaneController_ = nh_.serviceClient<std_srvs::Empty>("resetLaneControl");
     muxDriveSelect_ = nh_.serviceClient<topic_tools::MuxSelect>("drive_multiplexer/select");
-    steeringModeSetAckermann_ = nh_.serviceClient<std_srvs::Empty>("steering_ackerman");
-    steeringModeSetParallel_ = nh_.serviceClient<std_srvs::Empty>("steering_parallel");
-    steeringModeSetFrontAxis_ = nh_.serviceClient<std_srvs::Empty>("steering_front_axis");
     avoidingObstSetPassive_ = nh_.serviceClient<std_srvs::Empty>("avoiding_obst_set_passive");
     avoidingObstSetActive_ = nh_.serviceClient<std_srvs::Empty>("avoiding_obst_set_active");
 }
@@ -41,36 +32,22 @@ void DriveClient::setScenario(bool drive_mode)
     drive_mode_ = drive_mode;
 
     if (drive_mode_ == false)
-        next_action_ = PARKING_SEARCH;
+        next_action_ = selfie::PARKING_SPOT_SEARCH;
     else
-        next_action_ = INTERSECTION;
+        next_action_ = selfie::INTERSECTION_STOP;
 }
 
-void DriveClient::checkParkCounter(boost::any goal)
+void DriveClient::removeNextAction()
 {
-    const std::type_info &ti = goal.type();
-    if (ti.name()[0] == 'i' && park_complete_ == false)
-    {
-        int i = boost::any_cast<int>(goal);
-        if (i == PARKING_COMPLETE)
-        {
-            ROS_INFO("Park complete");
-            next_action_ = DRIVING;
-            park_complete_ = true;
-        }
-    }
+    next_action_ = selfie::FREE_DRIVE;
 }
 
 void DriveClient::setGoal(boost::any goal)
 {
-    // check parking counter only for parking task
-    if (drive_mode_ == false)
-        checkParkCounter(goal);
-
     goal_.mode = drive_mode_;
     ac_.sendGoal(goal_, boost::bind(&DriveClient::doneCb, this, _1, _2),
-                boost::bind(&DriveClient::activeCb, this),
-                boost::bind(&DriveClient::feedbackCb, this, _1));
+                boost::bind(&DriveClient::activeCb, this));
+    goal_state_flag_ = SENT;
 }
 
 bool DriveClient::waitForResult(float timeout)
@@ -80,38 +57,33 @@ bool DriveClient::waitForResult(float timeout)
 
 bool DriveClient::waitForServer(float timeout)
 {
-    result_flag_ = EMPTY;
+    goal_state_flag_ = NOT_SEND;
     ROS_INFO("Wait for driving action server");
     return ac_.waitForServer(ros::Duration(timeout));
 }
 
 void DriveClient::doneCb(const actionlib::SimpleClientGoalState& state,
-            const custom_msgs::drivingResultConstPtr& result)
+                         const custom_msgs::drivingResultConstPtr& result)
 {
     ROS_INFO("Finished drive in state [%s]", state.toString().c_str());
     ROS_INFO("drive result: %d",  result->event);
 
-    if (state == State::ABORTED)
+    if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED)
     {
-        result_flag_ = ABORTED;
+        goal_state_flag_ = ABORTED;
         std_srvs::Empty empty_msg;
         avoidingObstSetPassive_.call(empty_msg);
     }
     else
     {
         result_ = result->event;
-        result_flag_ = SUCCESS;
+        goal_state_flag_ = SUCCESS;
     }
 }
 
 void DriveClient::activeCb()
 {
-    ROS_INFO("Drive acnext_action_tion server active");
-}
-
-void DriveClient::feedbackCb(const custom_msgs::drivingFeedbackConstPtr& feedback)
-{
-  action_state_ = (program_state)feedback->action_status;
+    ROS_INFO("Drive action server active");
 }
 
 void DriveClient::cancelAction()
@@ -125,23 +97,12 @@ void DriveClient::getActionResult(boost::any &result)
     // result = result_;
 }
 
-void DriveClient::setDriveSteeringMode()
-{
-    std_srvs::Empty empty_msg;
-    if (drive_steering_mode_ == PARALLEL)
-        steeringModeSetParallel_.call(empty_msg);
-    else if (drive_steering_mode_ == ACKERMANN)
-        steeringModeSetAckermann_.call(empty_msg);
-    else if (drive_steering_mode_ == FRONT_AXIS)
-        steeringModeSetFrontAxis_.call(empty_msg);
-}
-
 void DriveClient::prepareAction()
 {
+    goal_state_flag_ = NOT_SEND;
     std_srvs::Empty empty_msg;
     visionReset_.call(empty_msg);
     resetLaneController_.call(empty_msg);
-    setDriveSteeringMode();
 
     topic_tools::MuxSelect topic_sel;
     topic_sel.request.topic = "drive/lane_control";
@@ -153,5 +114,5 @@ void DriveClient::prepareAction()
         avoidingObstSetPassive_.call(empty_msg);  // parking task
 
     ROS_INFO("Prepare drive - vision reset, reset Lane control, MuxSelect drive/lane_control,"
-             "set drive steering mode %d, avoinding obst set %d", drive_steering_mode_, drive_mode_);
+             "avoinding obst set %d", drive_mode_);
 }
