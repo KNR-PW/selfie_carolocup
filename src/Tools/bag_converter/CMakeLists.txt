@@ -25,6 +25,8 @@ target_link_libraries(bag_converter
  ${catkin_LIBRARIES}
  )
 
+add_dependencies(bag_converter ${catkin_EXPORTED_TARGETS})
+
 install(TARGETS bag_converter
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
