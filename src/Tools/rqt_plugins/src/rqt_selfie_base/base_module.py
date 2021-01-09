@@ -110,6 +110,8 @@ class MyPlugin(Plugin):
             self.LANE_PILOT_STATE_TOPIC, Int8, self.lane_pilot_state_callback, queue_size=1)
         self.sub_task_state = rospy.Subscriber(
             self.TASK_STATE_TOPIC, Int8, self.task_state_callback, queue_size=1)
+        self.sub_rc_state = rospy.Subscriber(
+            self.CHANGE_RC_SERVICE_NAME, UInt8, self.changed_rc_callback, queue_size=1)
 
         # Other variables
         self.rc_mode = -1
@@ -131,7 +133,9 @@ class MyPlugin(Plugin):
         if self.rc_mode >= len(self.RC_MODES) - 1:
             self.rc_mode = 1
         self.pub_rc_state.publish(self.rc_mode)
-        self._widget.rc_label.setText(self.RC_MODES[self.rc_mode])
+
+    def changed_rc_callback(self, data: UInt8):
+        self._widget.rc_label.setText(self.RC_MODES[data.data])
 
     def restart_lane_control(self):
         rospy.logdebug("Pressed restart lane_control button")
