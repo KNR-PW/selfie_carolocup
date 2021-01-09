@@ -117,16 +117,12 @@ class MyPlugin(Plugin):
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")
-        msg = Buttons
-        msg.is_pressed_first = True
-        msg.is_pressed_second = False
+        msg = Buttons(is_pressed_first=True, is_pressed_second=False)
         self.pub_button.publish(msg)
 
     def press_button2(self):
         rospy.logdebug("Pressed 'button2' button")
-        msg = Buttons
-        msg.is_pressed_first = False
-        msg.is_pressed_second = True
+        msg = Buttons(is_pressed_first=False, is_pressed_second=True)
         self.pub_button.publish(msg)
 
     def change_rc_mode(self):
