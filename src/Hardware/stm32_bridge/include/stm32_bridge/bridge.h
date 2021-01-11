@@ -10,6 +10,7 @@
 #include "custom_msgs/Motion.h"
 #include "custom_msgs/Buttons.h"
 #include "custom_msgs/Indicators.h"
+#include <std_msgs/Int32.h>
 
 class Time
 {
@@ -44,6 +45,7 @@ public:
     custom_msgs::Buttons buttons_msg;
 
     int rc_state;
+    std_msgs::Int32 sensor;
 };
 
 class Sub_messages

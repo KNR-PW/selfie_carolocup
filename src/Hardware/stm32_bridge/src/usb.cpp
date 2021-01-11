@@ -142,6 +142,8 @@ void USB_STM::fill_publishers(Pub_messages &pub_data)
 
     // reset states
     pub_data.rc_state = read_frame->futaba_state + 1;
+
+    // pub_data.sensor.data = read_frame->sensor;
 }
 
 USB_STM::~USB_STM()

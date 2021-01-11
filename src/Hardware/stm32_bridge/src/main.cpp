@@ -5,6 +5,7 @@
 
 #include "ros/ros.h"
 #include "std_msgs/UInt8.h"
+#include "std_msgs/Int32.h"
 
 #include <custom_msgs/Motion.h>
 #include "custom_msgs/Buttons.h"
@@ -32,6 +33,7 @@ int main(int argc, char **argv)
 
     ros::Publisher motion_publisher = n.advertise<custom_msgs::Motion>("selfie_out/motion", 100);
     ros::Publisher buttons_publisher = n.advertise<custom_msgs::Buttons>("selfie_out/buttons", 100, true);
+    ros::Publisher sensor_publisher = n.advertise<std_msgs::Int32>("selfie_out/sensor", 100);
 
     StatePublisher state_rc_publisher_("/state/rc");
 
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
                 rc_state_last_time = pub_messages.rc_state;
                 state_rc_publisher_.updateState(pub_messages.rc_state);
             }
+
+            sensor_publisher.publish(pub_messages.sensor);
         }
 
         // send subscribed data

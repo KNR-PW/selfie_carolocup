@@ -60,6 +60,7 @@ typedef struct __attribute__((__packed__))
     uint8_t buttons;
     uint8_t lights;
     uint8_t futaba_state;
+    // int32_t sensor; place in right place 
     uint16_t crc16;
     uint8_t end_code;
 
