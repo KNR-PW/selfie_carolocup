@@ -17,7 +17,8 @@ class MyPlugin(Plugin):
     LANE_PILOT_STATE_TOPIC = "/state/lane_control"
     TASK_STATE_TOPIC = "/state/task"
     BUTTON_TOPIC_NAME = "/selfie_out/buttons"
-    CHANGE_RC_SERVICE_NAME = "/state/rc"
+    RC_STATUS_TOPIC = "/state/rc"
+    CHANGE_RC_SERVICE_NAME = "/simulation/switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
@@ -111,7 +112,7 @@ class MyPlugin(Plugin):
         self.sub_task_state = rospy.Subscriber(
             self.TASK_STATE_TOPIC, Int8, self.task_state_callback, queue_size=1)
         self.sub_rc_state = rospy.Subscriber(
-            self.CHANGE_RC_SERVICE_NAME, UInt8, self.changed_rc_callback, queue_size=1)
+            self.RC_STATUS_TOPIC, UInt8, self.changed_rc_callback, queue_size=1)
 
         # Other variables
         self.rc_mode = -1
