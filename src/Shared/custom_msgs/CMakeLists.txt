@@ -58,7 +58,7 @@ catkin_package(
   INCLUDE_DIRS include 
   CATKIN_DEPENDS geometry_msgs message_runtime actionlib_msgs std_msgs
 )
-
+set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces")
 roslint_cpp()
 
 include_directories(
