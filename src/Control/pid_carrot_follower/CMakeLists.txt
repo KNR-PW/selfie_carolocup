@@ -48,3 +48,7 @@ add_dependencies(pid_tuner ${pid_carrot_follower_EXPORTED_TARGETS})
 install(TARGETS cmd_creator
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(TARGETS pid_tuner
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
