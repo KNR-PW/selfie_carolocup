@@ -3,8 +3,8 @@
  *This code is licensed under BSD license (see LICENSE for details)
  **/
 
-#ifndef PARK_PARK_H
-#define PARK_PARK_H
+#ifndef PID_CARROT_FOLLOWER_PID_TUNER_H
+#define PID_CARROT_FOLLOWER_PID_TUNER_H
 
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
@@ -12,7 +12,7 @@
 #include <std_msgs/Float32.h>
 #include "custom_msgs/Motion.h"
 
-class PidTuner 
+class PidTuner
 {
     ros::NodeHandle pnh_;
     ros::NodeHandle nh_;
@@ -50,6 +50,8 @@ class PidTuner
 
     float M_speed;
     float H_speed;
+
+    float speed_change_treshold;
     float act_speed_;
 
 public:
@@ -57,9 +59,8 @@ public:
     void setKd(float Kd);
     void setKp(float Kp);
     void setKi(float Ki);
-private: 
+private:
     void reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
     void speedCallback(const custom_msgs::Motion &msg);
-
 };
-#endif //PARK_PARK_H
+#endif  // PID_CARROT_FOLLOWER_PID_TUNER_H

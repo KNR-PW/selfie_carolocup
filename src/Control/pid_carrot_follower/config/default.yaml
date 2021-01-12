@@ -45,5 +45,7 @@ pid_tuner:
     H_Kd: 0.12,
 
     M_speed: 0.5,
-    H_speed: 1.0
+    H_speed: 1.0,
+
+    speed_change_treshold: 0.1
   }
