@@ -32,27 +32,30 @@ PidTuner::PidTuner()
 
 void PidTuner::speedCallback(const custom_msgs::Motion &msg)
 {
-  if(act_speed_ != msg.speed_linear)
+  if (abs(msg.speed_linear - act_speed_) < 0.1) // Add parameter
   {
     act_speed_ = msg.speed_linear;
-    if(act_speed_ < M_speed) 
-    {
-      setKp(L_Kp);
-      setKd(L_Kd);
-      setKi(L_Ki);
-    }
-    else if(act_speed_ < H_speed)
-    {
-      setKp(M_Kp);
-      setKd(M_Kd);
-      setKi(M_Ki);
-    }
-    else
-    {
-      setKp(H_Kp);
-      setKd(H_Kd);
-      setKi(H_Ki);
-    }
+    return;
+  }
+
+  act_speed_ = msg.speed_linear;
+  if(act_speed_ < M_speed)
+  {
+    setKp(L_Kp);
+    setKd(L_Kd);
+    setKi(L_Ki);
+  }
+  else if(act_speed_ < H_speed)
+  {
+    setKp(M_Kp);
+    setKd(M_Kd);
+    setKi(M_Ki);
+  }
+  else
+  {
+    setKp(H_Kp);
+    setKd(H_Kd);
+    setKi(H_Ki);
   }
 }
 
@@ -214,7 +217,7 @@ void PidTuner::reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32
   }
   if(H_speed != (float)config.H_speed)
   {
-    M_speed = config.M_speed;
+    M_speed = config.H_speed;
     ROS_INFO("H_speed new value %f",H_speed);
   }
 }
