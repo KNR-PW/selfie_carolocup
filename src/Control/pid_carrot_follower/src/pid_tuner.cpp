@@ -59,7 +59,7 @@ void PidTuner::speedCallback(const custom_msgs::Motion &msg)
 void PidTuner::setKd(float Kd)
 {
   float scale = 1.0;
-  while (Kd > 1 || Kd <= 0.1)
+  while ((Kd > 1 || Kd <= 0.1) && scale > 0.1)
   {
     if (Kd > 1)
     {
@@ -93,7 +93,7 @@ void PidTuner::setKd(float Kd)
 void PidTuner::setKp(float Kp)
 {
   float scale = 1.0;
-  while (Kp > 1 || Kp <= 0.1)
+  while ((Kp > 1 || Kp <= 0.1) && scale > 0.1)
   {
     if (Kp > 1)
     {
@@ -127,7 +127,7 @@ void PidTuner::setKp(float Kp)
 void PidTuner::setKi(float Ki)
 {
   float scale = 1.0;
-  while (Ki > 1 || Ki <= 0.1)
+  while ((Ki > 1 || Ki <= 0.1) && scale > 0.1)
   {
     if (Ki > 1)
     {
