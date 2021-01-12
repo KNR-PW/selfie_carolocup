@@ -9,4 +9,6 @@ BraceWrapping:
   AfterControlStatement: true
   AfterFunction: true
   AfterUnion: true
+  AfterNamespace: true
 BreakConstructorInitializersBeforeComma: true
+SpacesBeforeTrailingComments: 3
