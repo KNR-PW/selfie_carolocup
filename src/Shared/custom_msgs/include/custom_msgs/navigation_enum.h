@@ -8,7 +8,8 @@
 
 // published on topic:
 // /state/navigation
-namespace selfie {
+namespace selfie
+{
 typedef enum EnumNavigation
 {
   UNINITIALIZED = 0,
@@ -17,4 +18,5 @@ typedef enum EnumNavigation
   OBSTACLE_ON_LEFT,
   OBSTACLE_ON_BOTH
 } EnumNavigation;
-} // namespace selfie
+}   // namespace selfie
+#endif   // CUSTOM_MSGS_NAVIGATION_ENUM_H

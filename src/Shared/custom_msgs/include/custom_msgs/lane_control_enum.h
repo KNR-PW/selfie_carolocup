@@ -8,16 +8,17 @@
 
 // published on topic:
 // /state/lane_control
-namespace selfie {
+namespace selfie
+{
 typedef enum EnumLaneControl
 {
-  UNINITIALIZED = 0, // lane_controller is disabled
+  UNINITIALIZED = 0,   // lane_controller is disabled
   PASSIVE_RIGHT,
   ON_RIGHT,
-  OVERTAKE, // Changing lane from left ro right one
+  OVERTAKE,   // Changing lane from left ro right one
   ON_LEFT,
-  RETURN_RIGHT // Returning to right lane from left one
+  RETURN_RIGHT   // Returning to right lane from left one
 } EnumLaneControl;
-} // namespace selfie
+}   // namespace selfie
 
-#endif // CUSTOM_MSGS_LANE_CONTROL_ENUM_H
+#endif   // CUSTOM_MSGS_LANE_CONTROL_ENUM_H

@@ -8,7 +8,8 @@
 
 // published on topic:
 // /state/rc
-namespace selfie {
+namespace selfie
+{
 typedef enum EnumRC
 {
   RC_UNINITIALIZED = 0,
@@ -16,6 +17,6 @@ typedef enum EnumRC
   RC_HALF_AUTONOMOUS,
   RC_AUTONOMOUS
 } EnumRC;
-} // namespace selfie
+}   // namespace selfie
 
-#endif // CUSTOM_MSGS_RC_ENUM_H
+#endif   // CUSTOM_MSGS_RC_ENUM_H
