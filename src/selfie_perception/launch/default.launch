@@ -1,0 +1,15 @@
+<launch>
+  <arg name="yaml_parameters" default="$(find selfie_launch)/config/parameters.yaml"/>
+  <rosparam command="load" file="$(arg yaml_parameters)"/>
+
+  <arg name="homography_file" default="/home/$(env USER)/.ros/homography_export.yaml" />
+  <arg name="hom_cut_file" default="/home/$(env USER)/.ros/hom_cut.yaml" />
+
+  <node name="detect_markings" type="detect_markings" pkg="selfie_perception" respawn="false" output="screen">
+    <param name="config_file" value="$(arg homography_file)" />
+    <param name="hom_cut_file" value="$(arg hom_cut_file)" />
+
+    <param name="debug_mode" value="true"/>
+    <param name="tune_params_mode" value="false"/>
+  </node>
+</launch>

@@ -1,0 +1,28 @@
+<launch>
+  <!-- PASSED PARAMS-->
+  <arg name="i_visualization_in_searching" />
+  <arg name="i_visualization_of_intersection" />
+  <arg name="i_parking_msgs_output" />
+
+
+  <node name="free_drive" type="free_drive" pkg="selfie_free_drive" respawn="true" output="screen">
+  </node>
+
+  <node name="detect_parking_spot" type="detect_parking_spot" pkg="selfie_park" respawn="true" output="screen">
+
+  
+    <param name="visualization_in_searching" value="$(arg i_visualization_in_searching)" />
+  </node>
+
+  <node name="park_server" type="park_server" pkg="selfie_park" respawn="true" output="screen">
+    <param name="state_msgs" value="$(arg i_parking_msgs_output)" />
+  </node>
+
+  <node name="starting_procedure" type="starting_procedure" pkg="selfie_starting_procedure" respawn="true" output="screen">
+  </node>
+  
+  <node name="intersection_server" type="intersection_server" pkg="selfie_intersection" respawn="true" output="screen">
+  <param name="visualization_of_intersection" value="$(arg i_visualization_of_intersection)" />
+  </node>
+
+</launch>
