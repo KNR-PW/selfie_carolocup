@@ -1,5 +1,0 @@
-path_generator:
-  {
-    max_distance: 1.5,
-    interval_x: 0.1
-  }

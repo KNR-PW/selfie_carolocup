@@ -1,3 +1,0 @@
-[submodule "src/Simulation/gazebo_selfie_sim"]
-	path = src/Simulation/gazebo_selfie_sim
-	url = ../gazebo_selfie_sim.git

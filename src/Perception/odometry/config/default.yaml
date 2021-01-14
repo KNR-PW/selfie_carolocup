@@ -1,5 +1,0 @@
-odometry: 
-  {
-    rear_axis_handle: "base_link",
-    spin_rate: 10
-  }
