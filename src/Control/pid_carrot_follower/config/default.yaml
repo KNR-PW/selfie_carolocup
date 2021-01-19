@@ -29,3 +29,23 @@ cmd_creator:
   {
     publish_rate: 80
   }
+
+pid_tuner:
+  {
+    L_Kp: 1.0,
+    L_Ki: 0,
+    L_Kd: 0.12,
+
+    M_Kp: 1.0,
+    M_Ki: 0,
+    M_Kd: 0.12,
+
+    H_Kp: 1.0,
+    H_Ki: 0,
+    H_Kd: 0.12,
+
+    M_speed: 0.5,
+    H_speed: 1.0,
+
+    speed_change_treshold: 0.1
+  }

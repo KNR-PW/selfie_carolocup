@@ -55,4 +55,11 @@
       <remap from="drive" to="drive/lane_control" />
   </node>
 
+  <node 
+      name="pid_tuner" 
+      type="pid_tuner" 
+      pkg="pid_carrot_follower" 
+      respawn="$(arg node_respawn)"
+      output="$(arg node_output)" />
+      
 </launch>
