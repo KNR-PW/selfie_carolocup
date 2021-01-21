@@ -18,7 +18,6 @@ class MyPlugin(Plugin):
     TASK_STATE_TOPIC = "/state/task"
     BUTTON_TOPIC_NAME = "/selfie_out/buttons"
     RC_STATUS_TOPIC = "/state/rc"
-    CHANGE_RC_SERVICE_NAME = "/simulation/switch_state"
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
@@ -90,7 +89,6 @@ class MyPlugin(Plugin):
         context.add_widget(self._widget)
         self._widget.button_1.pressed.connect(self.press_button1)
         self._widget.button_2.pressed.connect(self.press_button2)
-        self._widget.button_rc_change.pressed.connect(self.change_rc_mode)
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
@@ -98,8 +96,6 @@ class MyPlugin(Plugin):
         # init publishers and subscribers
         self.pub_button = rospy.Publisher(
             self.BUTTON_TOPIC_NAME, Buttons, queue_size=1)
-        self.pub_rc_state = rospy.Publisher(
-            self.CHANGE_RC_SERVICE_NAME, UInt8, queue_size=1)
         self.srv_res_lane = rospy.ServiceProxy(
             self.RES_LANE_CONTROL_SERVICE_NAME, Empty)
         self.srv_res_odometry = rospy.ServiceProxy(
@@ -115,8 +111,7 @@ class MyPlugin(Plugin):
             self.RC_STATUS_TOPIC, UInt8, self.changed_rc_callback, queue_size=1)
 
         # Other variables
-        self.rc_mode = -1
-        self._widget.rc_label.setText(self.RC_MODES[self.rc_mode])
+        self._widget.rc_label.setText(self.RC_MODES[-1])
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")
@@ -127,13 +122,6 @@ class MyPlugin(Plugin):
         rospy.logdebug("Pressed 'button2' button")
         msg = Buttons(is_pressed_first=False, is_pressed_second=True)
         self.pub_button.publish(msg)
-
-    def change_rc_mode(self):
-        rospy.logdebug("Pressed change RC button")
-        self.rc_mode += 1
-        if self.rc_mode >= len(self.RC_MODES) - 1:
-            self.rc_mode = 1
-        self.pub_rc_state.publish(self.rc_mode)
 
     def changed_rc_callback(self, data: UInt8):
         self._widget.rc_label.setText(self.RC_MODES[data.data])
