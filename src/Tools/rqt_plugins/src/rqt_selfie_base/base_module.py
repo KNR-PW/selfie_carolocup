@@ -22,8 +22,8 @@ class MyPlugin(Plugin):
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
 
-    RC_MODES = {-1: "itself", 0: "uninitialized", 1: "manual mode",
-                2: "semi-autonomous", 3: "autonomous mode"}
+    RC_MODES = {-1: "itself", 0: "manual mode",
+                1: "semi-autonomous", 2: "autonomous mode"}
 
     TASKS = {0: "SELFIE_IDLE",
              1: "SELFIE_READY",
