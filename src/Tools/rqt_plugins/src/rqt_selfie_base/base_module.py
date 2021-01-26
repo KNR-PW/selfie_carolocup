@@ -6,7 +6,6 @@ import rosservice
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
-from std_msgs.msg import UInt8
 from std_msgs.msg import Int8
 from std_srvs.srv import Empty
 
@@ -106,7 +105,7 @@ class MyPlugin(Plugin):
         self.sub_task_state = rospy.Subscriber(
             self.TASK_STATE_TOPIC, Int8, self.task_state_callback, queue_size=1)
         self.sub_rc_state = rospy.Subscriber(
-            self.RC_STATUS_TOPIC, UInt8, self.changed_rc_callback, queue_size=1)
+            self.RC_STATUS_TOPIC, Int8, self.changed_rc_callback, queue_size=1)
 
         # Other variables
         self._widget.rc_label.setText(self.RC_MODES[-1])
@@ -121,7 +120,7 @@ class MyPlugin(Plugin):
         msg = Buttons(is_pressed_first=False, is_pressed_second=True)
         self.pub_button.publish(msg)
 
-    def changed_rc_callback(self, data: UInt8):
+    def changed_rc_callback(self, data: Int8):
         self._widget.rc_label.setText(self.RC_MODES[data.data])
 
     def restart_lane_control(self):
