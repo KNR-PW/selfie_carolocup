@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2016, Magazino GmbH. All rights reserved.
  *
+ * Improved by drag and bot GmbH (www.dragandbot.com), 2019
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -43,14 +45,6 @@ PylonCameraParameter::PylonCameraParameter() :
         binning_y_(1),
         binning_x_given_(false),
         binning_y_given_(false),
-        image_height_given_(false),
-        image_width_given_(false),
-        image_height_(1200),
-        image_width_(1920),
-        roi_offset_x_given_(false),
-        roi_offset_y_given_(false),
-        roi_offset_x_(0),
-        roi_offset_y_(0),
         downsampling_factor_exp_search_(1),
         // ##########################
         //  image intensity settings
@@ -70,9 +64,21 @@ PylonCameraParameter::PylonCameraParameter() :
         exposure_search_timeout_(5.),
         auto_exp_upper_lim_(0.0),
         mtu_size_(3000),
+        enable_status_publisher_(false),
+        enable_current_params_publisher_(false),
         inter_pkg_delay_(1000),
+        startup_user_set_(""),
         shutter_mode_(SM_DEFAULT),
-        auto_flash_(false)
+        auto_flash_(false), 
+        grab_timeout_(500),
+        trigger_timeout_(5000),
+	grab_strategy_(0),
+        white_balance_auto_(0),
+        white_balance_auto_given_(false),
+        white_balance_ratio_red_(1.0),
+        white_balance_ratio_green_(1.0),
+        white_balance_ratio_blue_(1.0),
+        white_balance_ratio_given_(false)
 {}
 
 PylonCameraParameter::~PylonCameraParameter()
@@ -93,72 +99,6 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     if ( nh.hasParam("camera_info_url") )
     {
         nh.getParam("camera_info_url", camera_info_url_);
-    }
-
-    image_height_given_ = nh.hasParam("height");
-    if ( image_height_given_ )
-    {
-      int image_height;
-      nh.getParam("height", image_height);
-      if ( image_height < 0 )
-      {
-        ROS_WARN_STREAM("Image height not in valid"
-            << "restart to 1200");
-        image_height_given_ = false;
-      }
-      else
-      {
-        image_height_ = static_cast<int>(image_height);
-      }
-    }
-    image_width_given_ = nh.hasParam("width");
-    if ( image_width_given_ )
-    {
-      int image_width;
-      nh.getParam("width", image_width);
-      if ( image_width < 0 )
-      {
-        ROS_WARN_STREAM("Image width not in valid"
-            << "restart to 1920");
-        image_width_given_ = false;
-      }
-      else
-      {
-        image_width_ = static_cast<int>(image_width);
-      }
-    }
-
-    roi_offset_x_given_ = nh.hasParam("roi_offset_x");
-    if ( roi_offset_x_given_ )
-    {
-      int roi_offset_x;
-      nh.getParam("roi_offset_x", roi_offset_x);
-      if ( roi_offset_x < 0 )
-      {
-        ROS_WARN_STREAM("roi_offset_x not in valid"
-            << "restart to 0");
-        roi_offset_x_given_ = false;
-      }
-      else
-      {
-        roi_offset_x_ = static_cast<int>(roi_offset_x);
-      }
-    }
-    roi_offset_y_given_ = nh.hasParam("roi_offset_y");
-    if ( roi_offset_y_given_ )
-    {
-      int roi_offset_y;
-      nh.getParam("roi_offset_y", roi_offset_y);
-      if ( roi_offset_y < 0 )
-      {
-        ROS_WARN_STREAM("roi_offset_y not in valid"
-            << "restart to 0");
-        roi_offset_y_given_ = false;
-      }
-      else
-      {
-        roi_offset_y_ = static_cast<int>(roi_offset_y);
-      }
     }
 
     binning_x_given_ = nh.hasParam("binning_x");
@@ -289,6 +229,16 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
         nh.getParam("gige/mtu_size", mtu_size_);
     }
 
+    if ( nh.hasParam("enable_status_publisher") )
+    {
+        nh.getParam("enable_status_publisher", enable_status_publisher_);
+    }
+
+    if ( nh.hasParam("enable_current_params_publisher") )
+    {
+        nh.getParam("enable_current_params_publisher", enable_current_params_publisher_);
+    }
+
     if ( nh.hasParam("gige/inter_pkg_delay") )
     {
         nh.getParam("gige/inter_pkg_delay", inter_pkg_delay_);
@@ -311,6 +261,42 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     else
     {
         shutter_mode_ = SM_DEFAULT;
+    }
+    if ( nh.hasParam("startup_user_set") )
+    {
+        nh.getParam("startup_user_set", startup_user_set_);
+    }
+    if ( nh.hasParam("grab_timeout") )
+    {
+        nh.getParam("grab_timeout", grab_timeout_);
+    }
+    if ( nh.hasParam("trigger_timeout") )
+    {
+        nh.getParam("trigger_timeout", trigger_timeout_);
+    }
+    if ( nh.hasParam("white_balance_auto") )
+    {
+        nh.getParam("white_balance_auto", white_balance_auto_);
+        white_balance_auto_given_ = true;
+    }
+    if ( nh.hasParam("white_balance_ratio_red") )
+    {
+        nh.getParam("white_balance_ratio_red", white_balance_ratio_red_);
+        white_balance_ratio_given_ = true;
+    }
+    if ( nh.hasParam("white_balance_ratio_green") )
+    {
+        nh.getParam("white_balance_ratio_green", white_balance_ratio_green_);
+        white_balance_ratio_given_ = true;
+    }
+    if ( nh.hasParam("white_balance_ratio_blue") )
+    {
+        nh.getParam("white_balance_ratio_blue", white_balance_ratio_blue_);
+        white_balance_ratio_given_ = true;
+    }
+    if ( nh.hasParam("grab_strategy") )
+    {
+        nh.getParam("grab_strategy", grab_strategy_);
     }
 
     nh.param<bool>("auto_flash", auto_flash_, false);
@@ -408,6 +394,21 @@ std::string PylonCameraParameter::shutterModeString() const
 const std::string& PylonCameraParameter::imageEncoding() const
 {
     return image_encoding_;
+}
+
+bool PylonCameraParameter::setimageEncodingParam(const ros::NodeHandle& nh, const std::string& format) 
+{
+    try
+    {
+        image_encoding_ = format;
+        nh.setParam("image_encoding", image_encoding_);
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        ROS_ERROR("Error Saving the new image encoding as ROS Param");
+        return false;
+    }
 }
 
 const std::string& PylonCameraParameter::cameraFrame() const

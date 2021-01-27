@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2016, Magazino GmbH. All rights reserved.
  *
+ * Improved by drag and bot GmbH (www.dragandbot.com), 2019
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -84,26 +86,36 @@ bool PylonDARTCamera::setupSequencer(const std::vector<float>& exposure_times,
 }
 
 bool PylonDARTCamera::grab(Pylon::CGrabResultPtr& grab_result)
-{
+{   
     try
-    {
+    { 
         // /!\ The dart camera device does not support
         // 'waitForFrameTriggerReady'
         cam_->ExecuteSoftwareTrigger();
-
         cam_->RetrieveResult(grab_timeout_, grab_result,
                              Pylon::TimeoutHandling_ThrowException);
-    }
+    }   
     catch (const GenICam::GenericException &e)
-    {
+    {   
         if ( cam_->IsCameraDeviceRemoved() )
-        {
+        {   
             ROS_ERROR("Camera was removed");
         }
         else
-        {
+        { 
+            if (! cam_->TriggerSource.GetValue() == TriggerSourceEnums::TriggerSource_Software)
+            {
+                ROS_ERROR_STREAM("Waiting for Hardware Trigger");
+            }
+            else if (cam_->TriggerMode.GetValue() == TriggerModeEnums::TriggerMode_On)
+            {
+                ROS_ERROR_STREAM("Waiting for Trigger signal");
+            }
+            else 
+            {
             ROS_ERROR_STREAM("An image grabbing exception in pylon camera occurred: "
                     << e.GetDescription());
+            }
         }
         return false;
     }
@@ -112,9 +124,8 @@ bool PylonDARTCamera::grab(Pylon::CGrabResultPtr& grab_result)
         ROS_ERROR("An unspecified image grabbing exception in pylon camera occurred");
         return false;
     }
-
     if ( !grab_result->GrabSucceeded() )
-    {
+    {   
         ROS_ERROR_STREAM("Error: " << grab_result->GetErrorCode()
                 << " " << grab_result->GetErrorDescription());
         return false;

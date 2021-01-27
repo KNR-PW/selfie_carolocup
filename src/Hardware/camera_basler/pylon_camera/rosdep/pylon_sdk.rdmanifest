@@ -1,10 +1,11 @@
-uri: 'https://raw.githubusercontent.com/magazino/pylon_camera/indigo-devel/rosdep/empty.tar'
+uri: 'https://raw.githubusercontent.com/basler/pylon-ros-camera/master/pylon_camera/rosdep/empty.tar'
+
 md5sum: df41600634ca08cb5082877eb64220c9
 install-script: |
   #!/bin/bash
   if ( [ "${PYLON_ROOT}" != "" ] && [ -d "${PYLON_ROOT}" ] ); then
     MAJOR=`${PYLON_ROOT}/bin/pylon-config --version-major`
-    if [ "$MAJOR" = "5" ]; then
+    if [ "$MAJOR" = "5" ] || [ "$MAJOR" = "6"  ]; then
       exit 0
     else
       echo "Found an existing Pylon installation in PYLON_ROOT but the version is too low"
@@ -25,13 +26,13 @@ install-script: |
     pkgarch="i386"
   fi
 
-  version="5.0.11.10914"
+  version="5.2.0.13457"
   pkg=pylon_${version}-deb0_${pkgarch}.deb
-  url="https://www.baslerweb.com/media/downloads/software/pylon_software/${pkg}"
+  url="https://dnb-public-downloads-misc.s3.eu-central-1.amazonaws.com/pylon/${pkg}"
 
   wget --no-check-certificate -O $pkg $url
-  sudo dpkg -i $pkg
-  sudo udevadm control --reload-rules || true
+  dpkg -i $pkg
+  udevadm control --reload-rules || true
 
 check-presence-script: |
   #!/bin/bash
@@ -41,7 +42,7 @@ check-presence-script: |
     if [ "$FOUND" -eq 0 ]; then
       for pylon_install in `find /opt -type f -name pylon-config`; do
         MAJOR=`${pylon_install} --version-major`
-        if [ "$MAJOR" = "5" ]; then
+        if [ "$MAJOR" = "5" ] || [ "$MAJOR" = "6" ]; then
           echo "Found a pylon Installation with version 5 or greater"
           exit 0
         fi
@@ -52,7 +53,7 @@ check-presence-script: |
   else
     if [ -d "${PYLON_ROOT}" ]; then
       MAJOR=`${PYLON_ROOT}/bin/pylon-config --version-major`
-      if [ "$MAJOR" = "5" ]; then
+      if [ "$MAJOR" = "5" ] || [ "$MAJOR" = "6" ]; then
         exit 0
       else
         echo "Found an existing Pylon installation in PYLON_ROOT but the version is too low"
@@ -64,4 +65,3 @@ check-presence-script: |
       exit 1
     fi
   fi
-

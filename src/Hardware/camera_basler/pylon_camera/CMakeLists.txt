@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 2.8.3)
 project(pylon_camera)
 
 add_definitions("-std=gnu++11")
@@ -25,11 +25,10 @@ find_package(
     catkin REQUIRED
     COMPONENTS
      ${CATKIN_COMPONENTS}
-     #std_srvs
+     std_srvs
      roslint
+     dnb_msgs
 )
-
-find_package(OpenCV REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS
@@ -53,6 +52,7 @@ roslint_cpp(
     src/${PROJECT_NAME}/${PROJECT_NAME}_parameter.cpp
     src/${PROJECT_NAME}/${PROJECT_NAME}.cpp
     src/${PROJECT_NAME}/write_device_user_id_to_camera.cpp
+    src/${PROJECT_NAME}/IPConfigAuto.cpp
     include/${PROJECT_NAME}/binary_exposure_search.h
     include/${PROJECT_NAME}/encoding_conversions.h
     include/${PROJECT_NAME}/${PROJECT_NAME}_node.h
@@ -71,7 +71,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${catkin_INCLUDE_DIRS}
     ${Pylon_INCLUDE_DIRS}
-    ${OpenCV_INCLUDE_DIRS}
 )
 
 # Add library
@@ -88,7 +87,6 @@ target_link_libraries(
     ${PROJECT_NAME}
      ${catkin_LIBRARIES}
      ${Pylon_LIBRARIES}
-     ${OpenCV_LIBRARIES}
 )
 
 add_dependencies(
@@ -112,8 +110,18 @@ add_executable(
      src/${PROJECT_NAME}/write_device_user_id_to_camera.cpp
 )
 
+add_executable(
+    IPConfigAuto
+     src/${PROJECT_NAME}/IPConfigAuto.cpp
+)
+
 target_link_libraries(
     write_device_user_id_to_camera
+     ${Pylon_LIBRARIES}
+)
+
+target_link_libraries(
+    IPConfigAuto
      ${Pylon_LIBRARIES}
 )
 
@@ -141,10 +149,15 @@ install(
 )
 
 install(
+    DIRECTORY
+     module_config/
+    DESTINATION
+     ${CATKIN_PACKAGE_SHARE_DESTINATION}/module_config
+    FILES_MATCHING PATTERN "*.yaml"
+)
+
+install(
     PROGRAMS
-     setup.py
-     scripts/triggered_image_topic.py
-     scripts/individual_flash_test
      scripts/file_sequencer.py
      scripts/grab_and_save_image_action_server.py
      scripts/result_bag_to_action.py
@@ -159,6 +172,7 @@ install(
      ${PROJECT_NAME}
      ${PROJECT_NAME}_node
      write_device_user_id_to_camera
+     IPConfigAuto
     LIBRARY DESTINATION
      ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION
@@ -191,4 +205,3 @@ foreach(child ${children})
   endif()
 endforeach()
 add_custom_target(dummy_${PROJECT_NAME} SOURCES ${${PROJECT_NAME}_extra_files})
-

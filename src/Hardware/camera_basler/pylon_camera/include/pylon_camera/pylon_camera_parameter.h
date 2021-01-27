@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2016, Magazino GmbH. All rights reserved.
  *
+ * Improved by drag and bot GmbH (www.dragandbot.com), 2019
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -95,6 +97,11 @@ public:
     const std::string& imageEncoding() const;
 
     /**
+     * Setter for the image encoding
+     */
+    bool setimageEncodingParam(const ros::NodeHandle& nh, const std::string& format); 
+
+    /**
      * Setter for the frame_rate_ initially set from ros-parameter server
      * The frame rate needs to be updated with the value the camera supports
      */
@@ -129,32 +136,6 @@ public:
      */
     bool binning_x_given_;
     bool binning_y_given_;
-
-    /**
-     * Flags which indicate if the image size are provided and hence
-     * should be set during startup
-     */
-    bool image_height_given_;
-    bool image_width_given_;
-
-    /**
-     * Image size parameteres
-     */
-    int image_height_;
-    int image_width_;
-
-    /**
-     * Flags which indicate if the ROI offsets are provided and hence
-     * should be set during startup
-     */
-    bool roi_offset_x_given_;
-    bool roi_offset_y_given_;
-
-    /**
-     * ROI offsets parameteres
-     */
-    int roi_offset_x_;
-    int roi_offset_y_;
 
     /**
      * Factor that describes the image downsampling to speed up the exposure
@@ -276,6 +257,21 @@ public:
     int mtu_size_;
 
     /**
+     * a flag used to enable/disable the node status publisher.
+     */
+    bool enable_status_publisher_;
+
+    /**
+     * a flag used to enable/disable the current camera publisher.
+     */
+    bool enable_current_params_publisher_;
+
+    /**
+     * The startup user set.
+     */
+    std::string startup_user_set_;    
+
+    /**
      * The inter-package delay in ticks. Only used for GigE cameras.
      * To prevent lost frames it should be greater 0.
      * For most of GigE-Cameras, a value of 1000 is reasonable.
@@ -309,6 +305,39 @@ public:
      * Only supported for GigE cameras. Default: true
      */
     bool auto_flash_line_3_;
+    
+    /**
+    * camera grab timeout in ms
+    */
+    int grab_timeout_;
+
+    /**
+    * camera trigger timeout in ms
+    */
+    int trigger_timeout_;
+
+    /**
+    * camera white balance auto 
+    */
+    int white_balance_auto_;
+    bool white_balance_auto_given_;
+
+    /**
+    * camera white balance ratio 
+    */
+    float white_balance_ratio_red_;
+    float white_balance_ratio_green_;
+    float white_balance_ratio_blue_;
+    bool white_balance_ratio_given_;
+
+    /**
+    * Camera grab strategy 
+    * 0 = GrabStrategy_OneByOne
+    * 1 = GrabStrategy_LatestImageOnly
+    * 2 = GrabStrategy_LatestImages
+    */
+    int grab_strategy_;
+
 
 protected:
     /**
