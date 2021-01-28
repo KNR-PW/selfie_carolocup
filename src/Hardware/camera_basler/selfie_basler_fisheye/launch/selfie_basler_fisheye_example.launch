@@ -39,4 +39,6 @@
             <param name="mapy_file" value="$(find selfie_basler_fisheye)/config/mapy.yaml" />
     </node>
 
+    <node pkg="rosservice" type="rosservice" name="global_loc" args='call --wait /camera_basler/set_roi "target_roi: {x_offset: 512, y_offset: 460, height: 400, width: 1024, do_rectify: false}"' />
+
 </launch>

@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2016, Magazino GmbH. All rights reserved.
  *
+ * Improved by drag and bot GmbH (www.dragandbot.com), 2019
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -71,6 +73,9 @@ PYLON_CAM_TYPE detectPylonCamType(const Pylon::CDeviceInfo& device_info)
                 std::string model_name(device_info.GetModelName());
                 if ( model_name.compare(0, 3, "acA") == 0 )
                 {
+                    return USB;
+                }
+                else if ( model_name.compare(0, 3, "a2A") == 0 ){
                     return USB;
                 }
                 else if ( model_name.compare(0, 3, "daA") == 0 )
@@ -146,14 +151,23 @@ PylonCamera* PylonCamera::create(const std::string& device_user_id_to_open)
             Pylon::DeviceInfoList_t::const_iterator it;
             if ( device_user_id_to_open.empty() )
             {
-                ROS_INFO_STREAM("Found camera with DeviceUserID "
-                            << device_list.front().GetUserDefinedName() << ": "
-                            << device_list.front().GetModelName());
-                PYLON_CAM_TYPE cam_type = detectPylonCamType(device_list.front());
-                PylonCamera* new_cam_ptr = createFromDevice(cam_type,
-                                        tl_factory.CreateDevice(device_list.front()));
-                new_cam_ptr->device_user_id_ = device_list.front().GetUserDefinedName();
-                return new_cam_ptr;
+		for (it = device_list.begin(); it != device_list.end(); ++it)
+		{
+		    ROS_INFO_STREAM("Found camera with DeviceUserID "
+				    << it->GetUserDefinedName() << ": "
+				    << it->GetModelName());
+		    PYLON_CAM_TYPE cam_type = detectPylonCamType(*it);
+		    if (cam_type != UNKNOWN)
+		    {
+		      PylonCamera* new_cam_ptr = createFromDevice(cam_type,
+					                          tl_factory.CreateDevice(*it));
+		      new_cam_ptr->device_user_id_ = it->GetUserDefinedName();
+		      return new_cam_ptr;
+		    }
+		}
+		Pylon::PylonTerminate();
+		ROS_ERROR_ONCE("No compatible camera present");
+		return nullptr;
             }
             bool found_desired_device = false;
             for ( it = device_list.begin(); it != device_list.end(); ++it )

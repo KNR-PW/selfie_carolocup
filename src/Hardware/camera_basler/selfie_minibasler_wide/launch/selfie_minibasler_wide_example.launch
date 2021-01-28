@@ -1,0 +1,29 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find selfie_minibasler_wide)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+    <node 
+        name="camera_basler"
+        type="pylon_camera_node"
+        pkg="pylon_camera"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" output="$(arg node_output)" respawn="$(arg node_respawn)" />
+
+</launch>

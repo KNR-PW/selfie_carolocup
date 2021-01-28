@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2016, Magazino GmbH. All rights reserved.
  *
+ * Improved by drag and bot GmbH (www.dragandbot.com), 2019
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -33,6 +35,7 @@
 #include <cmath>
 #include <vector>
 #include "boost/multi_array.hpp"
+//#include <dnb_msgs/ComponentStatus.h>
 
 using diagnostic_msgs::DiagnosticStatus;
 
@@ -48,6 +51,9 @@ PylonCameraNode::PylonCameraNode()
       set_binning_srv_(nh_.advertiseService("set_binning",
                                             &PylonCameraNode::setBinningCallback,
                                             this)),
+      set_roi_srv_(nh_.advertiseService("set_roi",
+                                        &PylonCameraNode::setROICallback,
+                                        this)),
       set_exposure_srv_(nh_.advertiseService("set_exposure",
                                              &PylonCameraNode::setExposureCallback,
                                              this)),
@@ -62,6 +68,132 @@ PylonCameraNode::PylonCameraNode()
                                                this)),
       set_sleeping_srv_(nh_.advertiseService("set_sleeping",
                                              &PylonCameraNode::setSleepingCallback,
+                                             this)),
+      set_offset_x_srv_(nh_.advertiseService("set_offset_x",
+                                             &PylonCameraNode::setOffsetXCallback,
+                                             this)),
+      set_offset_y_srv_(nh_.advertiseService("set_offset_y",
+                                             &PylonCameraNode::setOffsetYCallback,
+                                             this)),
+      reverse_x_srv_(nh_.advertiseService("set_reverse_x",
+                                             &PylonCameraNode::setReverseXCallback,
+                                             this)),
+      reverse_y_srv_(nh_.advertiseService("set_reverse_y",
+                                             &PylonCameraNode::setReverseYCallback,
+                                             this)),
+      set_black_level_srv_(nh_.advertiseService("set_black_level",
+                                             &PylonCameraNode::setBlackLevelCallback,
+                                             this)),
+      set_PGI_mode_srv_(nh_.advertiseService("set_pgi_mode",
+                                             &PylonCameraNode::setPGIModeCallback,
+                                             this)),
+      set_demosaicing_mode_srv_(nh_.advertiseService("set_demosaicing_mode",
+                                             &PylonCameraNode::setDemosaicingModeCallback,
+                                             this)),
+      set_noise_reduction_srv_(nh_.advertiseService("set_noise_reduction",
+                                             &PylonCameraNode::setNoiseReductionCallback,
+                                             this)),
+      set_sharpness_enhancement_srv_(nh_.advertiseService("set_sharpness_enhancement",
+                                             &PylonCameraNode::setSharpnessEnhancementCallback,
+                                             this)),
+      set_light_source_preset_srv_(nh_.advertiseService("set_light_source_preset",
+                                             &PylonCameraNode::setLightSourcePresetCallback,
+                                             this)),
+      set_balance_white_auto_srv_(nh_.advertiseService("set_balance_white_auto",
+                                             &PylonCameraNode::setBalanceWhiteAutoCallback,
+                                             this)),
+      set_sensor_readout_mode_srv_(nh_.advertiseService("set_sensor_readout_mode",
+                                             &PylonCameraNode::setSensorReadoutModeCallback,
+                                             this)),
+      set_acquisition_frame_count_srv_(nh_.advertiseService("set_acquisition_frame_count",
+                                             &PylonCameraNode::setAcquisitionFrameCountCallback,
+                                             this)),
+      set_trigger_selector_srv_(nh_.advertiseService("set_trigger_selector",
+                                             &PylonCameraNode::setTriggerSelectorCallback,
+                                             this)),
+      set_trigger_mode_srv_(nh_.advertiseService("set_trigger_mode",
+                                             &PylonCameraNode::setTriggerModeCallback,
+                                             this)),
+      execute_software_trigger_srv_(nh_.advertiseService("execute_software_trigger",
+                                             &PylonCameraNode::executeSoftwareTriggerCallback,
+                                             this)),
+      set_trigger_source_srv_(nh_.advertiseService("set_trigger_source",
+                                             &PylonCameraNode::setTriggerSourceCallback,
+                                             this)),
+      set_trigger_activation_srv_(nh_.advertiseService("set_trigger_activation",
+                                             &PylonCameraNode::setTriggerActivationCallback,
+                                             this)),
+      set_trigger_delay_srv_(nh_.advertiseService("set_trigger_delay",
+                                             &PylonCameraNode::setTriggerDelayCallback,
+                                             this)),
+      set_line_selector_srv_(nh_.advertiseService("set_line_selector",
+                                             &PylonCameraNode::setLineSelectorCallback,
+                                             this)),
+      set_line_mode_srv_(nh_.advertiseService("set_line_mode",
+                                             &PylonCameraNode::setLineModeCallback,
+                                             this)),
+      set_line_source_srv_(nh_.advertiseService("set_line_source",
+                                             &PylonCameraNode::setLineSourceCallback,
+                                             this)),
+      set_line_inverter_srv_(nh_.advertiseService("set_line_inverter",
+                                             &PylonCameraNode::setLineInverterCallback,
+                                             this)),
+      set_line_debouncer_time_srv_(nh_.advertiseService("set_line_debouncer_time",
+                                             &PylonCameraNode::setLineDebouncerTimeCallback,
+                                             this)),
+      set_user_set_selector_srv_(nh_.advertiseService("select_user_set",
+                                             &PylonCameraNode::setUserSetSelectorCallback,
+                                             this)),
+      save_user_set_srv_(nh_.advertiseService("save_user_set",
+                                             &PylonCameraNode::saveUserSetCallback,
+                                             this)),
+      load_user_set_srv_(nh_.advertiseService("load_user_set",
+                                             &PylonCameraNode::loadUserSetCallback,
+                                             this)),
+      set_user_set_default_selector_srv_(nh_.advertiseService("select_default_user_set",
+                                             &PylonCameraNode::setUserSetDefaultSelectorCallback,
+                                             this)),
+      set_device_link_throughput_limit_mode_srv_(nh_.advertiseService("set_device_link_throughput_limit_mode",
+                                             &PylonCameraNode::setDeviceLinkThroughputLimitModeCallback,
+                                             this)),
+      set_device_link_throughput_limit_srv_(nh_.advertiseService("set_device_link_throughput_limit",
+                                             &PylonCameraNode::setDeviceLinkThroughputLimitCallback,
+                                             this)),
+      reset_device_srv_(nh_.advertiseService("reset_device",
+                                             &PylonCameraNode::triggerDeviceResetCallback,
+                                             this)),
+      start_grabbing_srv_(nh_.advertiseService("start_grabbing",
+                                             &PylonCameraNode::StartGrabbingCallback,
+                                             this)),
+      stop_grabbing_srv_(nh_.advertiseService("stop_grabbing",
+                                             &PylonCameraNode::StopGrabbingCallback,
+                                             this)),
+      set_image_encoding_srv_(nh_.advertiseService("set_image_encoding",
+                                             &PylonCameraNode::setImageEncodingCallback,
+                                             this)),
+      set_max_transfer_size_srv_(nh_.advertiseService("set_max_transfer_size",
+                                             &PylonCameraNode::setMaxTransferSizeCallback,
+                                             this)),
+      set_gamma_selector_srv(nh_.advertiseService("set_gamma_selector",
+                                             &PylonCameraNode::setGammaSelectorCallback,
+                                             this)),
+      gamma_enable_srv(nh_.advertiseService("gamma_enable",
+                                             &PylonCameraNode::gammaEnableCallback,
+                                             this)),
+      set_grab_timeout_srv(nh_.advertiseService("set_grab_timeout",
+                                             &PylonCameraNode::setGrabTimeoutCallback,
+                                             this)),
+      set_trigger_timeout_srv(nh_.advertiseService("set_trigger_timeout",
+                                             &PylonCameraNode::setTriggerTimeoutCallback,
+                                             this)),
+      set_grabbing_strategy_srv(nh_.advertiseService("set_grabbing_strategy",
+                                             &PylonCameraNode::setGrabbingStrategyCallback,
+                                             this)),
+      set_output_queue_size_srv(nh_.advertiseService("set_output_queue_size",
+                                             &PylonCameraNode::setOutputQueueSizeCallback,
+                                             this)),
+      set_white_balance_srv(nh_.advertiseService("set_white_balance",
+                                             &PylonCameraNode::setWhiteBalanceCallback,
                                              this)),
       set_user_output_srvs_(),
       pylon_camera_(nullptr),
@@ -87,6 +219,8 @@ PylonCameraNode::PylonCameraNode()
     diagnostics_updater_.add("camera_availability", this, &PylonCameraNode::create_diagnostics);
     diagnostics_updater_.add("intrinsic_calibration", this, &PylonCameraNode::create_camera_info_diagnostics);
     diagnostics_trigger_ = nh_.createTimer(ros::Duration(2), &PylonCameraNode::diagnostics_timer_callback_, this);
+    componentStatusPublisher = nh_.advertise<dnb_msgs::ComponentStatus>("/pylon_camera_node/status", 5, true); // DNB component status publisher
+    currentParamsPublisher = nh_.advertise<camera_control_msgs::currentParams>("/pylon_camera_node/currentParams", 5, true); // current camera params publisher
 
     init();
 }
@@ -100,13 +234,19 @@ void PylonCameraNode::create_diagnostics(diagnostic_updater::DiagnosticStatusWra
 
     if (pylon_camera_)
     {
-        diagnostics_updater_.setHardwareID(pylon_camera_->deviceUserID());
+        diagnostics_updater_.setHardwareID( pylon_camera_->deviceUserID());
         stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Device is connected");
     }
     else
     {
         diagnostics_updater_.setHardwareID(pylon_camera_parameter_set_.deviceUserID());
         stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No camera connected");
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "No camera connected";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
     }
 }
 
@@ -115,9 +255,7 @@ void PylonCameraNode::create_camera_info_diagnostics(diagnostic_updater::Diagnos
     if (camera_info_manager_->isCalibrated())
     {
         stat.summaryf(DiagnosticStatus::OK, "Intrinsic calibration found");
-    }
-    else
-    {
+    }else{
         stat.summaryf(DiagnosticStatus::ERROR, "No intrinsic calibration found");
     }
 }
@@ -160,6 +298,12 @@ bool PylonCameraNode::initAndRegister()
 
     if ( pylon_camera_ == nullptr )
     {
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "No camera present";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+          {
+            componentStatusPublisher.publish(cm_status);
+          }
         // wait and retry until a camera is present
         ros::Time end = ros::Time::now() + ros::Duration(15.0);
         ros::Rate r(0.5);
@@ -170,6 +314,12 @@ bool PylonCameraNode::initAndRegister()
             if ( ros::Time::now() > end )
             {
                 ROS_WARN_STREAM("No camera present. Keep waiting ...");
+                cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+                cm_status.status_msg = "No camera present";
+                if (pylon_camera_parameter_set_.enable_status_publisher_)
+                {
+                  componentStatusPublisher.publish(cm_status);
+                }
                 end = ros::Time::now() + ros::Duration(15.0);
             }
             r.sleep();
@@ -180,6 +330,12 @@ bool PylonCameraNode::initAndRegister()
     if (pylon_camera_ != nullptr && pylon_camera_parameter_set_.deviceUserID().empty())
     {
         pylon_camera_parameter_set_.adaptDeviceUserId(nh_, pylon_camera_->deviceUserID());
+        cm_status.status_id = dnb_msgs::ComponentStatus::RUNNING;
+        cm_status.status_msg = "running";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
     }
 
     if ( !ros::ok() )
@@ -191,12 +347,24 @@ bool PylonCameraNode::initAndRegister()
     {
         ROS_ERROR_STREAM("Error while registering the camera configuration to "
             << "software-trigger mode!");
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "Error while registering the camera configuration";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
         return false;
     }
 
     if ( !pylon_camera_->openCamera() )
     {
         ROS_ERROR("Error while trying to open the desired camera!");
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "Error while trying to open the desired camera!";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
         return false;
     }
 
@@ -204,6 +372,12 @@ bool PylonCameraNode::initAndRegister()
     {
         ROS_ERROR_STREAM("Error while applying the cam specific startup settings "
                 << "(e.g. mtu size for GigE, ...) to the camera!");
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "Error while applying the cam specific startup settings";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
         return false;
     }
 
@@ -224,20 +398,25 @@ bool PylonCameraNode::startGrabbing()
     {
         std::string srv_name = "set_user_output_" + std::to_string(i);
         std::string srv_name_af = "activate_autoflash_output_" + std::to_string(i);
+        if (! ros::service::exists("/pylon_camera_node/"+srv_name, false))
+        {
         set_user_output_srvs_.at(i) =
-            nh_.advertiseService< camera_control_msgs::SetBool::Request,
-                                  camera_control_msgs::SetBool::Response >(
+            nh_.advertiseService< std_srvs::SetBool::Request,
+                                  std_srvs::SetBool::Response >(
                                     srv_name,
                                     boost::bind(&PylonCameraNode::setUserOutputCB,
-                                                this, i , _1 , _2));
+                                                this, i ,_1 ,_2));
+        }
+        if (! ros::service::exists("/pylon_camera_node/"+srv_name_af, false))
+        {
         set_user_output_srvs_.at(num_user_outputs+i) =
-            nh_.advertiseService< camera_control_msgs::SetBool::Request,
-                                  camera_control_msgs::SetBool::Response >(
+            nh_.advertiseService< std_srvs::SetBool::Request,
+                                  std_srvs::SetBool::Response >(
                                     srv_name_af,
                                     boost::bind(&PylonCameraNode::setAutoflash,
-                                                this, i+2, _1, _2));  // ! using lines 2 and 3
+                                                this, i+2, _1, _2)); // ! using lines 2 and 3
+        }
     }
-
     img_raw_msg_.header.frame_id = pylon_camera_parameter_set_.cameraFrame();
     // Encoding of pixels -- channel meaning, ordering, size
     // taken from the list of strings in include/sensor_msgs/image_encodings.h
@@ -247,29 +426,25 @@ bool PylonCameraNode::startGrabbing()
     // step = full row length in bytes, img_size = (step * rows), imagePixelDepth
     // already contains the number of channels
     img_raw_msg_.step = img_raw_msg_.width * pylon_camera_->imagePixelDepth();
-
     if ( !camera_info_manager_->setCameraName(pylon_camera_->deviceUserID()) )
-    {
+    { 
         // valid name contains only alphanumeric signs and '_'
         ROS_WARN_STREAM("[" << pylon_camera_->deviceUserID()
                 << "] name not valid for camera_info_manager");
     }
-
     setupSamplingIndices(sampling_indices_,
                          pylon_camera_->imageRows(),
                          pylon_camera_->imageCols(),
                          pylon_camera_parameter_set_.downsampling_factor_exp_search_);
-
     grab_imgs_raw_as_.start();
 
     // Initial setting of the CameraInfo-msg, assuming no calibration given
     CameraInfo initial_cam_info;
     setupInitialCameraInfo(initial_cam_info);
     camera_info_manager_->setCameraInfo(initial_cam_info);
-
     if ( pylon_camera_parameter_set_.cameraInfoURL().empty() ||
          !camera_info_manager_->validateURL(pylon_camera_parameter_set_.cameraInfoURL()) )
-    {
+    { 
         ROS_INFO_STREAM("CameraInfoURL needed for rectification! ROS-Param: "
             << "'" << nh_.getNamespace() << "/camera_info_url' = '"
             << pylon_camera_parameter_set_.cameraInfoURL() << "' is invalid!");
@@ -279,7 +454,7 @@ bool PylonCameraNode::startGrabbing()
         ROS_WARN("Will only provide distorted /image_raw images!");
     }
     else
-    {
+    { 
         // override initial camera info if the url is valid
         if ( camera_info_manager_->loadCameraInfo(
                                 pylon_camera_parameter_set_.cameraInfoURL()) )
@@ -292,13 +467,12 @@ bool PylonCameraNode::startGrabbing()
             camera_info_manager_->setCameraInfo(*cam_info);
         }
         else
-        {
+        { 
             ROS_WARN("Will only provide distorted /image_raw images!");
         }
     }
-
     if ( pylon_camera_parameter_set_.binning_x_given_ )
-    {
+    {   
         size_t reached_binning_x;
         setBinningX(pylon_camera_parameter_set_.binning_x_, reached_binning_x);
         ROS_INFO_STREAM("Setting horizontal binning_x to "
@@ -306,9 +480,8 @@ bool PylonCameraNode::startGrabbing()
         ROS_WARN_STREAM("The image width of the camera_info-msg will "
             << "be adapted, so that the binning_x value in this msg remains 1");
     }
-
     if ( pylon_camera_parameter_set_.binning_y_given_ )
-    {
+    {   
         size_t reached_binning_y;
         setBinningY(pylon_camera_parameter_set_.binning_y_, reached_binning_y);
         ROS_INFO_STREAM("Setting vertical binning_y to "
@@ -316,35 +489,31 @@ bool PylonCameraNode::startGrabbing()
         ROS_WARN_STREAM("The image height of the camera_info-msg will "
             << "be adapted, so that the binning_y value in this msg remains 1");
     }
-
     if ( pylon_camera_parameter_set_.exposure_given_ )
-    {
+    {   
         float reached_exposure;
         setExposure(pylon_camera_parameter_set_.exposure_, reached_exposure);
         ROS_INFO_STREAM("Setting exposure to "
                 << pylon_camera_parameter_set_.exposure_ << ", reached: "
                 << reached_exposure);
     }
-
     if ( pylon_camera_parameter_set_.gain_given_ )
-    {
+    {   
         float reached_gain;
         setGain(pylon_camera_parameter_set_.gain_, reached_gain);
         ROS_INFO_STREAM("Setting gain to: "
                 << pylon_camera_parameter_set_.gain_ << ", reached: "
                 << reached_gain);
     }
-
     if ( pylon_camera_parameter_set_.gamma_given_ )
-    {
+    {   
         float reached_gamma;
         setGamma(pylon_camera_parameter_set_.gamma_, reached_gamma);
         ROS_INFO_STREAM("Setting gamma to " << pylon_camera_parameter_set_.gamma_
                 << ", reached: " << reached_gamma);
     }
-
     if ( pylon_camera_parameter_set_.brightness_given_ )
-    {
+    {   
         int reached_brightness;
         setBrightness(pylon_camera_parameter_set_.brightness_,
                       reached_brightness,
@@ -354,7 +523,7 @@ bool PylonCameraNode::startGrabbing()
                 << pylon_camera_parameter_set_.brightness_ << ", reached: "
                 << reached_brightness);
         if ( pylon_camera_parameter_set_.brightness_continuous_ )
-        {
+        {   
             if ( pylon_camera_parameter_set_.exposure_auto_ )
             {
                 pylon_camera_->enableContinuousAutoExposure();
@@ -365,7 +534,7 @@ bool PylonCameraNode::startGrabbing()
             }
         }
         else
-        {
+        { 
             pylon_camera_->disableAllRunningAutoBrightessFunctions();
         }
     }
@@ -379,10 +548,9 @@ bool PylonCameraNode::startGrabbing()
             << "gamma = " <<  pylon_camera_->currentGamma() << ", "
             << "shutter mode = "
             << pylon_camera_parameter_set_.shutterModeString());
-
     // Framerate Settings
     if ( pylon_camera_->maxPossibleFramerate() < pylon_camera_parameter_set_.frameRate() )
-    {
+    {   
         ROS_INFO("Desired framerate %.2f is higher than max possible. Will limit framerate to: %.2f Hz",
                  pylon_camera_parameter_set_.frameRate(),
                  pylon_camera_->maxPossibleFramerate());
@@ -391,7 +559,7 @@ bool PylonCameraNode::startGrabbing()
                 pylon_camera_->maxPossibleFramerate());
     }
     else if ( pylon_camera_parameter_set_.frameRate() == -1 )
-    {
+    {     
         pylon_camera_parameter_set_.setFrameRate(nh_,
                                                  pylon_camera_->maxPossibleFramerate());
         ROS_INFO("Max possible framerate is %.2f Hz",
@@ -404,8 +572,7 @@ void PylonCameraNode::setupRectification()
 {
     if ( !img_rect_pub_ )
     {
-        img_rect_pub_ = new ros::Publisher(
-                            nh_.advertise<sensor_msgs::Image>("image_rect", 1));
+        img_rect_pub_ = new image_transport::Publisher(it_->advertise("image_rect", 1));
     }
 
     if ( !grab_imgs_rect_as_ )
@@ -427,18 +594,6 @@ void PylonCameraNode::setupRectification()
     }
 
     pinhole_model_->fromCameraInfo(camera_info_manager_->getCameraInfo());
-    cv::Mat m1;
-    cv::Mat m2;
-    cv::fisheye::initUndistortRectifyMap(pinhole_model_->intrinsicMatrix(),
-                                         pinhole_model_->distortionCoeffs(),
-                                         cv::Mat(),
-                                         pinhole_model_->intrinsicMatrix(),
-                                         pinhole_model_->fullResolution(),
-                                         CV_32FC1, m1, m2);
-    mapx_ = cv::Mat(m1);
-    mapy_ = cv::Mat(m2);
-
-
     if ( !cv_bridge_img_rect_ )
     {
         cv_bridge_img_rect_ = new cv_bridge::CvImage();
@@ -453,7 +608,7 @@ struct CameraPublisherImpl
   image_transport::Publisher image_pub_;
   ros::Publisher info_pub_;
   bool unadvertised_;
-  // double constructed_;
+  //double constructed_;
 };
 
 class CameraPublisherLocal
@@ -462,17 +617,17 @@ public:
   struct Impl;
   typedef boost::shared_ptr<Impl> ImplPtr;
   typedef boost::weak_ptr<Impl> ImplWPtr;
-
+  
   CameraPublisherImpl* impl_;
 };
 
 uint32_t  PylonCameraNode::getNumSubscribersRaw() const
 {
-    return ((CameraPublisherLocal*)(&img_raw_pub_))->impl_->image_pub_.getNumSubscribers(); // NOLINT
+    return ((CameraPublisherLocal*)(&img_raw_pub_))->impl_->image_pub_.getNumSubscribers();
 }
 
 void PylonCameraNode::spin()
-{
+{   
     if ( camera_info_manager_->isCalibrated() )
     {
         ROS_INFO_ONCE("Camera is calibrated");
@@ -485,6 +640,12 @@ void PylonCameraNode::spin()
     if ( pylon_camera_->isCamRemoved() )
     {
         ROS_ERROR("Pylon camera has been removed, trying to reset");
+        cm_status.status_id = dnb_msgs::ComponentStatus::ERROR;
+        cm_status.status_msg = "Pylon camera has been removed, trying to reset";
+        if (pylon_camera_parameter_set_.enable_status_publisher_)
+        {
+          componentStatusPublisher.publish(cm_status);
+        }
         delete pylon_camera_;
         pylon_camera_ = nullptr;
         for ( ros::ServiceServer& user_output_srv : set_user_output_srvs_ )
@@ -499,17 +660,16 @@ void PylonCameraNode::spin()
     // images were published if subscribers are available or if someone calls
     // the GrabImages Action
     if ( !isSleeping() && (img_raw_pub_.getNumSubscribers() || getNumSubscribersRect() ) )
-    {
+    { 
         if ( getNumSubscribersRaw() || getNumSubscribersRect())
-        {
+        { 
             if (!grabImage() )
-            {
+            { 
                 return;
             }
         }
-
         if ( img_raw_pub_.getNumSubscribers() > 0 )
-        {
+        { 
             // get actual cam_info-object in every frame, because it might have
             // changed due to a 'set_camera_info'-service call
             sensor_msgs::CameraInfoPtr cam_info(
@@ -520,9 +680,8 @@ void PylonCameraNode::spin()
             // Publish via image_transport
             img_raw_pub_.publish(img_raw_msg_, *cam_info);
         }
-
         if ( getNumSubscribersRect() > 0 && camera_info_manager_->isCalibrated() )
-        {
+        { 
             cv_bridge_img_rect_->header.stamp = img_raw_msg_.header.stamp;
             assert(pinhole_model_->initialized());
             cv_bridge::CvImagePtr cv_img_raw = cv_bridge::toCvCopy(
@@ -530,20 +689,34 @@ void PylonCameraNode::spin()
                     img_raw_msg_.encoding);
             pinhole_model_->fromCameraInfo(camera_info_manager_->getCameraInfo());
             pinhole_model_->rectifyImage(cv_img_raw->image, cv_bridge_img_rect_->image);
-            img_rect_pub_->publish(*cv_bridge_img_rect_);
+            img_rect_pub_->publish(cv_bridge_img_rect_->toImageMsg());
         }
     }
+    // Check if the image encoding changed , then save the new image encoding and restart the image grabbing to fix the ros sensor message type issue.
+    if (pylon_camera_parameter_set_.imageEncoding() != pylon_camera_->currentROSEncoding()) 
+      {
+        pylon_camera_parameter_set_.setimageEncodingParam(nh_,pylon_camera_->currentROSEncoding());
+        grabbingStopping();
+        grabbingStarting();
+      }
+    if (pylon_camera_parameter_set_.enable_status_publisher_)
+    { 
+      componentStatusPublisher.publish(cm_status);
+    } 
+    if (pylon_camera_parameter_set_.enable_current_params_publisher_)
+    { 
+      currentParamPub();
+    } 
 }
 
 bool PylonCameraNode::grabImage()
 {
-    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_); 
     if ( !pylon_camera_->grab(img_raw_msg_.data) )
     {
-        ROS_WARN("Pylon camera returned invalid image! Skipping");
         return false;
     }
-    img_raw_msg_.header.stamp = ros::Time::now();
+    img_raw_msg_.header.stamp = ros::Time::now(); 
     return true;
 }
 
@@ -810,16 +983,16 @@ camera_control_msgs::GrabImagesResult PylonCameraNode::grabImagesRaw(
 }
 
 bool PylonCameraNode::setUserOutputCB(const int output_id,
-                                      camera_control_msgs::SetBool::Request &req,
-                                      camera_control_msgs::SetBool::Response &res)
+                                      std_srvs::SetBool::Request &req,
+                                      std_srvs::SetBool::Response &res)
 {
     res.success = pylon_camera_->setUserOutput(output_id, req.data);
     return true;
 }
 
 bool PylonCameraNode::setAutoflash(const int output_id,
-                                   camera_control_msgs::SetBool::Request &req,
-                                   camera_control_msgs::SetBool::Response &res)
+                                   std_srvs::SetBool::Request &req,
+                                   std_srvs::SetBool::Response &res)
 {
     ROS_INFO("AUtoFlashCB: %i -> %i", output_id, req.data);
     std::map<int, bool> auto_flashs;
@@ -932,10 +1105,8 @@ void PylonCameraNode::setupInitialCameraInfo(sensor_msgs::CameraInfo& cam_info_m
     // the same window of pixels on the camera sensor, regardless of binning
     // settings. The default setting of roi (all values 0) is considered the same
     // as full resolution (roi.width = width, roi.height = height).
-    cam_info_msg.roi.x_offset = pylon_camera_->currentROIOffsetX();
-    cam_info_msg.roi.y_offset = pylon_camera_->currentROIOffsetY();
-    cam_info_msg.roi.height = pylon_camera_->imageRows();
-    cam_info_msg.roi.width = pylon_camera_->imageCols();
+    cam_info_msg.roi.x_offset = cam_info_msg.roi.y_offset = 0;
+    cam_info_msg.roi.height = cam_info_msg.roi.width = 0;
 }
 
 /**
@@ -971,6 +1142,51 @@ bool PylonCameraNode::waitForCamera(const ros::Duration& timeout) const
     }
     return result;
 }
+
+
+bool PylonCameraNode::setROI(const sensor_msgs::RegionOfInterest target_roi,
+			     sensor_msgs::RegionOfInterest& reached_roi)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->setROI(target_roi, reached_roi) )
+    {
+        // retry till timeout
+        ros::Rate r(10.0);
+        ros::Time timeout(ros::Time::now() + ros::Duration(2.0));
+        while ( ros::ok() )
+        {
+            if ( pylon_camera_->setROI(target_roi, reached_roi) )
+            {
+                break;
+            }
+            if ( ros::Time::now() > timeout )
+            {
+                ROS_ERROR_STREAM("Error in setROI(): Unable to set target "
+                << "roi before timeout");
+                CameraInfoPtr cam_info(new CameraInfo(camera_info_manager_->getCameraInfo()));
+                cam_info->roi = pylon_camera_->currentROI();
+                camera_info_manager_->setCameraInfo(*cam_info);
+                img_raw_msg_.width = pylon_camera_->imageCols();
+		img_raw_msg_.height = pylon_camera_->imageRows();
+                // step = full row length in bytes, img_size = (step * rows), imagePixelDepth
+                // already contains the number of channels
+                img_raw_msg_.step = img_raw_msg_.width * pylon_camera_->imagePixelDepth();
+                return false;
+            }
+            r.sleep();
+        }
+    }
+    CameraInfoPtr cam_info(new CameraInfo(camera_info_manager_->getCameraInfo()));
+    cam_info->roi = pylon_camera_->currentROI();
+    camera_info_manager_->setCameraInfo(*cam_info);
+    img_raw_msg_.height = pylon_camera_->imageRows();
+    img_raw_msg_.width = pylon_camera_->imageCols();
+    // step = full row length in bytes, img_size = (step * rows), imagePixelDepth
+    // already contains the number of channels
+    img_raw_msg_.step = img_raw_msg_.width * pylon_camera_->imagePixelDepth();
+    return true;
+}
+
 
 bool PylonCameraNode::setBinningX(const size_t& target_binning_x,
                                   size_t& reached_binning_x)
@@ -1075,6 +1291,14 @@ bool PylonCameraNode::setBinningCallback(camera_control_msgs::SetBinning::Reques
     res.success = success_x && success_y;
     return true;
 }
+
+bool PylonCameraNode::setROICallback(camera_control_msgs::SetROI::Request &req,
+                                     camera_control_msgs::SetROI::Response &res)
+{
+    res.success = setROI(req.target_roi, res.reached_roi);
+    return true;
+}
+  
 
 bool PylonCameraNode::setExposure(const float& target_exposure,
                                   float& reached_exposure)
@@ -1566,6 +1790,1274 @@ bool PylonCameraNode::setSleepingCallback(camera_control_msgs::SetSleeping::Requ
 bool PylonCameraNode::isSleeping()
 {
     return is_sleeping_;
+}
+
+bool PylonCameraNode::setOffsetXCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setOffsetXY(req.value, true);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+bool PylonCameraNode::setOffsetYCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setOffsetXY(req.value, false);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";;
+        }
+    }
+    return true;
+}
+
+
+std::string PylonCameraNode::setOffsetXY(const int& offsetValue, bool xAxis)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setOffsetXY(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setOffsetXY(offsetValue,xAxis) ;
+}
+
+bool PylonCameraNode::setReverseXCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = reverseXY(req.data, true);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+bool PylonCameraNode::setReverseYCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = reverseXY(req.data, false);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::reverseXY(const bool& data, bool around_x)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in reverseXY(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->reverseXY(data, around_x);
+}
+
+bool PylonCameraNode::setBlackLevelCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{   
+    res.message = setBlackLevel(req.value);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setBlackLevel(const int& value)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setBlackLevel(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+
+    return pylon_camera_->setBlackLevel(value) ;
+}
+
+bool PylonCameraNode::setPGIModeCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = setPGIMode(req.data);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setPGIMode(const bool& on)
+{   // mode 0 = Simple
+    // mode 1 = Basler PGI
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setPGIMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setPGIMode(on);
+}
+
+bool PylonCameraNode::setDemosaicingModeCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setDemosaicingMode(req.value);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed demosaicing mode number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setDemosaicingMode(const int& mode)
+{   // mode 0 = Simple
+    // mode 1 = Basler PGI
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setDemosaicingMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setDemosaicingMode(mode);
+}
+
+bool PylonCameraNode::setNoiseReductionCallback(camera_control_msgs::SetFloatValue::Request &req, camera_control_msgs::SetFloatValue::Response &res)
+{
+    res.message = setNoiseReduction(req.value);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setNoiseReduction(const float& value)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setNoiseReduction(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setNoiseReduction(value);
+}
+
+bool PylonCameraNode::setSharpnessEnhancementCallback(camera_control_msgs::SetFloatValue::Request &req, camera_control_msgs::SetFloatValue::Response &res)
+{
+    res.message = setSharpnessEnhancement(req.value);
+    if (res.message == "done")
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setSharpnessEnhancement(const float& value)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setSharpnessEnhancement(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setSharpnessEnhancement(value);
+}
+
+bool PylonCameraNode::setLightSourcePresetCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setLightSourcePreset(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed light source preset number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLightSourcePreset(const int& mode)
+{   // mode 0 = Off
+    // mode 1 = Daylight5000K
+    // mode 2 = Daylight6500K
+    // mode 3 = Tungsten2800K
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLightSourcePreset(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+      return pylon_camera_->setLightSourcePreset(mode) ;
+}
+
+bool PylonCameraNode::setBalanceWhiteAutoCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setBalanceWhiteAuto(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed balance white auto number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setBalanceWhiteAuto(const int& mode)
+{   // mode 0 = Off
+    // mode 1 = Once
+    // mode 2 = Continuous
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setBalanceWhiteAuto(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+      return pylon_camera_->setBalanceWhiteAuto(mode) ;
+}
+
+bool PylonCameraNode::setSensorReadoutModeCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setSensorReadoutMode(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed sensor readout mode number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setSensorReadoutMode(const int& mode)
+{   // mode = 0 : normal readout mode
+    // mode = 1 : fast readout mode
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setSensorReadoutMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setSensorReadoutMode(mode) ;
+}
+
+bool PylonCameraNode::setAcquisitionFrameCountCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setAcquisitionFrameCount(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setAcquisitionFrameCount(const int& frameCount)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setAcquisitionFrameCount(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setAcquisitionFrameCount(frameCount) ;
+}
+
+bool PylonCameraNode::setTriggerSelectorCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setTriggerSelector(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed trigger selector number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setTriggerSelector(const int& mode)
+{   // mode 0 = Frame start
+    // mode 1 = Frame burst start (ace USB cameras) / Acquisition Start (ace GigE cameras)
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setTriggerSelector(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setTriggerSelector(mode) ;
+}
+
+bool PylonCameraNode::setTriggerModeCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = setTriggerMode(req.data);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed trigger mode number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setTriggerMode(const bool& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setTriggerMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setTriggerMode(value) ;
+}
+
+bool PylonCameraNode::executeSoftwareTriggerCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = executeSoftwareTrigger();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::executeSoftwareTrigger()
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in executeSoftwareTrigger(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->executeSoftwareTrigger() ;
+}
+
+bool PylonCameraNode::setTriggerSourceCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setTriggerSource(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed trigger source number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setTriggerSource(const int& source)
+{   // source 0 = Software
+    // source 1 = Line1
+    // source 2 = Line3
+    // source 2 = Line4
+    // source 4 = Action1(only selected GigE Camera)
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setTriggerSource(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setTriggerSource(source) ;
+}
+
+bool PylonCameraNode::setTriggerActivationCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setTriggerActivation(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setTriggerActivation(const int& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setTriggerActivation(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setTriggerActivation(value) ;
+}
+
+bool PylonCameraNode::setTriggerDelayCallback(camera_control_msgs::SetFloatValue::Request &req, camera_control_msgs::SetFloatValue::Response &res)
+{
+    res.message = setTriggerDelay(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setTriggerDelay(const float& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setTriggerDelay(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    if ((value >= 0) && (value <= 1000000))
+    {
+      return pylon_camera_->setTriggerDelay(value) ;
+    }
+    else
+    {
+      return "Error: the trigger delay value is out of range (0 - 1,000,000)";
+    }
+}
+
+bool PylonCameraNode::setLineSelectorCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setLineSelector(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLineSelector(const int& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLineSelector(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setLineSelector(value) ;
+}
+
+bool PylonCameraNode::setLineModeCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setLineMode(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLineMode(const int& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLineMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setLineMode(value) ;
+}
+
+bool PylonCameraNode::setLineSourceCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setLineSource(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLineSource(const int& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLineSource(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setLineSource(value) ;
+}
+
+bool PylonCameraNode::setLineInverterCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = setLineInverter(req.data);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLineInverter(const bool& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLineInverter(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setLineInverter(value) ;
+}
+
+bool PylonCameraNode::setLineDebouncerTimeCallback(camera_control_msgs::SetFloatValue::Request &req, camera_control_msgs::SetFloatValue::Response &res)
+{
+    res.message = setLineDebouncerTime(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setLineDebouncerTime(const float& value)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setLineDebouncerTime(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    if ((value >= 0) && (value <= 20000))
+    {
+      return pylon_camera_->setLineDebouncerTime(value) ;
+    }
+    else
+    {
+      return "Error : given line debouncer time value is out of rane (0-20,000)";
+    }
+}
+
+bool PylonCameraNode::setUserSetSelectorCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setUserSetSelector(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed user set number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setUserSetSelector(const int& set)
+{   // set 0 = Default
+    // set 1 = UserSet1
+    // set 2 = UserSet2
+    // set 3 = UserSet3
+    // set 4 = HighGain
+    // set 5 = AutoFunctions
+    // set 6 = ColorRaw
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setUserSetSelector(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setUserSetSelector(set) ;
+}
+
+
+bool PylonCameraNode::saveUserSetCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = saveUserSet();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::saveUserSet()
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in saveUserSet(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->saveUserSet() ;
+}
+
+bool PylonCameraNode::loadUserSetCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = loadUserSet();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::loadUserSet()
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in loadUserSet(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->loadUserSet() ;
+}
+
+bool PylonCameraNode::setUserSetDefaultSelectorCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setUserSetDefaultSelector(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+        else if ((res.message.find("EnumEntry") != std::string::npos) != 0)
+        {
+          res.message = "The passed default user set number is not supported by the connected camera";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setUserSetDefaultSelector(const int& set)
+{   // set 0 = Default
+    // set 1 = UserSet1
+    // set 2 = UserSet2
+    // set 3 = UserSet3
+    // set 4 = HighGain
+    // set 5 = AutoFunctions
+    // set 6 = ColorRaw
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setUserSetDefaultSelector(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setUserSetDefaultSelector(set) ;
+}
+
+// USER CONTROL
+
+bool PylonCameraNode::setDeviceLinkThroughputLimitModeCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = setDeviceLinkThroughputLimitMode(req.data);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setDeviceLinkThroughputLimitMode(const bool& turnOn)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setDeviceLinkThroughputLimitMode(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+      return pylon_camera_->setDeviceLinkThroughputLimitMode(turnOn) ;
+}
+
+bool PylonCameraNode::setDeviceLinkThroughputLimitCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setDeviceLinkThroughputLimit(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable.")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setDeviceLinkThroughputLimit(const int& limit)
+{   
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setDeviceLinkThroughputLimit(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+      return pylon_camera_->setDeviceLinkThroughputLimit(limit) ;
+}
+
+bool PylonCameraNode::triggerDeviceResetCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = triggerDeviceReset();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+    }
+    return true;
+}
+
+std::string PylonCameraNode::triggerDeviceReset()
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in triggerDeviceReset(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->triggerDeviceReset() ;
+}
+
+bool PylonCameraNode::StartGrabbingCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = grabbingStarting();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+    }
+    return true;
+}
+
+std::string PylonCameraNode::grabbingStarting()
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in grabbingStarting(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    if (startGrabbing())
+    {
+      return "done";
+    }
+    else 
+    {
+      return "Error";
+    }
+}
+
+bool PylonCameraNode::StopGrabbingCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+{
+    res.message = grabbingStopping();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+    }
+    return true;
+}
+
+std::string PylonCameraNode::grabbingStopping()
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in grabbingStopping(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->grabbingStopping() ;
+}
+
+bool PylonCameraNode::setImageEncodingCallback(camera_control_msgs::SetStringValue::Request &req, camera_control_msgs::SetStringValue::Response &res)
+{
+    grabbingStopping(); // Stop grabbing for better user experience
+    res.message = setImageEncoding(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+        pylon_camera_parameter_set_.setimageEncodingParam(nh_,req.value);
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    grabbingStarting(); // Start grabbing for better usser experience
+    return true;
+}
+
+std::string PylonCameraNode::setImageEncoding(const std::string& target_ros_encoding)
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setImageEncoding(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setImageEncoding(target_ros_encoding) ;
+}
+
+bool PylonCameraNode::setMaxTransferSizeCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setMaxTransferSize(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setMaxTransferSize(const int& maxTransferSize)
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setMaxTransferSize(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setMaxTransferSize(maxTransferSize) ;
+}
+
+bool PylonCameraNode::setGammaSelectorCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    res.message = setGammaSelector(req.value);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::setGammaSelector(const int& gammaSelector)
+{  
+    // gammaSelector 0 = User
+    // gammaSelector 1 = sRGB
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setGammaSelector(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->setGammaSelector(gammaSelector) ;
+}
+
+bool PylonCameraNode::gammaEnableCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    res.message = gammaEnable(req.data);
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    }
+    else 
+    {
+        res.success = false;
+        if (res.message == "Node is not writable")
+        {
+          res.message = "Using this feature require stop image grabbing";
+        }
+    }
+    return true;
+}
+
+std::string PylonCameraNode::gammaEnable(const int& enable)
+{  
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in gammaEnable(): pylon_camera_ is not ready!");
+        return "pylon camera is not ready!";
+    }
+    return pylon_camera_->gammaEnable(enable) ;
+}
+
+
+bool PylonCameraNode::setGrabTimeoutCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    grabbingStopping();
+    try {
+      pylon_camera_parameter_set_.grab_timeout_ = req.value;
+      res.success = true;
+    } catch (...){
+      res.success = false;
+    }
+    grabbingStarting(); // start grabbing is required to set the new trigger timeout
+    return true;
+}
+
+bool PylonCameraNode::setTriggerTimeoutCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+    grabbingStopping();
+    try {
+      pylon_camera_parameter_set_.trigger_timeout_ = req.value;
+      res.success = true;
+    } catch (...){
+      res.success = false;
+    }
+    grabbingStarting(); // start grabbing is required to set the new trigger timeout
+    return true;
+}
+
+bool PylonCameraNode::setWhiteBalanceCallback(camera_control_msgs::SetWhiteBalance::Request &req, camera_control_msgs::SetWhiteBalance::Response &res)
+{
+    try {
+        res.message = pylon_camera_->setWhiteBalance(req.balance_ratio_red, req.balance_ratio_green, req.balance_ratio_blue);
+        if (res.message == "done") {
+            res.success = true;
+        } else {
+            res.success = false;
+        }
+    } catch (...){
+      res.success = false;
+    }
+    return true;
+}
+
+bool PylonCameraNode::setGrabbingStrategyCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{   // set 0 = GrabStrategy_OneByOne
+    // set 1 = GrabStrategy_LatestImageOnly
+    // set 2 = GrabStrategy_LatestImages
+
+    if(req.value >= 0 && req.value <= 2) {
+        grabbingStopping();
+        res.success = pylon_camera_->setGrabbingStrategy(req.value);
+        if(res.success){
+          pylon_camera_parameter_set_.grab_strategy_ = req.value;
+        }
+        grabbingStarting();
+
+    } else {
+      res.success = false;
+      res.message = "Unknown grabbing strategy";
+    }
+    
+    return true;
+}
+
+
+bool PylonCameraNode::setOutputQueueSizeCallback(camera_control_msgs::SetIntegerValue::Request &req, camera_control_msgs::SetIntegerValue::Response &res)
+{
+
+    grabbingStopping();
+    res.message = pylon_camera_->setOutputQueueSize(req.value);
+    grabbingStarting();
+    if ((res.message.find("done") != std::string::npos) != 0)
+    {
+        res.success = true;
+    } else {
+        res.success = false;
+    }
+    
+    return true;
+}
+void PylonCameraNode::currentParamPub()
+{
+  boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+  if ( !pylon_camera_->isReady() )
+    {
+      ROS_WARN("Error in triggerDeviceReset(): pylon_camera_ is not ready!");
+      params.message = "pylon camera is not ready!";
+      params.sucess = false;
+    }
+  else 
+  {
+    try
+    {
+      params.black_level = pylon_camera_->getBlackLevel();
+      params.reverse_x =  pylon_camera_->getReverseXY(true);
+      params.reverse_y =  pylon_camera_->getReverseXY(false);
+      params.offset_x = static_cast<uint32_t>(pylon_camera_->currentOffsetX());
+      params.offset_y = static_cast<uint32_t>(pylon_camera_->currentOffsetY());
+      params.pgi_mode = pylon_camera_->getPGIMode();
+      params.demosaicing_mode = pylon_camera_->getDemosaicingMode();
+      params.noise_reduction = pylon_camera_->getNoiseReduction();
+      params.sharpness_enhancement = pylon_camera_->getSharpnessEnhancement();
+      params.light_source_preset = pylon_camera_->getLightSourcePreset();
+      params.balance_white_auto = pylon_camera_->getBalanceWhiteAuto();
+      params.sensor_readout_mode = pylon_camera_->getSensorReadoutMode();
+      params.acquisition_frame_count = pylon_camera_->getAcquisitionFrameCount();
+      params.trigger_selector = pylon_camera_->getTriggerSelector();
+      params.trigger_mode = pylon_camera_->getTriggerMode();
+      params.trigger_source = pylon_camera_->getTriggerSource();
+      params.trigger_activation = pylon_camera_->getTriggerActivation();
+      params.trigger_delay = pylon_camera_->getTriggerDelay();
+      params.user_set_selector = pylon_camera_->getUserSetSelector();
+      params.user_set_default_selector = pylon_camera_->getUserSetDefaultSelector();
+      params.is_sleeping = isSleeping();
+      params.brightness = calcCurrentBrightness();
+      params.exposure = pylon_camera_->currentExposure();
+      params.gain = pylon_camera_->currentGain();
+      params.gamma = pylon_camera_->currentGamma();
+      params.binning_x = static_cast<uint32_t>(pylon_camera_->currentBinningX());
+      params.binning_y = static_cast<uint32_t>(pylon_camera_->currentBinningY());
+      params.roi = pylon_camera_->currentROI();
+      params.available_image_encoding = pylon_camera_->detectAvailableImageEncodings(false);
+      params.current_image_encoding = pylon_camera_->currentBaslerEncoding();
+      params.current_image_ros_encoding = pylon_camera_->currentROSEncoding();
+      params.temperature = pylon_camera_->getTemperature();
+
+      params.sucess = true;
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+      ROS_ERROR_STREAM("An exception while getting the camera current params occurred:" << e.GetDescription());
+      params.sucess = false;
+      params.message = "An exception while getting the camera current parameters occurred";
+    }
+  }
+  currentParamsPublisher.publish(params);
 }
 
 PylonCameraNode::~PylonCameraNode()
