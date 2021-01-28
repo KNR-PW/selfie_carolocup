@@ -21,8 +21,9 @@ find_package(catkin REQUIRED COMPONENTS
   selfie_basler_fisheye
   tf
   parking_spot_detector
+  urg_node
 )
 
 catkin_package(
-  CATKIN_DEPENDS tf
+  CATKIN_DEPENDS tf urg_node
 )
