@@ -1,0 +1,380 @@
+{
+  "keys": {},
+  "groups": {
+    "mainwindow": {
+      "keys": {
+        "geometry": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'01d9d0cb00030000000007800000000000000dbf00000383000007800000002500000dbf0000038300000001000000000640000007800000002500000dbf00000383')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "               %        @   %    "
+        },
+        "state": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff00000000fd0000000100000003000006400000032afc0100000002fc00000000000006400000032600fffffffc0100000003fc00000000000002020000017100fffffffc0200000002fb00000064007200710074005f00730065006c006600690065005f0062006100730065005f005f00530065006c0066006900650020006200610073006500200070006c007500670069006e005f005f0031005f005f004d00790050006c007500670069006e00550069010000001f0000015f0000001500fffffffb00000042007200710074005f0070006c006f0074005f005f0050006c006f0074005f005f0031005f005f00440061007400610050006c006f00740057006900640067006500740100000184000001c50000008e00fffffffc0000020800000438000001af00fffffffc0200000002fb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0031005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f007700690064006700650074010000001f000001880000010f00fffffffc000001ad0000019c0000019c0100001dfa000000010100000002fb0000004c007200710074005f0074006f007000690063005f005f0054006f0070006900630050006c007500670069006e005f005f0031005f005f0054006f0070006900630057006900640067006500740100000000ffffffff000000d700fffffffb0000004c007200710074005f0063006f006e0073006f006c0065005f005f0043006f006e0073006f006c0065005f005f0031005f005f0043006f006e0073006f006c006500570069006400670065007401000004260000021a000001af00fffffffc000003b9000002870000000000fffffffa000000000200000001fb00000058007200710074005f007000750062006c00690073006800650072005f005f005000750062006c00690073006800650072005f005f0031005f005f005000750062006c006900730068006500720057006900640067006500740100000000ffffffff0000000000000000fc0000044a000001f60000000000fffffffc0200000001fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d0061006700650056006900650077005700690064006700650074010000001f000003a00000000000000000000006400000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "                   @ &                  drqt_selfie_base__Selfie base plugin__1__MyPluginUi          Brqt_plot__Plot__1__DataPlotWidget            8                                                                                       Lrqt_topic__TopicPlugin__1__TopicWidget          Lrqt_console__Console__1__ConsoleWidget                                                                                          Zrqt_image_view__ImageView__1__ImageViewWidget                            6MinimizedDockWidgetsToolbar        "
+        }
+      },
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "repr": "8",
+              "type": "repr"
+            }
+          },
+          "groups": {}
+        }
+      }
+    },
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "repr": "{'rqt_console/Console': [1], 'rqt_plot/Plot': [1], 'rqt_reconfigure/Param': [1], 'rqt_selfie_base/Selfie base plugin': [1], 'rqt_topic/TopicPlugin': [1]}",
+          "type": "repr"
+        }
+      },
+      "groups": {
+        "plugin__rqt_console__Console__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ConsoleWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Console'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "exclude_filters": {
+                  "repr": "''",
+                  "type": "repr"
+                },
+                "filter_splitter": {
+                  "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff0000000100000002000000e4000000e40100000009010000000200')",
+                  "type": "repr(QByteArray.hex)",
+                  "pretty-print": "               "
+                },
+                "highlight_filters": {
+                  "repr": "''",
+                  "type": "repr"
+                },
+                "message_limit": {
+                  "repr": "20000",
+                  "type": "repr"
+                },
+                "paused": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "settings_exist": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "show_highlighted_only": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "table_splitter": {
+                  "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff0000000100000002000002de000000000100000009010000000200')",
+                  "type": "repr(QByteArray.hex)",
+                  "pretty-print": "               "
+                }
+              },
+              "groups": {
+                "exclude_filter_0": {
+                  "keys": {
+                    "enabled": {
+                      "repr": "'true'",
+                      "type": "repr"
+                    },
+                    "itemlist": {
+                      "repr": "''",
+                      "type": "repr"
+                    }
+                  },
+                  "groups": {}
+                },
+                "highlight_filter_0": {
+                  "keys": {
+                    "enabled": {
+                      "repr": "'true'",
+                      "type": "repr"
+                    },
+                    "regex": {
+                      "repr": "'false'",
+                      "type": "repr"
+                    },
+                    "text": {
+                      "repr": "''",
+                      "type": "repr"
+                    }
+                  },
+                  "groups": {}
+                }
+              }
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Image View'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "'true'",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "dynamic_range": {
+                  "repr": "'false'",
+                  "type": "repr"
+                },
+                "max_range": {
+                  "repr": "'10'",
+                  "type": "repr"
+                },
+                "mouse_pub_topic": {
+                  "repr": "'/pylon_camera_node/image_raw/theora_mouse_left'",
+                  "type": "repr"
+                },
+                "num_gridlines": {
+                  "repr": "'0'",
+                  "type": "repr"
+                },
+                "publish_click_location": {
+                  "repr": "'false'",
+                  "type": "repr"
+                },
+                "rotate": {
+                  "repr": "'0'",
+                  "type": "repr"
+                },
+                "smooth_image": {
+                  "repr": "'false'",
+                  "type": "repr"
+                },
+                "toolbar_hidden": {
+                  "repr": "'false'",
+                  "type": "repr"
+                },
+                "topic": {
+                  "repr": "'/pylon_camera_node/image_raw/theora'",
+                  "type": "repr"
+                },
+                "zoom1": {
+                  "repr": "'false'",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_plot__Plot__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DataPlotWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'MatPlot'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "autoscroll": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "plot_type": {
+                  "repr": "1",
+                  "type": "repr"
+                },
+                "topics": {
+                  "repr": "'/selfie_out/motion/speed_linear'",
+                  "type": "repr"
+                },
+                "x_limits": {
+                  "repr": "[-1611420303.5395842, -1611420302.5395842]",
+                  "type": "repr"
+                },
+                "y_limits": {
+                  "repr": "[-1.2000168561935425, 1.3348662853240967]",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_publisher__Publisher__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__PublisherWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Message Publisher'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "'true'",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "publishers": {
+                  "repr": "'[]'",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_reconfigure__Param__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget___plugincontainer_top_widget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Dynamic Reconfigure'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "_splitter": {
+                  "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff00000001000000020000012c000000640100000009010000000200')",
+                  "type": "repr(QByteArray.hex)",
+                  "pretty-print": "       , d     "
+                },
+                "expanded_nodes": {
+                  "repr": "[]",
+                  "type": "repr"
+                },
+                "selected_nodes": {
+                  "repr": "['/path_generator', '/obstacle_detector']",
+                  "type": "repr"
+                },
+                "splitter": {
+                  "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff0000000100000002000000ae0000006401ffffffff010000000100')",
+                  "type": "repr(QByteArray.hex)",
+                  "pretty-print": "         d     "
+                },
+                "text": {
+                  "repr": "''",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_selfie_base__Selfie base plugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Form'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_topic__TopicPlugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__TopicWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Topic Monitor'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "tree_widget_header_state": {
+                  "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff000000000000000100000000000000010100000000000000000000000000000000000004ac000000050101000100000000000000000500000064ffffffff0000008100000003000000050000027200000001000000030000012700000001000000030000007200000001000000030000003d0000000100000003000000640000000100000003000003e80000000064')",
+                  "type": "repr(QByteArray.hex)",
+                  "pretty-print": "                              d         r     '     r     =     d        "
+                }
+              },
+              "groups": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
