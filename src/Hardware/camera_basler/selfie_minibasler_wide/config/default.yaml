@@ -1,0 +1,15 @@
+camera_basler: 
+  {
+    camera_info_url: "",
+    image_encoding: "mono8",
+    frame_rate: 75,
+    brightness: 150,
+    brightness_continuous: true,
+    exposure_auto: false,
+    gain_auto: true,
+    exposure: 6000.0,
+    height: 1200,
+    width: 1600,
+    roi_offset_x: 0,
+    roi_offset_y: 0
+  }

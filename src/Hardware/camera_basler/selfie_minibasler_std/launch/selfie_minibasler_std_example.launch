@@ -1,0 +1,36 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find selfie_minibasler_std)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <arg name="distortion_file"
+         default="package://selfie_minibasler_std/config/distortion.yaml" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+    <node 
+        name="camera_basler"
+        type="pylon_camera_node"
+        pkg="pylon_camera"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+
+        <param name="camera_info_url" value="$(arg distortion_file)" />
+        <!-- <param name="exposure_auto" value="false" /> -->
+        <!--<param name="gain_auto" value="false" /> -->
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" output="$(arg node_output)" respawn="$(arg node_respawn)" />
+
+</launch>

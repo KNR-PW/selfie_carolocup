@@ -1,0 +1,18 @@
+camera_basler: 
+  {
+    image_encoding: 'mono8',
+    frame_rate: 54,
+    
+    brightness_continuous: false,
+    #exposure_auto: false,
+    #gain_auto: false,
+    
+    height: 1200,
+    width: 1600,
+    roi_offset_x: 0,
+    roi_offset_y: 0,
+    exposure_auto: false,
+    gain_auto: true,
+    brightness: 100,
+    exposure: 2500.0
+  }
