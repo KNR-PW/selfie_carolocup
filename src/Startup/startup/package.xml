@@ -28,4 +28,8 @@
   <depend>pid_carrot_follower</depend>
   <depend>drive_multiplexer</depend>
 
+  <build_depend>urg_node</build_depend>
+  <build_export_depend>urg_node</build_export_depend>
+  <exec_depend>urg_node</exec_depend>
+
 </package>
