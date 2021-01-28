@@ -44,6 +44,9 @@
              value="$(arg config_default)" />
     </include>
 
+     <!-- lidar -->
+    <node pkg="urg_node" type="urg_node" name="lidar" respawn="true" output="screen"/>
+
     <!-- stm32_bridge -->
     <include file="$(find stm32_bridge)/launch/stm32_bridge_example.launch" >
         <arg name="debug" 
