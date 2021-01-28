@@ -7,7 +7,7 @@
   <arg name="config_file"
     default="$(find diagnostics)/config/default.yaml"  />
   <arg name="node_respawn"
-    default="true"  />
+    default="false"  />
   <arg name="node_output"
     default="screen" doc="screen or log" />
   
