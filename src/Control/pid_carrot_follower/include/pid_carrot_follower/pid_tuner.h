@@ -10,6 +10,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <pid_carrot_follower/PIDTunerConfig.h>
 #include <std_msgs/Float32.h>
+#include <std_srvs/Empty.h>
 #include "custom_msgs/Motion.h"
 
 class PidTuner
@@ -27,8 +28,11 @@ class PidTuner
   dynamic_reconfigure::Server<pid_carrot_follower::PIDTunerConfig> dr_server_;
   dynamic_reconfigure::Server<pid_carrot_follower::PIDTunerConfig>::CallbackType dr_server_CB_;
 
-  bool running = true;
-  bool change_switch = false;
+    ros::ServiceServer set_ackermann_settings_srv_;
+    ros::ServiceServer set_default_settings_srv_;
+    bool use_ackermann_settings_;
+
+    bool pid_tuner_disabled;
 
   float kp_base = 1.0;
   float speed_base = 1.0;
@@ -48,8 +52,12 @@ class PidTuner
   float H_Ki;
   float H_Kd;
 
-  float M_speed;
-  float H_speed;
+    float A_Kp;
+    float A_Ki;
+    float A_Kd;
+
+    float M_speed;
+    float H_speed;
 
   float speed_change_treshold;
   float act_speed_;
@@ -61,7 +69,9 @@ public:
   void setKi(float Ki);
 
 private:
-  void reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
-  void speedCallback(const custom_msgs::Motion& msg);
+    void reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
+    void speedCallback(const custom_msgs::Motion &msg);
+    bool setDefaultSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+    bool setAckermannSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 };
 #endif  // PID_CARROT_FOLLOWER_PID_TUNER_H

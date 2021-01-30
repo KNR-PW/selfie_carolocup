@@ -15,6 +15,11 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
   dr_server_.setCallback(dr_server_CB_);
 
   sub_motion_ = nh_.subscribe("/selfie_out/motion", 50, &PidTuner::speedCallback, this);
+  set_ackermann_settings_srv_ = nh_.advertiseService("/pidTuner/setAckerman", &PidTuner::setAckermannSettingsCb, this);
+  set_default_settings_srv_ = nh_.advertiseService("/pidTuner/setDefault", &PidTuner::setDefaultSettingsCb, this);
+  use_ackermann_settings_ = false;
+
+  pnh_.getParam("pid_tuner_disabled", pid_tuner_disabled);
 
   pnh_.getParam("L_Kp", L_Kp);
   pnh_.getParam("L_Ki", L_Ki);
@@ -28,6 +33,10 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
   pnh_.getParam("H_Ki", H_Ki);
   pnh_.getParam("H_Kd", H_Kd);
 
+  pnh_.getParam("A_Kp", A_Kp);
+  pnh_.getParam("A_Ki", A_Kp);
+  pnh_.getParam("A_Kd", A_Kp);
+
   pnh_.getParam("H_speed", H_speed);
   pnh_.getParam("M_speed", M_speed);
   pnh_.getParam("speed_change_treshold", speed_change_treshold);
@@ -35,7 +44,7 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
 
 void PidTuner::speedCallback(const custom_msgs::Motion& msg)
 {
-  if (abs(msg.speed_linear - act_speed_) < speed_change_treshold)
+  if ((abs(msg.speed_linear - act_speed_) < speed_change_treshold) || use_ackermann_settings_ || pid_tuner_disabled)
   {
     return;
   }
@@ -59,6 +68,24 @@ void PidTuner::speedCallback(const custom_msgs::Motion& msg)
     setKd(H_Kd);
     setKi(H_Ki);
   }
+}
+
+bool PidTuner::setDefaultSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  use_ackermann_settings_ = false;
+  act_speed_ = 0.0; // to be sure that speed callback will act immediately
+  ROS_INFO("Use default PID settings");
+  return true;
+}
+
+bool PidTuner::setAckermannSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  use_ackermann_settings_ = true;
+  ROS_INFO("Use ackermann PID settings");
+  setKp(A_Kp);
+  setKd(A_Kd);
+  setKi(A_Ki);
+  return true;
 }
 
 void PidTuner::setKd(float Kd)
@@ -165,6 +192,14 @@ void PidTuner::setKi(float Ki)
 
 void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
 {
+  if(pid_tuner_disabled != static_cast<bool>(config.pid_tuner_disabled))
+  {
+    pid_tuner_disabled = config.pid_tuner_disabled;
+    if(pid_tuner_disabled)
+      ROS_INFO("PID tuner disabled");
+    else
+      ROS_INFO("PID tuner enabled");
+  }
   if (H_Kp != static_cast<float>(config.H_Kp))
   {
     H_Kp = config.H_Kp;
@@ -211,6 +246,21 @@ void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, 
   {
     L_Kd = config.L_Kd;
     ROS_INFO("L_Kd new value %f", L_Kd);
+  }
+  if (A_Kp != static_cast<float>(config.A_Kp))
+  {
+    A_Kp = config.A_Kp;
+    ROS_INFO("A_Kp new value %f", A_Kp);
+  }
+  if (A_Ki != static_cast<float>(config.A_Ki))
+  {
+    A_Ki = config.A_Ki;
+    ROS_INFO("A_Ki new value %f", A_Ki);
+  }
+  if (A_Kd != static_cast<float>(config.A_Kd))
+  {
+    A_Kd = config.A_Kd;
+    ROS_INFO("A_Kd new value %f", A_Kd);
   }
   if (M_speed != static_cast<float>(config.M_speed))
   {
