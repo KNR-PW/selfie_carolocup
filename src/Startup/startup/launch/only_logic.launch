@@ -2,20 +2,12 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
-<arg name="config_default"
-     value="$(optenv SELFIE_DEFAULT false)" />
+<arg name="config"
+     value="$(optenv SELFIE_CONFIG default)" />
 
-<group unless="$(arg config_default)">
+<group unless="$(eval config == 'default')">
     <rosparam command="load"
-        file="$(find startup)/config/car/control.yaml"  />
-    <rosparam command="load"
-        file="$(find startup)/config/car/hardware.yaml"  />
-    <rosparam command="load"
-        file="$(find startup)/config/car/navigation.yaml"  />
-    <rosparam command="load"
-        file="$(find startup)/config/car/perception.yaml"  />
-    <rosparam command="load"
-        file="$(find startup)/config/car/tasks.yaml"  />
+        file="$(find startup)/config/custom/$(arg config).yaml"  />
 </group>
 
 <!-- Control -->
@@ -24,7 +16,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- pid_carrot_follower -->
@@ -32,7 +24,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
 <!-- Navigation -->
@@ -41,7 +33,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- path_generator -->
@@ -49,7 +41,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
 <!-- Perception -->
@@ -58,7 +50,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- obstacle_detector -->
@@ -66,7 +58,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- odometry -->
@@ -74,7 +66,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
 <!-- Tasks -->
@@ -83,7 +75,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- intersection -->
@@ -91,7 +83,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- park -->
@@ -99,7 +91,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- parking_spot_detector -->
@@ -107,7 +99,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- scheduler -->
@@ -115,7 +107,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
     <!-- starting_procedure -->
@@ -123,7 +115,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg config_default)" />
+             value="$(eval config == 'default')" />
     </include>
 
 <!-- Startup -->
