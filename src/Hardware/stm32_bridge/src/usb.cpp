@@ -94,8 +94,8 @@ void USB_STM::send_frame_to_STM(uint32_t timestamp_ms, Sub_messages to_send)
     send_frame->length = USB_SEND_SIZE;
 
     send_frame->timecode = timestamp_ms;
-    send_frame->steering_fi_front = (int16_t)(to_send.ackerman.steering_angle_front * 10000);
-    send_frame->steering_fi_back = (int16_t)(to_send.ackerman.steering_angle_rear * 10000);
+    send_frame->steering_fi_front = - (int16_t)(to_send.ackerman.steering_angle_front * 10000);
+    send_frame->steering_fi_back = - (int16_t)(to_send.ackerman.steering_angle_rear * 10000);
     send_frame->speed = (int16_t)(to_send.ackerman.speed * 1000);
     send_frame->acceleration = (int16_t)(to_send.ackerman.acceleration * 1000);
     send_frame->jerk = (int16_t)(to_send.ackerman.jerk * 1000);
