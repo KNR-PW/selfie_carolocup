@@ -1,4 +1,4 @@
-image: registry.gitlab.com/knr-selfie/carolocup-2021/carolocup_2021:latest
+image: registry.gitlab.com/knr-selfie/carolocup/carolocup:latest
 
 variables:
   GLOBAL_C11: "true"
