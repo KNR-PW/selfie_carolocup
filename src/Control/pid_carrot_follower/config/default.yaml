@@ -46,9 +46,9 @@ pid_tuner:
     H_Ki: 0,
     H_Kd: 0.12,
 
-    A_Kp: 1.0,
-    A_Ki: 0,
-    A_Kd: 0.12,
+    LaneChange_Kp: 1.0,
+    LaneChange_Ki: 0,
+    LaneChange_Kd: 0.12,
 
     M_speed: 0.5,
     H_speed: 1.0,

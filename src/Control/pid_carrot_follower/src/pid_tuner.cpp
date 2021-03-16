@@ -15,76 +15,83 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
   dr_server_.setCallback(dr_server_CB_);
 
   sub_motion_ = nh_.subscribe("/selfie_out/motion", 50, &PidTuner::speedCallback, this);
-  set_ackermann_settings_srv_ = nh_.advertiseService("/pidTuner/setAckerman", &PidTuner::setAckermannSettingsCb, this);
-  set_default_settings_srv_ = nh_.advertiseService("/pidTuner/setDefault", &PidTuner::setDefaultSettingsCb, this);
-  use_ackermann_settings_ = false;
+  set_lane_change_pid_settings_srv_ = nh_.advertiseService("/pidTuner/setLaneChangePidSettings",
+                                                           &PidTuner::setLaneChangePidSettingsCb, this);
+  set_default_pid_settings_srv_ = nh_.advertiseService("/pidTuner/setDefaultPidSettings",
+                                                       &PidTuner::setDefaultPidSettingsCb, this);
+  use_lane_change_pid_settings_ = false;
 
-  pnh_.getParam("pid_tuner_disabled", pid_tuner_disabled);
+  pnh_.getParam("pid_tuner_disabled", pid_tuner_disabled_);
 
-  pnh_.getParam("L_Kp", L_Kp);
-  pnh_.getParam("L_Ki", L_Ki);
-  pnh_.getParam("L_Kd", L_Kd);
+  pnh_.getParam("L_Kp", L_Kp_);
+  pnh_.getParam("L_Ki", L_Ki_);
+  pnh_.getParam("L_Kd", L_Kd_);
 
-  pnh_.getParam("M_Kp", M_Kp);
-  pnh_.getParam("M_Ki", M_Ki);
-  pnh_.getParam("M_Kd", M_Kd);
+  pnh_.getParam("M_Kp", M_Kp_);
+  pnh_.getParam("M_Ki", M_Ki_);
+  pnh_.getParam("M_Kd", M_Kd_);
 
-  pnh_.getParam("H_Kp", H_Kp);
-  pnh_.getParam("H_Ki", H_Ki);
-  pnh_.getParam("H_Kd", H_Kd);
+  pnh_.getParam("H_Kp", H_Kp_);
+  pnh_.getParam("H_Ki", H_Ki_);
+  pnh_.getParam("H_Kd", H_Kd_);
 
-  pnh_.getParam("A_Kp", A_Kp);
-  pnh_.getParam("A_Ki", A_Kp);
-  pnh_.getParam("A_Kd", A_Kp);
+  pnh_.getParam("LaneChange_Kp", LaneChange_Kp_);
+  pnh_.getParam("LaneChange_Ki", LaneChange_Kp_);
+  pnh_.getParam("LaneChange_Kd", LaneChange_Kp_);
 
-  pnh_.getParam("H_speed", H_speed);
-  pnh_.getParam("M_speed", M_speed);
-  pnh_.getParam("speed_change_treshold", speed_change_treshold);
+  pnh_.getParam("H_speed", H_speed_);
+  pnh_.getParam("M_speed", M_speed_);
+  pnh_.getParam("speed_change_treshold", speed_change_treshold_);
 }
 
 void PidTuner::speedCallback(const custom_msgs::Motion& msg)
 {
-  if ((abs(msg.speed_linear - act_speed_) < speed_change_treshold) || use_ackermann_settings_ || pid_tuner_disabled)
+  if (!pid_tuner_disabled_ || use_lane_change_pid_settings_)
+  {
+    return;
+  }
+
+  if ((abs(msg.speed_linear - act_speed_) < speed_change_treshold_))
   {
     return;
   }
 
   act_speed_ = msg.speed_linear;
-  if (act_speed_ < M_speed)
+  if (act_speed_ < M_speed_)
   {
-    setKp(L_Kp);
-    setKd(L_Kd);
-    setKi(L_Ki);
+    setKp(L_Kp_);
+    setKd(L_Kd_);
+    setKi(L_Ki_);
   }
-  else if (act_speed_ < H_speed)
+  else if (act_speed_ < H_speed_)
   {
-    setKp(M_Kp);
-    setKd(M_Kd);
-    setKi(M_Ki);
+    setKp(M_Kp_);
+    setKd(M_Kd_);
+    setKi(M_Ki_);
   }
   else
   {
-    setKp(H_Kp);
-    setKd(H_Kd);
-    setKi(H_Ki);
+    setKp(H_Kp_);
+    setKd(H_Kd_);
+    setKi(H_Ki_);
   }
 }
 
-bool PidTuner::setDefaultSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool PidTuner::setDefaultPidSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-  use_ackermann_settings_ = false;
-  act_speed_ = 0.0; // to be sure that speed callback will act immediately
+  use_lane_change_pid_settings_ = false;
+  act_speed_ = 0.0;  // to be sure that speed callback will act immediately
   ROS_INFO("Use default PID settings");
   return true;
 }
 
-bool PidTuner::setAckermannSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+bool PidTuner::setLaneChangePidSettingsCb(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-  use_ackermann_settings_ = true;
-  ROS_INFO("Use ackermann PID settings");
-  setKp(A_Kp);
-  setKd(A_Kd);
-  setKi(A_Ki);
+  use_lane_change_pid_settings_ = true;
+  ROS_INFO("Use LaneChange PID settings");
+  setKp(LaneChange_Kp_);
+  setKd(LaneChange_Kd_);
+  setKi(LaneChange_Ki_);
   return true;
 }
 
@@ -192,84 +199,84 @@ void PidTuner::setKi(float Ki)
 
 void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
 {
-  if(pid_tuner_disabled != static_cast<bool>(config.pid_tuner_disabled))
+  if (pid_tuner_disabled_ != static_cast<bool>(config.pid_tuner_disabled))
   {
-    pid_tuner_disabled = config.pid_tuner_disabled;
-    if(pid_tuner_disabled)
+    pid_tuner_disabled_ = config.pid_tuner_disabled;
+    if (pid_tuner_disabled_)
       ROS_INFO("PID tuner disabled");
     else
       ROS_INFO("PID tuner enabled");
   }
-  if (H_Kp != static_cast<float>(config.H_Kp))
+  if (H_Kp_ != static_cast<float>(config.H_Kp))
   {
-    H_Kp = config.H_Kp;
-    ROS_INFO("H_Kp new value %f", H_Kp);
+    H_Kp_ = config.H_Kp;
+    ROS_INFO("H_Kp new value %f", H_Kp_);
   }
-  if (H_Ki != static_cast<float>(config.H_Ki))
+  if (H_Ki_ != static_cast<float>(config.H_Ki))
   {
-    H_Ki = config.H_Ki;
-    ROS_INFO("H_Ki new value %f", H_Ki);
+    H_Ki_ = config.H_Ki;
+    ROS_INFO("H_Ki new value %f", H_Ki_);
   }
-  if (H_Kd != static_cast<float>(config.H_Kd))
+  if (H_Kd_ != static_cast<float>(config.H_Kd))
   {
-    H_Kd = config.H_Kd;
-    ROS_INFO("H_Kd new value %f", H_Kd);
-  }
-
-  if (M_Kp != static_cast<float>(config.M_Kp))
-  {
-    M_Kp = config.M_Kp;
-    ROS_INFO("M_Kp new value %f", M_Kp);
-  }
-  if (M_Ki != static_cast<float>(config.M_Ki))
-  {
-    M_Ki = config.M_Ki;
-    ROS_INFO("M_Ki new value %f", M_Ki);
-  }
-  if (M_Kd != static_cast<float>(config.M_Kd))
-  {
-    M_Kd = config.M_Kd;
-    ROS_INFO("M_Kd new value %f", M_Kd);
+    H_Kd_ = config.H_Kd;
+    ROS_INFO("H_Kd new value %f", H_Kd_);
   }
 
-  if (L_Kp != static_cast<float>(config.L_Kp))
+  if (M_Kp_ != static_cast<float>(config.M_Kp))
   {
-    L_Kp = config.L_Kp;
-    ROS_INFO("L_Kp new value %f", L_Kp);
+    M_Kp_ = config.M_Kp;
+    ROS_INFO("M_Kp new value %f", M_Kp_);
   }
-  if (L_Ki != static_cast<float>(config.L_Ki))
+  if (M_Ki_ != static_cast<float>(config.M_Ki))
   {
-    L_Ki = config.L_Ki;
-    ROS_INFO("L_Ki new value %f", L_Ki);
+    M_Ki_ = config.M_Ki;
+    ROS_INFO("M_Ki new value %f", M_Ki_);
   }
-  if (L_Kd != static_cast<float>(config.L_Kd))
+  if (M_Kd_ != static_cast<float>(config.M_Kd))
   {
-    L_Kd = config.L_Kd;
-    ROS_INFO("L_Kd new value %f", L_Kd);
+    M_Kd_ = config.M_Kd;
+    ROS_INFO("M_Kd new value %f", M_Kd_);
   }
-  if (A_Kp != static_cast<float>(config.A_Kp))
+
+  if (L_Kp_ != static_cast<float>(config.L_Kp))
   {
-    A_Kp = config.A_Kp;
-    ROS_INFO("A_Kp new value %f", A_Kp);
+    L_Kp_ = config.L_Kp;
+    ROS_INFO("L_Kp new value %f", L_Kp_);
   }
-  if (A_Ki != static_cast<float>(config.A_Ki))
+  if (L_Ki_ != static_cast<float>(config.L_Ki))
   {
-    A_Ki = config.A_Ki;
-    ROS_INFO("A_Ki new value %f", A_Ki);
+    L_Ki_ = config.L_Ki;
+    ROS_INFO("L_Ki new value %f", L_Ki_);
   }
-  if (A_Kd != static_cast<float>(config.A_Kd))
+  if (L_Kd_ != static_cast<float>(config.L_Kd))
   {
-    A_Kd = config.A_Kd;
-    ROS_INFO("A_Kd new value %f", A_Kd);
+    L_Kd_ = config.L_Kd;
+    ROS_INFO("L_Kd new value %f", L_Kd_);
   }
-  if (M_speed != static_cast<float>(config.M_speed))
+  if (LaneChange_Kp_ != static_cast<float>(config.LaneChange_Kp))
   {
-    M_speed = config.M_speed;
-    ROS_INFO("M_speed new value %f", M_speed);
+    LaneChange_Kp_ = config.LaneChange_Kp;
+    ROS_INFO("LaneChange_Kp new value %f", LaneChange_Kp_);
   }
-  if (H_speed != static_cast<float>(config.H_speed))
+  if (LaneChange_Ki_ != static_cast<float>(config.LaneChange_Ki))
   {
-    M_speed = config.H_speed;
-    ROS_INFO("H_speed new value %f", H_speed);
+    LaneChange_Ki_ = config.LaneChange_Ki;
+    ROS_INFO("LaneChange_Ki new value %f", LaneChange_Ki_);
+  }
+  if (LaneChange_Kd_ != static_cast<float>(config.LaneChange_Kd))
+  {
+    LaneChange_Kd_ = config.LaneChange_Kd;
+    ROS_INFO("LaneChange_Kd new value %f", LaneChange_Kd_);
+  }
+  if (M_speed_ != static_cast<float>(config.M_speed))
+  {
+    M_speed_ = config.M_speed;
+    ROS_INFO("M_speed new value %f", M_speed_);
+  }
+  if (H_speed_ != static_cast<float>(config.H_speed))
+  {
+    M_speed_ = config.H_speed;
+    ROS_INFO("H_speed new value %f", H_speed_);
   }
 }
