@@ -40,3 +40,7 @@ If you want to init latest and official version of selfie simulator type:
 git submodule update --init
 ```
 <em>Note: You need to configure your gitlab profile SSH key</em>
+
+### Bonus 2
+If you use Visual Studio Code as your IDE you may find this link useful: https://github.com/pktiuk/vscode_ros_config
+
