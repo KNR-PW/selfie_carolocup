@@ -34,6 +34,9 @@ catkin_make
 source ./devel/setup.bash
 ```
 
+
+ttt
+
 ### Bonus:
 If you want to init latest and official version of selfie simulator type:
 ```bash
