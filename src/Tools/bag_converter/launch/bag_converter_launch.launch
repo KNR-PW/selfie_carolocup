@@ -1,5 +1,8 @@
 <launch>
+	<arg name="bag" />
         <arg name="topic_name" default="/image_rect /camera_basler/image_rect"/>
-	<node name="bag_converter" pkg="bag_converter" type="bag_converter"/>
+        <node pkg="rosbag" type="record" name="record" args="record -O $(arg bag)-motion /selfie_out/motion"/>
+        <node name="bag_converter" pkg="bag_converter" type="bag_converter"/>
+        <node pkg="rosbag" type="play" name="play" output="screen" args="--clock $(arg bag).bag" required="true"/>
         <node name="change_topic_name" pkg="topic_tools" type="relay" args="$(arg topic_name)"/>
 </launch>
