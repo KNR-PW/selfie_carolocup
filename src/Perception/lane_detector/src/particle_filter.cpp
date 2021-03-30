@@ -198,8 +198,7 @@ float ParticleFilter::findMinPointToParabola(cv::Point2f p, std::vector<float> c
     ++it;
     if (it > 5)
       break;
-  }
-  while (new_min - min < 0);
+  } while (new_min - min < 0);
   return std::fabs(min);
 }
 

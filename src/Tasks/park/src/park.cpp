@@ -116,7 +116,7 @@ void Park::preemptCB()
   as_.setAborted();
 }
 
-void Park::updateState(const int &state)
+void Park::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;

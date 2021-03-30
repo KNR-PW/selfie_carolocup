@@ -1,13 +1,13 @@
 /**
-*Copyright ( c ) 2019, KNR Selfie
-*This code is licensed under BSD license (see LICENSE for details)
-**/
+ *Copyright ( c ) 2019, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #include <../test/Search_client_mock.h>
 
 ros::Publisher Search_client_mock::obstacles_pub_;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::init(argc, argv, "detect_parking_spot_mock_client");
   ros::NodeHandle nh;
@@ -20,14 +20,15 @@ int main(int argc, char **argv)
 
   if (argc >= 2)
   {
-    if (std::strcmp(argv[1], "-o")==0)
+    if (std::strcmp(argv[1], "-o") == 0)
     {
       std::cout << "mock obstacles active\n";
       Search_client_mock::obstacles_pub_ = nh.advertise<custom_msgs::PolygonArray>("obstacles", 1);
       timer = nh.createTimer(ros::Duration(0.4), sendMockObstacles);
       if (argc == 3)
         len = atof(argv[2]);
-    } else
+    }
+    else
     {
       std::cout << "mock obstacles disabled ( -o to activate)\n";
       len = atof(argv[1]);

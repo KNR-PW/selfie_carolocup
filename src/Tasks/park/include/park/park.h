@@ -49,8 +49,7 @@ private:
   void markingsCallback(const custom_msgs::RoadLines& msg);
   void goalCB();
   void preemptCB();
-  void updateState(const int &state);
-
+  void updateState(const int& state);
 
   void drive(float speed, float steering_angle_front, float steering_angle_rear);
   bool toParkingSpot();
@@ -72,7 +71,7 @@ private:
   };
   Parking_State parking_state_;
 
-  int state_{selfie::TASK_SHIFTING};
+  int state_{ selfie::TASK_SHIFTING };
   StatePublisher state_publisher_;
 
   float parking_speed_;

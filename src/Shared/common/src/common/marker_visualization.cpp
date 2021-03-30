@@ -11,8 +11,8 @@
 
 namespace selfie
 {
-visualization_msgs::Marker constructMarkerBase(const std::string &name, float r, float g,
-                                               float b, int lifetime, const std::string &frame_id)
+visualization_msgs::Marker
+constructMarkerBase(const std::string& name, float r, float g, float b, int lifetime, const std::string& frame_id)
 {
   visualization_msgs::Marker marker;
 
@@ -38,8 +38,17 @@ visualization_msgs::Marker constructMarkerBase(const std::string &name, float r,
   return marker;
 }
 
-void visualizeBox2D(float &min_x, float &max_x, float &min_y, float &max_y, const ros::Publisher &pub,
-                    const std::string &name, float r, float g, float b, int lifetime, const std::string &frame_id)
+void visualizeBox2D(float& min_x,
+                    float& max_x,
+                    float& min_y,
+                    float& max_y,
+                    const ros::Publisher& pub,
+                    const std::string& name,
+                    float r,
+                    float g,
+                    float b,
+                    int lifetime,
+                    const std::string& frame_id)
 {
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 
@@ -77,8 +86,14 @@ void visualizeBox2D(float &min_x, float &max_x, float &min_y, float &max_y, cons
   pub.publish(marker);
 }
 
-void visualizeBox2D(const custom_msgs::Box2D &box, const ros::Publisher &pub, const std::string &name, float r, float g,
-                    float b, int lifetime, const std::string &frame_id)
+void visualizeBox2D(const custom_msgs::Box2D& box,
+                    const ros::Publisher& pub,
+                    const std::string& name,
+                    float r,
+                    float g,
+                    float b,
+                    int lifetime,
+                    const std::string& frame_id)
 {
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 
@@ -97,15 +112,21 @@ void visualizeBox2D(const custom_msgs::Box2D &box, const ros::Publisher &pub, co
   pub.publish(marker);
 }
 
-void visualizeBoxes2D(const std::vector<custom_msgs::Box2D> &boxes, const ros::Publisher &pub, const std::string &name,
-                      float r, float g, float b, int lifetime, const std::string &frame_id)
+void visualizeBoxes2D(const std::vector<custom_msgs::Box2D>& boxes,
+                      const ros::Publisher& pub,
+                      const std::string& name,
+                      float r,
+                      float g,
+                      float b,
+                      int lifetime,
+                      const std::string& frame_id)
 {
   if (boxes.empty())
     return;
 
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 
-  for (auto &box : boxes)
+  for (auto& box : boxes)
   {
     marker.points.push_back(box.tl);
     marker.points.push_back(box.tr);
@@ -123,15 +144,21 @@ void visualizeBoxes2D(const std::vector<custom_msgs::Box2D> &boxes, const ros::P
   pub.publish(marker);
 }
 
-void visualizeBoxes2D(const std::list<custom_msgs::Box2D> &boxes, const ros::Publisher &pub, const std::string &name,
-                      float r, float g, float b, int lifetime, const std::string &frame_id)
+void visualizeBoxes2D(const std::list<custom_msgs::Box2D>& boxes,
+                      const ros::Publisher& pub,
+                      const std::string& name,
+                      float r,
+                      float g,
+                      float b,
+                      int lifetime,
+                      const std::string& frame_id)
 {
   if (boxes.empty())
     return;
 
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 
-  for (auto &box : boxes)
+  for (auto& box : boxes)
   {
     marker.points.push_back(box.tl);
     marker.points.push_back(box.tr);
@@ -149,16 +176,21 @@ void visualizeBoxes2D(const std::list<custom_msgs::Box2D> &boxes, const ros::Pub
   pub.publish(marker);
 }
 
-
-void visualizeBoxes2D(const custom_msgs::Box2DArray &boxes, const ros::Publisher &pub, const std::string &name, float r,
-                      float g, float b, int lifetime, const std::string &frame_id)
+void visualizeBoxes2D(const custom_msgs::Box2DArray& boxes,
+                      const ros::Publisher& pub,
+                      const std::string& name,
+                      float r,
+                      float g,
+                      float b,
+                      int lifetime,
+                      const std::string& frame_id)
 {
   if (boxes.boxes.empty())
     return;
 
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 
-  for (auto &box : boxes.boxes)
+  for (auto& box : boxes.boxes)
   {
     marker.points.push_back(box.tl);
     marker.points.push_back(box.tr);
@@ -176,8 +208,13 @@ void visualizeBoxes2D(const custom_msgs::Box2DArray &boxes, const ros::Publisher
   pub.publish(marker);
 }
 
-void visualizeEmpty(const ros::Publisher &pub, const std::string &name, float r, float g,
-                    float b, int lifetime, const std::string &frame_id)
+void visualizeEmpty(const ros::Publisher& pub,
+                    const std::string& name,
+                    float r,
+                    float g,
+                    float b,
+                    int lifetime,
+                    const std::string& frame_id)
 {
   visualization_msgs::Marker marker = constructMarkerBase(name, r, g, b, lifetime, frame_id);
 

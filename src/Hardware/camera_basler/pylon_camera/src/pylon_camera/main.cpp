@@ -36,27 +36,26 @@
 #include <boost/thread.hpp>
 #include <pylon_camera/pylon_camera_node.h>
 
-
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "pylon_camera_node");
+  ros::init(argc, argv, "pylon_camera_node");
 
-    pylon_camera::PylonCameraNode pylon_camera_node;
+  pylon_camera::PylonCameraNode pylon_camera_node;
 
-    ros::Rate r(pylon_camera_node.frameRate());
+  ros::Rate r(pylon_camera_node.frameRate());
 
-    ROS_INFO_STREAM("Start image grabbing if node connects to topic with "
-        << "a frame_rate of: " << pylon_camera_node.frameRate() << " Hz");
+  ROS_INFO_STREAM("Start image grabbing if node connects to topic with "
+                  << "a frame_rate of: " << pylon_camera_node.frameRate() << " Hz");
 
-    // Main thread and brightness-service thread
-    boost::thread th(boost::bind(&ros::spin));
+  // Main thread and brightness-service thread
+  boost::thread th(boost::bind(&ros::spin));
 
-    while ( ros::ok() )
-    {
-        pylon_camera_node.spin();
-        r.sleep();
-    }
+  while (ros::ok())
+  {
+    pylon_camera_node.spin();
+    r.sleep();
+  }
 
-    ROS_INFO("Terminate PylonCameraNode");
-    return EXIT_SUCCESS;
+  ROS_INFO("Terminate PylonCameraNode");
+  return EXIT_SUCCESS;
 }

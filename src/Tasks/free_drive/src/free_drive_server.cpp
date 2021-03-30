@@ -1,25 +1,25 @@
 /**
-*Copyright ( c ) 2019, KNR Selfie
-*This code is licensed under BSD license (see LICENSE for details)
-**/ 
+ *Copyright ( c ) 2019, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #include <string>
 
 #include <free_drive/free_drive_server.h>
 
-FreeDriveServer::FreeDriveServer(const ros::NodeHandle &nh,
-                                 const ros::NodeHandle &pnh,
-                                 const std::string &state_pub_topic_name) :
-  nh_(nh),
-  pnh_(pnh),
-  state_publisher_(state_pub_topic_name),
-  as_(nh_, "task/free_drive", false),
-  distance_to_event_(100),
-  starting_line_distance_to_end_(0.45),
-  intersection_distance_to_end_(0.8),
-  event_detected_(false),
-  max_speed_(2),
-  dr_server_CB_(boost::bind(&FreeDriveServer::reconfigureCB, this, _1, _2))
+FreeDriveServer::FreeDriveServer(const ros::NodeHandle& nh,
+                                 const ros::NodeHandle& pnh,
+                                 const std::string& state_pub_topic_name)
+  : nh_(nh)
+  , pnh_(pnh)
+  , state_publisher_(state_pub_topic_name)
+  , as_(nh_, "task/free_drive", false)
+  , distance_to_event_(100)
+  , starting_line_distance_to_end_(0.45)
+  , intersection_distance_to_end_(0.8)
+  , event_detected_(false)
+  , max_speed_(2)
+  , dr_server_CB_(boost::bind(&FreeDriveServer::reconfigureCB, this, _1, _2))
 {
   as_.registerGoalCallback(boost::bind(&FreeDriveServer::registerGoal, this));
   as_.registerPreemptCallback(boost::bind(&FreeDriveServer::preemptCB, this));
@@ -90,8 +90,8 @@ void FreeDriveServer::executeLoop()
     else
     {
       if (state_ != selfie::AUTONOMOUS_DRIVE &&
-          std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_event_time_)
-          > std::chrono::seconds(1))
+          std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_event_time_) >
+              std::chrono::seconds(1))
       {
         updateState(selfie::AUTONOMOUS_DRIVE);
         event_detected_ = false;
@@ -132,7 +132,7 @@ void FreeDriveServer::executeLoop()
   distance_sub_ = nh_.subscribe("/selfie_out/motion", 50, &FreeDriveServer::distanceCB, this);
 }
 
-void FreeDriveServer::startingLineCB(const std_msgs::Float32 &msg)
+void FreeDriveServer::startingLineCB(const std_msgs::Float32& msg)
 {
   event_detected_ = true;
   if (event_verified_)
@@ -140,7 +140,7 @@ void FreeDriveServer::startingLineCB(const std_msgs::Float32 &msg)
   last_event_time_ = std::chrono::steady_clock::now();
 }
 
-void FreeDriveServer::intersectionCB(const custom_msgs::IntersectionStop &msg)
+void FreeDriveServer::intersectionCB(const custom_msgs::IntersectionStop& msg)
 {
   event_detected_ = true;
   if (event_verified_)
@@ -189,7 +189,7 @@ void FreeDriveServer::reconfigureCB(free_drive::FreeDriveConfig& config, uint32_
   }
 }
 
-void FreeDriveServer::distanceCB(const custom_msgs::Motion &msg)
+void FreeDriveServer::distanceCB(const custom_msgs::Motion& msg)
 {
   if (event_verified_)
   {
@@ -211,7 +211,7 @@ void FreeDriveServer::distanceCB(const custom_msgs::Motion &msg)
   }
 }
 
-inline void FreeDriveServer::updateState(const int &state)
+inline void FreeDriveServer::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;

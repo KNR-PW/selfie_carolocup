@@ -1,7 +1,7 @@
 /*
-* Copyright ( c ) 2019, KNR Selfie
-* This code is licensed under BSD license (see LICENSE for details)
-**/
+ * Copyright ( c ) 2019, KNR Selfie
+ * This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #pragma once
 #ifndef OBSTACLE_DETECTOR_OBSTACLES_GENERATOR_H

@@ -43,8 +43,7 @@ void IntersectionServer::init()
 {
   goal_ = *(intersectionServer_.acceptNewGoal());
   obstacles_sub_ = nh_.subscribe("/obstacles", 1, &IntersectionServer::manager, this);
-  intersection_subscriber_ =
-      nh_.subscribe("/intersection/stop", 1, &IntersectionServer::intersectionCallback, this);
+  intersection_subscriber_ = nh_.subscribe("/intersection/stop", 1, &IntersectionServer::intersectionCallback, this);
   distance_subscriber_ = nh_.subscribe("/selfie_out/motion", 1, &IntersectionServer::distanceCallback, this);
 
   speed_publisher_ = nh_.advertise<std_msgs::Float64>("/max_speed", 2);
@@ -57,8 +56,15 @@ void IntersectionServer::init()
 
   if (visualization_)
   {
-    selfie::visualizeBox2D(point_min_x_, point_max_x_, point_min_y_, point_max_y_, visualize_intersection_,
-                              "area_of_interest", 0.9, 0.9, 0.1);
+    selfie::visualizeBox2D(point_min_x_,
+                           point_max_x_,
+                           point_min_y_,
+                           point_max_y_,
+                           visualize_intersection_,
+                           "area_of_interest",
+                           0.9,
+                           0.9,
+                           0.1);
   }
 }
 
@@ -89,11 +95,17 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
       ROS_INFO_THROTTLE(1.5, "Another car on the road");
       if (visualization_)
       {
-        selfie::visualizeBoxes2D(filtered_boxes_, visualize_intersection_,
-                                        "obstacles_on_intersection", 0.9, 0.9, 0.1);
+        selfie::visualizeBoxes2D(filtered_boxes_, visualize_intersection_, "obstacles_on_intersection", 0.9, 0.9, 0.1);
 
-        selfie::visualizeBox2D(point_min_x_, point_max_x_, point_min_y_, point_max_y_, visualize_intersection_,
-                                  "area_of_interest", 0.9, 0.9, 0.1);
+        selfie::visualizeBox2D(point_min_x_,
+                               point_max_x_,
+                               point_min_y_,
+                               point_max_y_,
+                               visualize_intersection_,
+                               "area_of_interest",
+                               0.9,
+                               0.9,
+                               0.1);
       }
       if (state_ != selfie::STOP_OBSTACLE_ON_INTERSECTION)
       {
@@ -123,7 +135,7 @@ void IntersectionServer::manager(const custom_msgs::Box2DArray& boxes)
         }
         else
         {
-          if (state_!= selfie::BLIND_APPROACHING)
+          if (state_ != selfie::BLIND_APPROACHING)
           {
             distance_to_stop_blind_approaching_ = current_distance_ + distance_of_blind_approaching_;
             ROS_INFO("Approaching blindly");
@@ -235,7 +247,7 @@ bool IntersectionServer::isPointInsideROI(const geometry_msgs::Point& p)
   return !(p.x < point_min_x_ || p.x > point_max_x_ || p.y < point_min_y_ || p.y > point_max_y_);
 }
 
-void IntersectionServer::updateState(const int &state)
+void IntersectionServer::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;

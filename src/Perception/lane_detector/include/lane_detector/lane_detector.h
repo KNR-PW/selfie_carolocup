@@ -140,57 +140,57 @@ private:
   void lanesVectorVisualization(cv::Mat& visualization_frame);
   void drawParticles(int num);
 
-  int starting_line_timeout_{0};
-  bool init_imageCallback_{true};
-  float min_length_search_line_{0.05};
-  float max_delta_y_lane_{0.08};
-  float min_length_to_2aprox_{0.56};
-  float left_lane_width_{0.4};
-  float right_lane_width_{0.4};
-  int proof_intersection_{0};
-  int proof_start_line_{0};
-  float intersection_line_dist_{-1};
-  bool intersection_{false};
-  bool waiting_for_stabilize_{false};
+  int starting_line_timeout_{ 0 };
+  bool init_imageCallback_{ true };
+  float min_length_search_line_{ 0.05 };
+  float max_delta_y_lane_{ 0.08 };
+  float min_length_to_2aprox_{ 0.56 };
+  float left_lane_width_{ 0.4 };
+  float right_lane_width_{ 0.4 };
+  int proof_intersection_{ 0 };
+  int proof_start_line_{ 0 };
+  float intersection_line_dist_{ -1 };
+  bool intersection_{ false };
+  bool waiting_for_stabilize_{ false };
 
   // parameterized
-  std::string config_file_{""};
-  std::string hom_cut_file_{""};
-  bool debug_mode_{false};
-  bool tune_params_mode_{false};
-  int thresh_c_tune_temp_{false};
+  std::string config_file_{ "" };
+  std::string hom_cut_file_{ "" };
+  bool debug_mode_{ false };
+  bool tune_params_mode_{ false };
+  int thresh_c_tune_temp_{ false };
 
-  float max_mid_line_distance_{0.15};
-  float max_mid_line_gap_{0.38};
-  float nominal_center_line_Y_{0.2};
-  float points_density_{15};
+  float max_mid_line_distance_{ 0.15 };
+  float max_mid_line_gap_{ 0.38 };
+  float nominal_center_line_Y_{ 0.2 };
+  float points_density_{ 15 };
 
-  int treshold_block_size_{3};
-  float real_window_size_{0.1};
-  int threshold_c_{-40};
+  int treshold_block_size_{ 3 };
+  float real_window_size_{ 0.1 };
+  int threshold_c_{ -40 };
 
-  float obstacle_window_size_{0.09};
-  int obstacles_threshold_{100};
+  float obstacle_window_size_{ 0.09 };
+  int obstacles_threshold_{ 100 };
 
-  int pf_num_samples_{50};
-  int pf_num_points_{3};
-  float pf_std_min_{0.005};
-  float pf_std_max_{0.02};
-  int pf_num_samples_vis_{20};
+  int pf_num_samples_{ 50 };
+  int pf_num_points_{ 3 };
+  float pf_std_min_{ 0.005 };
+  float pf_std_max_{ 0.02 };
+  int pf_num_samples_vis_{ 20 };
 
-  double isec_HL_dist_res_{1};
-  double isec_HL_angle_res_{CV_PI / 180};
-  int isec_HL_thresh_{25};
-  double isec_HL_min_length_{25};
-  int isec_HL_max_gap_{40};
+  double isec_HL_dist_res_{ 1 };
+  double isec_HL_angle_res_{ CV_PI / 180 };
+  int isec_HL_thresh_{ 25 };
+  double isec_HL_min_length_{ 25 };
+  int isec_HL_max_gap_{ 40 };
 
-  float isec_line_close_{0.15};
-  float isec_angle_diff_{20 / 57.2957795};
+  float isec_line_close_{ 0.15 };
+  float isec_angle_diff_{ 20 / 57.2957795 };
 
-  int color_set[20][3] = {{0, 0, 255},    {255, 0, 0},     {0, 255, 0},     {255, 255, 0},   {0, 255, 255},
-                          {255, 0, 255},  {255, 255, 255}, {0, 0, 128},     {128, 0, 0},     {0, 128, 0},
-                          {128, 128, 0},  {0, 128, 128},   {128, 0, 128},   {128, 128, 128}, {196, 228, 255},
-                          {30, 105, 210}, {143, 143, 188}, {222, 196, 176}, {75, 0, 130},    {5, 128, 255}};
+  int color_set[20][3] = { { 0, 0, 255 },    { 255, 0, 0 },     { 0, 255, 0 },     { 255, 255, 0 },   { 0, 255, 255 },
+                           { 255, 0, 255 },  { 255, 255, 255 }, { 0, 0, 128 },     { 128, 0, 0 },     { 0, 128, 0 },
+                           { 128, 128, 0 },  { 0, 128, 128 },   { 128, 0, 128 },   { 128, 128, 128 }, { 196, 228, 255 },
+                           { 30, 105, 210 }, { 143, 143, 188 }, { 222, 196, 176 }, { 75, 0, 130 },    { 5, 128, 255 } };
 };
 
 #endif  //  LANE_DETECTOR_LANE_DETECTOR_H
