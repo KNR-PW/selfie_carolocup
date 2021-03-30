@@ -61,7 +61,7 @@ public:
   void setKi(float Ki);
 
 private:
-  void reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
+  void reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level);
   void speedCallback(const custom_msgs::Motion& msg);
 };
 #endif  // PID_CARROT_FOLLOWER_PID_TUNER_H

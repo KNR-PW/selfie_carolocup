@@ -73,7 +73,7 @@ private:
 
   dynamic_reconfigure::Server<parking_spot_detector::DetectParkingSpotConfig> dr_server_;
   dynamic_reconfigure::Server<parking_spot_detector::DetectParkingSpotConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level);
+  void reconfigureCB(const parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level);
 
   // area of interest (used unit- meter)
   float ROI_min_x_;

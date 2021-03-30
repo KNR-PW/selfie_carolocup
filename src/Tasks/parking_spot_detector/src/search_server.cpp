@@ -262,7 +262,7 @@ void SearchServer::endAction()  // shutting donw unnecesary subscribers and publ
   max_distance_calculated_ = false;
 }
 
-void SearchServer::reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
+void SearchServer::reconfigureCB(const parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
 {
   if (default_speed_in_parking_zone != static_cast<float>(config.default_speed_in_parking_zone))
   {

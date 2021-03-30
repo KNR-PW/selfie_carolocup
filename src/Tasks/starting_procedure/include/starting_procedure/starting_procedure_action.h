@@ -82,7 +82,7 @@ private:
   void odomCallback(const nav_msgs::Odometry& msg);
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig> dr_server_;
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(starting_procedure::StartingProcedureConfig& config, uint32_t level);
+  void reconfigureCB(const starting_procedure::StartingProcedureConfig& config, uint32_t level);
 
 public:
   StartingProcedureAction(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);

@@ -60,7 +60,7 @@ private:
 
   dynamic_reconfigure::Server<obstacle_detector::ObstacleDetectorConfig> dr_server_;
   dynamic_reconfigure::Server<obstacle_detector::ObstacleDetectorConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(obstacle_detector::ObstacleDetectorConfig& config, uint32_t level);
+  void reconfigureCB(const obstacle_detector::ObstacleDetectorConfig& config, uint32_t level);
 
   std::vector<Line> line_array_;
   std::vector<std::vector<Point>> segments_;
@@ -71,10 +71,10 @@ private:
   void divideIntoSegments();
   void generateLines();
   Point getXY(float angle, float range);
-  float getSlope(Point& p1, Point& p2);
-  float getA(Point& p1, Point& p2);
-  float getDistance(Point& p1, Point& p2);
-  float getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2);
+  float getSlope(const Point& p1, const Point& p2);
+  float getA(const Point& p1, const Point& p2);
+  float getDistance(const Point& p1, const Point& p2);
+  float getDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2);
   void visualizeLines();
   void visualizeObstacles();
   void printInfoParams();

@@ -460,7 +460,7 @@ void RoadObstacleDetector::sendIndicators(bool is_left_on, bool is_right_on)
   indicators_pub_.publish(msg);
 }
 
-void RoadObstacleDetector::reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level)
+void RoadObstacleDetector::reconfigureCB(const lane_pilot::LaneControllerConfig& config, uint32_t level)
 {
   if (left_lane_offset_ != static_cast<float>(config.left_lane_offset))
   {

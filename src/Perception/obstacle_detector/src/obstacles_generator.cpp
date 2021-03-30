@@ -140,26 +140,26 @@ Point ObstaclesGenerator::getXY(float angle, float range)
   return p;
 }
 
-float ObstaclesGenerator::getSlope(Point& p1, Point& p2)
+float ObstaclesGenerator::getSlope(const Point& p1, const Point& p2)
 {
   return atan((p2.y - p1.y) / (p2.x - p1.x));
 }
 
-float ObstaclesGenerator::getDistance(Point& p1, Point& p2)
+float ObstaclesGenerator::getDistance(const Point& p1, const Point& p2)
 {
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
   return std::sqrt(dx * dx + dy * dy);
 }
 
-float ObstaclesGenerator::getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2)
+float ObstaclesGenerator::getDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)
 {
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
   return std::sqrt(dx * dx + dy * dy);
 }
 
-float ObstaclesGenerator::getA(Point& p1, Point& p2)
+float ObstaclesGenerator::getA(const Point& p1, const Point& p2)
 {
   return (p2.y - p1.y) / (p2.x - p1.x);
 }
@@ -483,7 +483,7 @@ void ObstaclesGenerator::convertUpsideDown()
   }
 }
 
-void ObstaclesGenerator::reconfigureCB(obstacle_detector::ObstacleDetectorConfig& config, uint32_t level)
+void ObstaclesGenerator::reconfigureCB(const obstacle_detector::ObstacleDetectorConfig& config, uint32_t level)
 {
   if (max_range_ != static_cast<float>(config.max_range))
   {

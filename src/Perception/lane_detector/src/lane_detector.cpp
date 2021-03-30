@@ -309,7 +309,7 @@ void LaneDetector::computeTopView()
   topview2cam_ = world2cam_ * topview2world_;
 }
 
-void LaneDetector::detectLines(cv::Mat& input_frame, std::vector<std::vector<cv::Point>>& output_lanes)
+void LaneDetector::detectLines(const cv::Mat& input_frame, std::vector<std::vector<cv::Point>>& output_lanes)
 {
   output_lanes.clear();
   cv::findContours(input_frame, output_lanes, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1, cv::Point(0, 0));
@@ -792,7 +792,7 @@ void LaneDetector::printInfoParams()
   ROS_INFO("pf_std_max: %.3f", pf_std_max_);
 }
 
-void LaneDetector::dynamicMask(cv::Mat& input_frame, cv::Mat& output_frame)
+void LaneDetector::dynamicMask(const cv::Mat& input_frame, cv::Mat& output_frame)
 {
   dynamic_mask_ = cv::Mat::zeros(cv::Size(input_frame.cols, input_frame.rows), CV_8UC1);
   float offset_right = -0.05;
@@ -832,7 +832,7 @@ void LaneDetector::dynamicMask(cv::Mat& input_frame, cv::Mat& output_frame)
   cv::bitwise_and(input_frame, dynamic_mask_, output_frame);
 }
 
-void LaneDetector::ROILaneRight(cv::Mat& input_frame, cv::Mat& output_frame)
+void LaneDetector::ROILaneRight(const cv::Mat& input_frame, cv::Mat& output_frame)
 {
   right_lane_ROI_ = cv::Mat::zeros(cv::Size(input_frame.cols, input_frame.rows), CV_8UC1);
   output_frame = input_frame.clone();
@@ -883,7 +883,7 @@ void LaneDetector::ROILaneRight(cv::Mat& input_frame, cv::Mat& output_frame)
   cv::bitwise_and(input_frame, right_lane_ROI_, output_frame);
 }
 
-void LaneDetector::ROILaneLeft(cv::Mat& input_frame, cv::Mat& output_frame)
+void LaneDetector::ROILaneLeft(const cv::Mat& input_frame, cv::Mat& output_frame)
 {
   left_lane_ROI_ = cv::Mat::zeros(cv::Size(input_frame.cols, input_frame.rows), CV_8UC1);
   output_frame = input_frame.clone();

@@ -165,7 +165,7 @@ void FreeDriveServer::preemptCB()
   as_.setAborted();
 }
 
-void FreeDriveServer::reconfigureCB(free_drive::FreeDriveConfig& config, uint32_t level)
+void FreeDriveServer::reconfigureCB(const free_drive::FreeDriveConfig& config, uint32_t level)
 {
   if (intersection_distance_to_end_ != config.intersection_distance_to_end)
   {

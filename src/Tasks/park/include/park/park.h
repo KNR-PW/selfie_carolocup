@@ -43,7 +43,7 @@ private:
 
   dynamic_reconfigure::Server<park::ParkConfig> dr_server_;
   dynamic_reconfigure::Server<park::ParkConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(park::ParkConfig& config, uint32_t level);
+  void reconfigureCB(const park::ParkConfig& config, uint32_t level);
 
   void distanceCallback(const custom_msgs::Motion& msg);
   void markingsCallback(const custom_msgs::RoadLines& msg);

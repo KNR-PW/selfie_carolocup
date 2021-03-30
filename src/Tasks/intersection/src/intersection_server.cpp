@@ -264,7 +264,7 @@ void IntersectionServer::preemptCb()
   intersectionServer_.setAborted();
 }
 
-void IntersectionServer::reconfigureCB(intersection::IntersectionServerConfig& config, uint32_t level)
+void IntersectionServer::reconfigureCB(const intersection::IntersectionServerConfig& config, uint32_t level)
 {
   if (max_distance_to_intersection_ != static_cast<float>(config.distance_to_intersection))
   {

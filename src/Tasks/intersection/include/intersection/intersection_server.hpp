@@ -80,5 +80,5 @@ private:
   bool isPointInsideROI(const geometry_msgs::Point& p);
   void updateState(const int& state);
   void sendGoal();
-  void reconfigureCB(intersection::IntersectionServerConfig& config, uint32_t level);
+  void reconfigureCB(const intersection::IntersectionServerConfig& config, uint32_t level);
 };

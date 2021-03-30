@@ -102,14 +102,14 @@ private:
   float getDistance(cv::Point2f p1, cv::Point2f p2);
   void recognizeLines();
   void publishMarkings();
-  void detectLines(cv::Mat& input_frame, std::vector<std::vector<cv::Point>>& output_lanes);
+  void detectLines(const cv::Mat& input_frame, std::vector<std::vector<cv::Point>>& output_lanes);
   void drawPoints(cv::Mat& frame);
   void homography(cv::Mat input_frame, cv::Mat& homography_frame);
   void getParams();
   void printInfoParams();
-  void dynamicMask(cv::Mat& input_frame, cv::Mat& output_frame);
-  void ROILaneLeft(cv::Mat& input_frame, cv::Mat& output_frame);
-  void ROILaneRight(cv::Mat& input_frame, cv::Mat& output_frame);
+  void dynamicMask(const cv::Mat& input_frame, cv::Mat& output_frame);
+  void ROILaneLeft(const cv::Mat& input_frame, cv::Mat& output_frame);
+  void ROILaneRight(const cv::Mat& input_frame, cv::Mat& output_frame);
   void filterSmallLines();
   void convertCoordinates();
   void convertApproxToFrameCoordinate();

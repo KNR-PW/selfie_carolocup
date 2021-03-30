@@ -61,7 +61,7 @@ protected:
 
   dynamic_reconfigure::Server<free_drive::FreeDriveConfig> dr_server_;
   dynamic_reconfigure::Server<free_drive::FreeDriveConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(free_drive::FreeDriveConfig& config, uint32_t level);
+  void reconfigureCB(const free_drive::FreeDriveConfig& config, uint32_t level);
 
 public:
   FreeDriveServer(const ros::NodeHandle& nh,

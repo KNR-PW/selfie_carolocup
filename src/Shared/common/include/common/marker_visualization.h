@@ -22,10 +22,10 @@ namespace selfie
 visualization_msgs::Marker
 constructMarkerBase(const std::string& name, float r, float g, float b, int lifetime, const std::string& frame_id);
 
-void visualizeBox2D(float& min_x,
-                    float& max_x,
-                    float& min_y,
-                    float& max_y,
+void visualizeBox2D(const float& min_x,
+                    const float& max_x,
+                    const float& min_y,
+                    const float& max_y,
                     const ros::Publisher& pub,
                     const std::string& name,
                     float r = 0.4,

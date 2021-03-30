@@ -163,7 +163,7 @@ void PidTuner::setKi(float Ki)
   pnh_.setParam("/pid_controller/Ki_scale", scale);
 }
 
-void PidTuner::reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
+void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
 {
   if (H_Kp != static_cast<float>(config.H_Kp))
   {

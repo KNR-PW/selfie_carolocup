@@ -119,7 +119,7 @@ private:
   dynamic_reconfigure::Server<lane_pilot::LaneControllerConfig> dr_server_;
   dynamic_reconfigure::Server<lane_pilot::LaneControllerConfig>::CallbackType dr_server_CB_;
 
-  void reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level);
+  void reconfigureCB(const lane_pilot::LaneControllerConfig& config, uint32_t level);
   void updateState(const selfie::EnumLaneControl& state);
 
   void filterBoxes(const custom_msgs::Box2DArray&);       // filters boxes and saves in filtered_boxes_

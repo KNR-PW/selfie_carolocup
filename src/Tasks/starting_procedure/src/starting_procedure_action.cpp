@@ -199,7 +199,7 @@ void StartingProcedureAction::driveBoxOut(float speed)
   drive_pub_.publish(cmd);
 }
 
-void StartingProcedureAction::reconfigureCB(starting_procedure::StartingProcedureConfig& config, uint32_t level)
+void StartingProcedureAction::reconfigureCB(const starting_procedure::StartingProcedureConfig& config, uint32_t level)
 {
   if (Kp_ != static_cast<float>(config.Kp))
   {
