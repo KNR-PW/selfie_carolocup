@@ -14,8 +14,13 @@ import sys
 class Diagnose:
     def __init__(self):
         # ros communication
-        self.pub_ = rospy.Publisher('/selfie_diagnostics', String, queue_size=10)  # warning, errors publishers
-        self.indicators_pub_ = rospy.Publisher("/selfie_in/indicators", Indicators, queue_size=10, latch=True)
+        self.pub_ = rospy.Publisher(
+            '/selfie_diagnostics', String,
+            queue_size=10)  # warning, errors publishers
+        self.indicators_pub_ = rospy.Publisher("/selfie_in/indicators",
+                                               Indicators,
+                                               queue_size=10,
+                                               latch=True)
         rospy.on_shutdown(self.shutdownPerformance)
         rospy.loginfo("[Diagnostic Node] Starting  Selfie Diagnostics")
 
@@ -23,8 +28,11 @@ class Diagnose:
         # reading devices from parameters server
         parameters = self.getParameters()
         # creating testers for every device
-        self.devices_ = [Tester(device["name"], device["topic"], device["directory"],
-                         device["type"], device["frequency"]) for device in parameters]
+        self.devices_ = [
+            Tester(device["name"], device["topic"], device["directory"],
+                   device["type"], device["frequency"])
+            for device in parameters
+        ]
 
     # checking current state of every device registered
     def checkDevicesStates(self):
@@ -59,23 +67,30 @@ class Diagnose:
         elif type == "Imu":
             return Imu
         else:
-            rospy.logfatal("[Diagnostic Node] Incorrect message type, please revise launch file")
-            rospy.signal_shutdown("[Diagnostic Node] Incorrect message type, please revise launch file")
+            rospy.logfatal(
+                "[Diagnostic Node] Incorrect message type, please revise launch file"
+            )
+            rospy.signal_shutdown(
+                "[Diagnostic Node] Incorrect message type, please revise launch file"
+            )
             sys.exit(1)
 
     # method blinking selfie lights for defined time
     def blinkLights(self, time):
         now = rospy.Time.now()
         while (now + rospy.Duration(time) > rospy.Time.now()):
-            self.indicators_pub_.publish(Indicators(is_active_left=True, is_active_right=True))
+            self.indicators_pub_.publish(
+                Indicators(is_active_left=True, is_active_right=True))
         # rospy.sleep(time)
         now = rospy.Time.now()
         while (now + rospy.Duration(0.5) > rospy.Time.now()):
-            self.indicators_pub_.publish(Indicators(is_active_left=False, is_active_right=False))
+            self.indicators_pub_.publish(
+                Indicators(is_active_left=False, is_active_right=False))
 
     # turning lights off when node interrupted
     def shutdownPerformance(self):
-        self.indicators_pub_.publish(Indicators(is_active_left=False, is_active_right=False))
+        self.indicators_pub_.publish(
+            Indicators(is_active_left=False, is_active_right=False))
         print("[Diagnostic Node] DIAGNOSER SHUTDOWN")
 
     # reading parameters from server
@@ -85,14 +100,19 @@ class Diagnose:
             for i in range(0, 10000):
                 device = {}
                 device["name"] = rospy.get_param("~" + str(i) + "_sensor_name")
-                device["directory"] = rospy.get_param("~" + str(i) + "_sensor_directory", None)
-                device["topic"] = rospy.get_param("~" + str(i) + "_sensor_topic")
-                device["type"] = self.getRosMsgType(rospy.get_param("~" + str(i) + "_sensor_datatype"))
-                device["frequency"] = rospy.get_param("~" + str(i) + "_sensor_hz")
+                device["directory"] = rospy.get_param(
+                    "~" + str(i) + "_sensor_directory", None)
+                device["topic"] = rospy.get_param("~" + str(i) +
+                                                  "_sensor_topic")
+                device["type"] = self.getRosMsgType(
+                    rospy.get_param("~" + str(i) + "_sensor_datatype"))
+                device["frequency"] = rospy.get_param("~" + str(i) +
+                                                      "_sensor_hz")
                 rospy.loginfo("[Diagnostic Node] %s detected", device["name"])
                 parameters.append(device)
         except Exception:
-            rospy.loginfo("[Diagnostic Node] SUMMARY: %d devices detected", len(parameters))
+            rospy.loginfo("[Diagnostic Node] SUMMARY: %d devices detected",
+                          len(parameters))
         return parameters
 
     def diagnose(self, debug):

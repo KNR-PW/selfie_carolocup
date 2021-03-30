@@ -19,7 +19,6 @@ from path_generator.cfg import PathGeneratorConfig
 
 
 class PathGenerator:
-
     def __init__(self):
         self.interval_x = rospy.get_param("~interval_x", 0.1)
         self.max_distance = rospy.get_param("~max_distance", 1.0)
@@ -47,8 +46,8 @@ class PathGenerator:
         while x < self.max_distance:
             der = c_poly.deriv()(x)
             angle = atan(der)
-            x_offset = x - self.path_offset*sin(angle)
-            y_offset = c_poly(x) + self.path_offset*cos(angle)
+            x_offset = x - self.path_offset * sin(angle)
+            y_offset = c_poly(x) + self.path_offset * cos(angle)
 
             path_pose = PoseStamped()
             path_pose.header = msg.header

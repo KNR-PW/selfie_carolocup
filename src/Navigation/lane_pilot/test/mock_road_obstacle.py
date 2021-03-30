@@ -3,7 +3,6 @@
 from __future__ import print_function
 import rospy
 
-
 from custom_msgs.msg import PolygonArray
 from custom_msgs.msg import RoadMarkings
 from geometry_msgs.msg import Polygon
@@ -18,13 +17,13 @@ def callback(data):
 
 def mock_road_obstacle():
     pub = rospy.Publisher('/obstacles', PolygonArray, queue_size=10)
-    pub_r =rospy.Publisher('/road_lines', RoadMarkings, queue_size=10)
+    pub_r = rospy.Publisher('/road_lines', RoadMarkings, queue_size=10)
     sub = rospy.Subscriber('/path_offset', Float32, callback)
     rospy.init_node('mock_road_obstacle', anonymous=True)
-    marking=RoadMarkings
-    marking.left_line=[2,0,0]
-    marking.center_line=[0.59,0,0]
-    marking.right_line=[-1.5,0,0]
+    marking = RoadMarkings
+    marking.left_line = [2, 0, 0]
+    marking.center_line = [0.59, 0, 0]
+    marking.right_line = [-1.5, 0, 0]
     print('RoadMarkings sent')
     pub_r.publish(marking)
     point = Point32(x=0.4, y=-0.15, z=0)
