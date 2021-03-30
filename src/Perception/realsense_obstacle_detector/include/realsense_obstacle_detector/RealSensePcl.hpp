@@ -37,11 +37,14 @@ private:
   void filterColorFromPC(const pcl::PointCloud<pcl::PointXYZHSV>& input_pc,
                          pcl::PointCloud<pcl::PointXYZHSV>& output_pc);
   void filterFloorFromPC(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
-                         pcl::PointCloud<pcl::PointXYZRGB>& output_pc);
+                         pcl::PointCloud<pcl::PointXYZ>& output_pc);
+  void filterAddColor(const pcl::PointCloud<pcl::PointXYZ>& input_pc,
+                                     pcl::PointCloud<pcl::PointXYZRGB>& input_rgb_pc, 
+                                     pcl::PointCloud<pcl::PointXYZRGB>& output_pc);
   void convertPCXYZRGBtoXYZHSV(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
                                pcl::PointCloud<pcl::PointXYZHSV>& output_pc);
   void convertPCXYZHSVtoXYZRGB(const pcl::PointCloud<pcl::PointXYZHSV>& input_pc,
-                               pcl::PointCloud<pcl::PointXYZRGB>& output_pc);
+                               pcl::PointCloud<pcl::PointXYZRGB>& output_pc);                        
 
   void dynamicReconfigureCb(realsense_obstacle_detector::RealsenseObstacleDetectorConfig& config, uint32_t level);
   dynamic_reconfigure::Server<realsense_obstacle_detector::RealsenseObstacleDetectorConfig> dr_server_;

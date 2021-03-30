@@ -5,17 +5,23 @@ void RealSensePcl::pc2Callback(const sensor_msgs::PointCloud2 &msg)
   pcl::PointCloud<pcl::PointXYZRGB> cloud;
   pcl::fromROSMsg(msg, cloud);
 
-  // pcl::PointCloud<pcl::PointXYZHSV> cloud_hsv;
-  // convertPCXYZRGBtoXYZHSV(cloud, cloud_hsv);
+  pcl::PointCloud<pcl::PointXYZHSV> cloud_hsv;
+  convertPCXYZRGBtoXYZHSV(cloud, cloud_hsv);
 
-  // pcl::PointCloud<pcl::PointXYZHSV> cloud_filtered;
-  // filterColorFromPC(cloud_hsv, cloud_filtered);
+  pcl::PointCloud<pcl::PointXYZHSV> cloud_filtered;
+  filterColorFromPC(cloud_hsv, cloud_filtered);
 
-  pcl::PointCloud<pcl::PointXYZRGB> cloud_filtered;
-  filterFloorFromPC(cloud, cloud_filtered);
+  pcl::PointCloud<pcl::PointXYZRGB> cloud_filtered_rgb;
+  convertPCXYZHSVtoXYZRGB(cloud_filtered, cloud_filtered_rgb);
+
+  pcl::PointCloud<pcl::PointXYZ> cloud_filtered_rgb_xyz;
+  filterFloorFromPC(cloud_filtered_rgb, cloud_filtered_rgb_xyz);
+
+  pcl::PointCloud<pcl::PointXYZRGB> cloud_filtered_rgb_ready;
+  filterAddColor(cloud_filtered_rgb_xyz, cloud_filtered_rgb, cloud_filtered_rgb_ready);
 
   sensor_msgs::PointCloud2 output_pc;
-  pcl::toROSMsg(cloud_filtered, output_pc);
+  pcl::toROSMsg(cloud_filtered_rgb_ready, output_pc);
   output_pc.header.frame_id = "camera_depth_optical_frame";
   output_pc.header.stamp = ros::Time::now();
   pc2_color_filter_publisher.publish(output_pc);
@@ -26,18 +32,33 @@ void RealSensePcl::filterColorFromPC(const pcl::PointCloud<pcl::PointXYZHSV>& in
 {
   for (size_t i = 0; i < input_pc.points.size(); i++)
   {
-    if (input_pc.points[i].s < saturation_ && input_pc.points[i].v > value_)
+    if (input_pc.points[i].s > saturation_ && input_pc.points[i].v < value_)
     {
       output_pc.points.push_back(input_pc.points[i]);
     }
   }
 }
 
-void RealSensePcl::filterFloorFromPC(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
+void RealSensePcl::filterAddColor(const pcl::PointCloud<pcl::PointXYZ>& input_pc,
+                                     pcl::PointCloud<pcl::PointXYZRGB>& input_rgb_pc, 
                                      pcl::PointCloud<pcl::PointXYZRGB>& output_pc)
 {
+  int x = 0;
+  for (size_t i = 0; i < input_pc.points.size(); i++)
+  {
+    if(input_pc.points[i].x == input_rgb_pc.points[i].x && input_pc.points[i].y == input_rgb_pc.points[i].y && input_pc.points[i].z == input_rgb_pc.points[i].z)
+    {
+        output_pc.points.push_back(input_rgb_pc.points[i]);
+        x++;
+    }
+  }
+}
+
+void RealSensePcl::filterFloorFromPC(const pcl::PointCloud<pcl::PointXYZRGB>& input_pc,
+                                     pcl::PointCloud<pcl::PointXYZ>& output_pc)
+{
   float in_floor_max_angle = 0.1;
-  float in_max_height = 0.2;
+  float in_max_height = 0.02;
 
   pcl::PointCloud<pcl::PointXYZ> in_pc;
   pcl::PointCloud<pcl::PointXYZ> out_pc;
@@ -61,12 +82,11 @@ void RealSensePcl::filterFloorFromPC(const pcl::PointCloud<pcl::PointXYZRGB>& in
   seg.setEpsAngle(in_floor_max_angle);
 
 
-
   seg.setDistanceThreshold(in_max_height);  // floor distance
   seg.setOptimizeCoefficients(true);
   seg.setInputCloud(input);
   seg.segment(*inliers, *coefficients);
-  std::cout << "ULALAL" << std::endl;
+  // std::cout << "ULALAL" << std::endl;
   if (inliers->indices.size() == 0)
   {
     std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
