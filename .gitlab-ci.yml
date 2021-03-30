@@ -30,10 +30,13 @@ catkin lint:
     - master
     - merge_requests
 
-python formatting yapf:
+Code formatting check:
   stage: test
   script:
     - echo "Checking formatting of python code in cane of fail you can format it using yapf (command yapf -i -r ./)"
     - yapf -q ./
+    - echo "Checking formatting of C++ code in case of fail you can format it using clang-format"
+    - wget https://raw.githubusercontent.com/Sarcasm/run-clang-format/master/run-clang-format.py
+    - python3 run-clang-format.py -r src
   only:
     - merge_requests
