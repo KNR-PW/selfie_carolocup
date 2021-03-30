@@ -1,7 +1,7 @@
 /**
-* Copyright ( c ) 2019, KNR Selfie
-* This code is licensed under BSD license (see LICENSE for details)
-**/
+ * Copyright ( c ) 2019, KNR Selfie
+ * This code is licensed under BSD license (see LICENSE for details)
+ **/
 #include <obstacle_detector/obstacles_generator.h>
 
 int main(int argc, char** argv)

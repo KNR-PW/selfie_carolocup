@@ -18,5 +18,5 @@ typedef enum EnumNavigation
   OBSTACLE_ON_LEFT,
   OBSTACLE_ON_BOTH
 } EnumNavigation;
-}   // namespace selfie
-#endif   // CUSTOM_MSGS_NAVIGATION_ENUM_H
+}  // namespace selfie
+#endif  // CUSTOM_MSGS_NAVIGATION_ENUM_H

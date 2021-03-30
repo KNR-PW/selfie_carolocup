@@ -143,8 +143,8 @@ void SearchServer::filter_boxes(const custom_msgs::Box2DArray& msg)
 
     if (box_inside)
     {
-      float left_vertical_line_a = (msg.boxes[box_nr].tl.y - msg.boxes[box_nr].bl.y) /
-                                   (msg.boxes[box_nr].tl.x - msg.boxes[box_nr].bl.x);
+      float left_vertical_line_a =
+          (msg.boxes[box_nr].tl.y - msg.boxes[box_nr].bl.y) / (msg.boxes[box_nr].tl.x - msg.boxes[box_nr].bl.x);
 
       if (abs(left_vertical_line_a) < tangens_of_box_angle_)  // filters out boxes which are not parallel to car
       {
@@ -190,10 +190,17 @@ bool SearchServer::find_free_places()
       tmp_box.length = getDistance(tmp_box.tr, tmp_box.br);
 
       first_free_place = tmp_box;
-      ROS_INFO("Found place \nTL: x=%lf y=%lf\nTR: x=%lf y=%lf\nBL x=%lf "
-               "y=%lf\nBR x=%lf y=%lf\n",
-               tmp_box.tl.x, tmp_box.tl.y, tmp_box.tr.x, tmp_box.tr.y, tmp_box.bl.x,
-               tmp_box.bl.y, tmp_box.br.x, tmp_box.br.y);
+      ROS_INFO(
+          "Found place \nTL: x=%lf y=%lf\nTR: x=%lf y=%lf\nBL x=%lf "
+          "y=%lf\nBR x=%lf y=%lf\n",
+          tmp_box.tl.x,
+          tmp_box.tl.y,
+          tmp_box.tr.x,
+          tmp_box.tr.y,
+          tmp_box.bl.x,
+          tmp_box.bl.y,
+          tmp_box.br.x,
+          tmp_box.br.y);
       if (visualization)
       {
         selfie::visualizeBox2D(tmp_box, visualizator_pub_, "first_free_place", 100, 255, 200);
@@ -235,7 +242,7 @@ void SearchServer::send_goal()
   endAction();
 }
 
-void SearchServer::updateState(const int &state)
+void SearchServer::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;
@@ -255,7 +262,7 @@ void SearchServer::endAction()  // shutting donw unnecesary subscribers and publ
   max_distance_calculated_ = false;
 }
 
-void SearchServer::reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
+void SearchServer::reconfigureCB(const parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level)
 {
   if (default_speed_in_parking_zone != static_cast<float>(config.default_speed_in_parking_zone))
   {

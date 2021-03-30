@@ -58,4 +58,4 @@ class QrDecoder
 public:
   QrDecoder(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);
 };
-#endif   // STARTING_PROCEDURE_QR_DECODER_H
+#endif  // STARTING_PROCEDURE_QR_DECODER_H

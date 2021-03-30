@@ -21,39 +21,47 @@ class MyPlugin(Plugin):
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
 
-    RC_MODES = {-1: "itself", 0: "manual mode",
-                1: "semi-autonomous", 2: "autonomous mode"}
+    RC_MODES = {
+        -1: "itself",
+        0: "manual mode",
+        1: "semi-autonomous",
+        2: "autonomous mode"
+    }
 
-    TASKS = {0: "TASK_SHIFTING",
-             1: "WAITING_FOR_BUTTON",
-             2: "GATE_CLOSED",
-             3: "STARTING_DRIVE",
-             4: "STARTING_DISTANCE_REACHED",
-             5: "AUTONOMOUS_DRIVE",
-             6: "STARTING_LINE_DETECTED",
-             7: "INTERSECTION_STOP_DETECTED",
-             8: "EVENT_SENT",
-             9: "SEARCHING_PARKING_SPOT",
-             10: "PLACE_INITIALLY_FOUND",
-             11: "PLACE_PROPER_FOUND",
-             12: "PLACE_NOT_FOUND",
-             13: "APPROACHING_TO_PARKING_SPOT",
-             14: "ENTRY_PARKING_SPOT",
-             15: "PARKING_IDLE",
-             16: "EXIT_PARKING_SPOT",
-             17: "PARKING_COMPLETED",
-             18: "APPROACHING_TO_INTERSECTION",
-             19: "BLIND_APPROACHING",
-             10: "STOP_TIME_ON_INTERSECTION",
-             21: "STOP_OBSTACLE_ON_INTERSECTION",
-             22: "PASSING_INTERSECTION"}
+    TASKS = {
+        0: "TASK_SHIFTING",
+        1: "WAITING_FOR_BUTTON",
+        2: "GATE_CLOSED",
+        3: "STARTING_DRIVE",
+        4: "STARTING_DISTANCE_REACHED",
+        5: "AUTONOMOUS_DRIVE",
+        6: "STARTING_LINE_DETECTED",
+        7: "INTERSECTION_STOP_DETECTED",
+        8: "EVENT_SENT",
+        9: "SEARCHING_PARKING_SPOT",
+        10: "PLACE_INITIALLY_FOUND",
+        11: "PLACE_PROPER_FOUND",
+        12: "PLACE_NOT_FOUND",
+        13: "APPROACHING_TO_PARKING_SPOT",
+        14: "ENTRY_PARKING_SPOT",
+        15: "PARKING_IDLE",
+        16: "EXIT_PARKING_SPOT",
+        17: "PARKING_COMPLETED",
+        18: "APPROACHING_TO_INTERSECTION",
+        19: "BLIND_APPROACHING",
+        10: "STOP_TIME_ON_INTERSECTION",
+        21: "STOP_OBSTACLE_ON_INTERSECTION",
+        22: "PASSING_INTERSECTION"
+    }
 
-    LANE_MODES = {0: "UNINITIALIZED",
-                  1: "PASSIVE_RIGHT",
-                  2: "ON_RIGHT",
-                  3: "OVERTAKE",
-                  4: "ON_LEFT",
-                  5: "RETURN_RIGHT"}
+    LANE_MODES = {
+        0: "UNINITIALIZED",
+        1: "PASSIVE_RIGHT",
+        2: "ON_RIGHT",
+        3: "OVERTAKE",
+        4: "ON_LEFT",
+        5: "RETURN_RIGHT"
+    }
 
     def __init__(self, context):
         super(MyPlugin, self).__init__(context)
@@ -67,8 +75,8 @@ class MyPlugin(Plugin):
         # Create QWidget
         self._widget = QWidget()
         # Get path to UI file which should be in the "resource" folder of this package
-        ui_file = os.path.join(rospkg.RosPack().get_path(
-            'rqt_selfie_base'), 'resource', 'MyPlugin.ui')
+        ui_file = os.path.join(rospkg.RosPack().get_path('rqt_selfie_base'),
+                               'resource', 'MyPlugin.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
@@ -79,8 +87,8 @@ class MyPlugin(Plugin):
         # plugin at once, these lines add number to make it easy to
         # tell from pane to pane.
         if context.serial_number() > 1:
-            self._widget.setWindowTitle(
-                self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+            self._widget.setWindowTitle(self._widget.windowTitle() +
+                                        (' (%d)' % context.serial_number()))
 
         # Add widget to the user interface
         context.add_widget(self._widget)
@@ -91,21 +99,29 @@ class MyPlugin(Plugin):
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
 
         # init publishers and subscribers
-        self.pub_button = rospy.Publisher(
-            self.BUTTON_TOPIC_NAME, Buttons, queue_size=1)
+        self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME,
+                                          Buttons,
+                                          queue_size=1)
         self.srv_res_lane = rospy.ServiceProxy(
             self.RES_LANE_CONTROL_SERVICE_NAME, Empty)
-        self.srv_res_odometry = rospy.ServiceProxy(
-            self.RES_ODOM_SERVICE_NAME, Empty)
-        self.srv_res_vision = rospy.ServiceProxy(
-            self.RES_VISION_SERVICE_NAME, Empty)
+        self.srv_res_odometry = rospy.ServiceProxy(self.RES_ODOM_SERVICE_NAME,
+                                                   Empty)
+        self.srv_res_vision = rospy.ServiceProxy(self.RES_VISION_SERVICE_NAME,
+                                                 Empty)
 
         self.sub_lane_pilot_state = rospy.Subscriber(
-            self.LANE_PILOT_STATE_TOPIC, Int8, self.lane_pilot_state_callback, queue_size=1)
-        self.sub_task_state = rospy.Subscriber(
-            self.TASK_STATE_TOPIC, Int8, self.task_state_callback, queue_size=1)
-        self.sub_rc_state = rospy.Subscriber(
-            self.RC_STATUS_TOPIC, Int8, self.changed_rc_callback, queue_size=1)
+            self.LANE_PILOT_STATE_TOPIC,
+            Int8,
+            self.lane_pilot_state_callback,
+            queue_size=1)
+        self.sub_task_state = rospy.Subscriber(self.TASK_STATE_TOPIC,
+                                               Int8,
+                                               self.task_state_callback,
+                                               queue_size=1)
+        self.sub_rc_state = rospy.Subscriber(self.RC_STATUS_TOPIC,
+                                             Int8,
+                                             self.changed_rc_callback,
+                                             queue_size=1)
 
         # Other variables
         self._widget.rc_label.setText(self.RC_MODES[-1])

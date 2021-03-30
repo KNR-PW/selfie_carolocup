@@ -10,9 +10,7 @@
 #include <pid/PidConfig.h>
 #include <dynamic_reconfigure/Config.h>
 
-PidTuner::PidTuner()
-: pnh_("~")
-, dr_server_CB_(boost::bind(&PidTuner::reconfigureCB, this, _1, _2))
+PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigureCB, this, _1, _2))
 {
   dr_server_.setCallback(dr_server_CB_);
 
@@ -35,7 +33,7 @@ PidTuner::PidTuner()
   pnh_.getParam("speed_change_treshold", speed_change_treshold);
 }
 
-void PidTuner::speedCallback(const custom_msgs::Motion &msg)
+void PidTuner::speedCallback(const custom_msgs::Motion& msg)
 {
   if (abs(msg.speed_linear - act_speed_) < speed_change_treshold)
   {
@@ -165,7 +163,7 @@ void PidTuner::setKi(float Ki)
   pnh_.setParam("/pid_controller/Ki_scale", scale);
 }
 
-void PidTuner::reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
+void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
 {
   if (H_Kp != static_cast<float>(config.H_Kp))
   {

@@ -2,7 +2,6 @@
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
 
-
 #include <opencv2/core/core.hpp>
 
 #include <cv_bridge/cv_bridge.h>
@@ -11,21 +10,22 @@
 
 namespace image_proc_fisheye
 {
-    class RectifyNodelet : public nodelet::Nodelet
-    {
-        public:
-            virtual void onInit();
-            void process_image(const sensor_msgs::ImageConstPtr& frame);
-            void camera_info(const sensor_msgs::CameraInfoConstPtr& info_msg);
-        private:
-            ros::Subscriber sub_;
-            ros::Subscriber sub_info_;
-            ros::Publisher pub_;
-            cv::Mat mapx_;
-            cv::Mat mapy_;
-            bool camera_set_;
-            std::string mapx_file_{"empty"};
-            std::string mapy_file_{"empty"};
-    };
+class RectifyNodelet : public nodelet::Nodelet
+{
+public:
+  virtual void onInit();
+  void process_image(const sensor_msgs::ImageConstPtr& frame);
+  void camera_info(const sensor_msgs::CameraInfoConstPtr& info_msg);
 
-}
+private:
+  ros::Subscriber sub_;
+  ros::Subscriber sub_info_;
+  ros::Publisher pub_;
+  cv::Mat mapx_;
+  cv::Mat mapy_;
+  bool camera_set_;
+  std::string mapx_file_{ "empty" };
+  std::string mapy_file_{ "empty" };
+};
+
+}  // namespace image_proc_fisheye

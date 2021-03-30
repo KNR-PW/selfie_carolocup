@@ -58,7 +58,7 @@ private:
 
   int num_corners_to_detect_;
   bool visualization_;
-  int state_{selfie::TASK_SHIFTING};
+  int state_{ selfie::TASK_SHIFTING };
 
   std::vector<custom_msgs::Box2D> filtered_boxes_;
   custom_msgs::intersectionGoal goal_;
@@ -78,7 +78,7 @@ private:
   void distanceCallback(const custom_msgs::Motion&);
   void filterBoxes(const custom_msgs::Box2DArray&);
   bool isPointInsideROI(const geometry_msgs::Point& p);
-  void updateState(const int &state);
+  void updateState(const int& state);
   void sendGoal();
-  void reconfigureCB(intersection::IntersectionServerConfig& config, uint32_t level);
+  void reconfigureCB(const intersection::IntersectionServerConfig& config, uint32_t level);
 };

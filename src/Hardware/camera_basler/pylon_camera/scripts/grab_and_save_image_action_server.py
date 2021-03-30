@@ -18,21 +18,21 @@ class GrabAndSaveImageActionServers():
     above goal with a sting describing the full storage path and name of the
     image to be saved
     """
-
     def __init__(self):
         camera_name = rospy.get_param('~camera_name', '')
         if not camera_name:
-            rospy.logwarn("No camera name given! Assuming 'pylon_camera_node' as"
-                          " camera name")
+            rospy.logwarn(
+                "No camera name given! Assuming 'pylon_camera_node' as"
+                " camera name")
             camera_name = '/pylon_camera_node'
         else:
             rospy.loginfo('Camera name is: ' + camera_name)
 
-        self._grab_imgs_raw_ac = SimpleActionClient('{}/grab_images_raw'.format(camera_name),
-                                                    GrabImagesAction)
+        self._grab_imgs_raw_ac = SimpleActionClient(
+            '{}/grab_images_raw'.format(camera_name), GrabImagesAction)
 
-        self._grab_imgs_rect_ac = SimpleActionClient('{}/grab_images_rect'.format(camera_name),
-                                                     GrabImagesAction)
+        self._grab_imgs_rect_ac = SimpleActionClient(
+            '{}/grab_images_rect'.format(camera_name), GrabImagesAction)
 
         if self._grab_imgs_raw_ac.wait_for_server(rospy.Duration(10.0)):
             self._grab_and_save_img_raw_as = SimpleActionServer(
@@ -63,16 +63,20 @@ class GrabAndSaveImageActionServers():
     def convert_goals(self, grab_and_save_img_goal, grab_imgs_goal):
         grab_imgs_goal.exposure_given = grab_and_save_img_goal.exposure_given
         if grab_and_save_img_goal.exposure_time:
-            grab_imgs_goal.exposure_times.append(grab_and_save_img_goal.exposure_time)
+            grab_imgs_goal.exposure_times.append(
+                grab_and_save_img_goal.exposure_time)
         grab_imgs_goal.gain_given = grab_and_save_img_goal.gain_given
         if grab_and_save_img_goal.gain_value:
-            grab_imgs_goal.gain_values.append(grab_and_save_img_goal.gain_value)
+            grab_imgs_goal.gain_values.append(
+                grab_and_save_img_goal.gain_value)
         grab_imgs_goal.gamma_given = grab_and_save_img_goal.gamma_given
         if grab_and_save_img_goal.gamma_value:
-            grab_imgs_goal.gamma_values.append(grab_and_save_img_goal.gamma_value)
+            grab_imgs_goal.gamma_values.append(
+                grab_and_save_img_goal.gamma_value)
         grab_imgs_goal.brightness_given = grab_and_save_img_goal.brightness_given
         if grab_and_save_img_goal.brightness_value:
-            grab_imgs_goal.brightness_values.append(grab_and_save_img_goal.brightness_value)
+            grab_imgs_goal.brightness_values.append(
+                grab_and_save_img_goal.brightness_value)
         grab_imgs_goal.exposure_auto = grab_and_save_img_goal.exposure_auto
         grab_imgs_goal.gain_auto = grab_and_save_img_goal.gain_auto
 
@@ -100,8 +104,8 @@ class GrabAndSaveImageActionServers():
         if grab_imgs_result is not None and grab_imgs_result.success:
             filename = grab_and_save_img_goal.img_storage_path_and_name
             try:
-                cv_img = CvBridge().imgmsg_to_cv2(grab_imgs_result.images[0],
-                                                  desired_encoding='passthrough')
+                cv_img = CvBridge().imgmsg_to_cv2(
+                    grab_imgs_result.images[0], desired_encoding='passthrough')
             except CvBridgeError as exception:
                 rospy.logerr('Error converting img_msg_to_cv_img: ' +
                              str(exception))

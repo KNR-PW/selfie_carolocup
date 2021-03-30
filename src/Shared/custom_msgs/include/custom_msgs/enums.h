@@ -1,7 +1,7 @@
 /**
-*Copyright ( c ) 2019, KNR Selfie
-*This code is licensed under BSD license (see LICENSE for details)
-**/ 
+ *Copyright ( c ) 2019, KNR Selfie
+ *This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #ifndef CUSTOM_MSGS_ENUMS_H
 #define CUSTOM_MSGS_ENUMS_H
@@ -45,8 +45,7 @@ typedef enum program_state
   WAITING_ON_INTERSECTION,  // car stops on intersection even if there aren't any obstacles and waits certain amount of
                             // time
   ROAD_CLEAR                // none obstacles on priority road, action ends now
-}
-feedback_variable;
+} feedback_variable;
 
 typedef enum action
 {
@@ -57,8 +56,7 @@ typedef enum action
   PARK,
   INTERSECTION,
   ERROR,
-}
-action_variable;
+} action_variable;
 
 typedef enum rc_state
 {
@@ -66,21 +64,18 @@ typedef enum rc_state
   RC_MANUAL = 0,
   RC_HALF_AUTONOMOUS,
   RC_AUTONOMOUS,
-}
-rc_state_variable;
+} rc_state_variable;
 
 typedef enum steering_mode
 {
   ACKERMANN = 0,
   PARALLEL,
   FRONT_AXIS
-}
-steering_mode_variable;
+} steering_mode_variable;
 
 typedef enum park_counter
 {
   PARKING_COMPLETE = 5,
-}
-park_counter_variable;
+} park_counter_variable;
 
 #endif  // CUSTOM_MSGS_ENUMS_H

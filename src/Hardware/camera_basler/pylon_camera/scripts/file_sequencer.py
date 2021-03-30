@@ -23,9 +23,9 @@ def load_folder(folder):
         try:
             s = int(f.split("_")[-1].split('.')[0])  # ???_number.??? -> number
         except ValueError as e:
-            rospy.logerr("Invalid filename "+f+str(e))
+            rospy.logerr("Invalid filename " + f + str(e))
             continue
-        file_map_[s] = folder+"/"+f
+        file_map_[s] = folder + "/" + f
     return file_map_
 
 
@@ -43,7 +43,7 @@ def select_images(file_map_, req_list):
 
     for t in req_list:
         print t,
-        best_exp = min(file_map_.keys(), key=lambda x: abs(x-t))
+        best_exp = min(file_map_.keys(), key=lambda x: abs(x - t))
         res.exposureTimes.append(best_exp)
         best_file = file_map_[best_exp]
 
@@ -60,7 +60,7 @@ def grab_sequence_callback(goal):
     folder = "/home/nikolas/Documents/sequence_test"
     # folder = rospy.get_param("~data_folder")
     if not os.path.isdir(folder):
-        rospy.logerr("'"+folder+"' is no directory")
+        rospy.logerr("'" + folder + "' is no directory")
         res = GrabSequenceResult()
         res.success = False
         server.set_succeeded(res)
@@ -77,7 +77,9 @@ def grab_sequence_callback(goal):
 if __name__ == "__main__":
     rospy.init_node("image_file_sequencer")
 
-    server = actionlib.SimpleActionServer("/image_file_sequencer", GrabSequenceAction,
-                                          execute_cb=grab_sequence_callback, auto_start=False)
+    server = actionlib.SimpleActionServer("/image_file_sequencer",
+                                          GrabSequenceAction,
+                                          execute_cb=grab_sequence_callback,
+                                          auto_start=False)
     server.start()
     rospy.spin()
