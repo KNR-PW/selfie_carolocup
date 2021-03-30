@@ -29,3 +29,11 @@ catkin lint:
     - develop
     - master
     - merge_requests
+
+python formatting yapf:
+  stage: test
+  script:
+    - echo "Checking formatting of python code in cane of fail you can format it using yapf (command yapf -i -r ./)"
+    - yapf -q ./
+  only:
+    - merge_requests
