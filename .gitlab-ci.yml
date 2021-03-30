@@ -15,7 +15,7 @@ catkin_make:
 catkin_make roslint:
   stage: test
   script:
-    - catkin_make roslint
+    - catkin_make roslint -DROSLINT_CPP_OPTS="--filter=-whitespace/braces"
   only:
     - develop
     - master
