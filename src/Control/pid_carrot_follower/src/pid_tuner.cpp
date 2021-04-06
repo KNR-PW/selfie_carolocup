@@ -46,7 +46,7 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
 
 void PidTuner::speedCallback(const custom_msgs::Motion& msg)
 {
-  if (!pid_tuner_disabled_ || use_lane_change_pid_settings_)
+  if (pid_tuner_disabled_ || use_lane_change_pid_settings_)
   {
     return;
   }
@@ -197,7 +197,7 @@ void PidTuner::setKi(float Ki)
   pnh_.setParam("/pid_controller/Ki_scale", scale);
 }
 
-void PidTuner::reconfigureCB(const pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
+void PidTuner::reconfigureCB(pid_carrot_follower::PIDTunerConfig& config, uint32_t level)
 {
   if (pid_tuner_disabled_ != static_cast<bool>(config.pid_tuner_disabled))
   {
