@@ -14,15 +14,13 @@ class ImageReplicator(object):
         rospy.loginfo("open action server: " + str(action_name))
 
         self._as = actionlib.SimpleActionServer(
-            self._action_name,
-            camera_control_msgs.msg.GrabImagesAction,
-            self.execute_cb,
-            False)
+            self._action_name, camera_control_msgs.msg.GrabImagesAction,
+            self.execute_cb, False)
 
         rospy.loginfo("subscribe to : /bag" + str(action_name) + "/result")
 
         self._sub = rospy.Subscriber(
-            "/bag"+str(action_name)+"/result",
+            "/bag" + str(action_name) + "/result",
             camera_control_msgs.msg.GrabImagesActionResult,
             self.image_callback,
             queue_size=5)
@@ -31,12 +29,14 @@ class ImageReplicator(object):
 
         self._sub = rospy.Subscriber("/bag/sol_camera/camera_info",
                                      sensor_msgs.msg.CameraInfo,
-                                     self.cam_info_callback, queue_size=5)
+                                     self.cam_info_callback,
+                                     queue_size=5)
         rospy.loginfo("publish: /bag/sol_camera/camera_info")
 
         self._pub = rospy.Publisher("/sol_camera/camera_info",
                                     sensor_msgs.msg.CameraInfo,
-                                    queue_size=5, latch=True)
+                                    queue_size=5,
+                                    latch=True)
 
         self.image_list = []
 
@@ -66,6 +66,7 @@ def main():
     rospy.init_node("result_bag_to_action")
     ImageReplicator("/sol_camera/grab_images_raw")
     rospy.spin()
+
 
 if __name__ == '__main__':
     main()

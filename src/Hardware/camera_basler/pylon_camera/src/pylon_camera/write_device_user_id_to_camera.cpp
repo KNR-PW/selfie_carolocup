@@ -38,62 +38,59 @@
 
 int main(int argc, char* argv[])
 {
-    if ( argc < 2 )
+  if (argc < 2)
+  {
+    std::cerr << "ERROR: No device_user_id set!" << std::endl;
+    std::cout << "USAGE: write_device_user_id_to_camera DEVICE_USER_ID" << std::endl;
+    return 1;
+  }
+
+  // TODO: regular expression, instead of only catching 2 '_'
+  std::string desired_device_user_id(reinterpret_cast<char*>(argv[1]));
+  if (desired_device_user_id.empty())
+  {
+    std::cout << "ERROR:" << std::endl;
+    std::cout << "Your desired device_user_id is empty!" << std::endl;
+    return 2;
+  }
+
+  // Before using any pylon methods, the pylon runtime must be initialized.
+  Pylon::PylonInitialize();
+
+  try
+  {
+    Pylon::CDeviceInfo di;
+
+    // TODO: Multiple cameras connected? -> Don't use first device found
+    // TODO: Write IP to Camera?
+
+    // Create an instant camera object with the camera device found first.
+    Pylon::CInstantCamera camera(Pylon::CTlFactory::GetInstance().CreateFirstDevice(di));
+
+    camera.Open();
+
+    while (!camera.IsOpen())
     {
-        std::cerr << "ERROR: No device_user_id set!" << std::endl;
-        std::cout << "USAGE: write_device_user_id_to_camera DEVICE_USER_ID" << std::endl;
-        return 1;
+      usleep(1000);
     }
 
-    // TODO: regular expression, instead of only catching 2 '_'
-    std::string desired_device_user_id(reinterpret_cast<char *>(argv[1]));
-    if ( desired_device_user_id.empty() )
-    {
-        std::cout << "ERROR:" << std::endl;
-        std::cout << "Your desired device_user_id is empty!" << std::endl;
-        return 2;
-    }
+    GenApi::INodeMap& node_map = camera.GetNodeMap();
+    GenApi::CStringPtr current_device_user_id(node_map.GetNode("DeviceUserID"));
+    current_device_user_id->SetValue(Pylon::String_t(desired_device_user_id.c_str()));
 
-    // Before using any pylon methods, the pylon runtime must be initialized.
-    Pylon::PylonInitialize();
+    std::cout << "Successfully wrote " << current_device_user_id->GetValue() << " to the camera "
+              << camera.GetDeviceInfo().GetModelName() << std::endl;
+    camera.Close();
+  }
+  catch (GenICam::GenericException& e)
+  {
+    // Error handling.
+    std::cerr << "An exception occurred." << std::endl << e.GetDescription() << std::endl;
+    return 3;
+  }
 
-    try
-    {
-        Pylon::CDeviceInfo di;
+  // Releases all pylon resources.
+  Pylon::PylonTerminate();
 
-        // TODO: Multiple cameras connected? -> Don't use first device found
-        // TODO: Write IP to Camera?
-
-        // Create an instant camera object with the camera device found first.
-        Pylon::CInstantCamera camera(Pylon::CTlFactory::GetInstance().CreateFirstDevice(di));
-
-        camera.Open();
-
-        while (!camera.IsOpen())
-        {
-            usleep(1000);
-        }
-
-        GenApi::INodeMap& node_map = camera.GetNodeMap();
-        GenApi::CStringPtr current_device_user_id(node_map.GetNode("DeviceUserID"));
-        current_device_user_id->SetValue(Pylon::String_t(desired_device_user_id.c_str()));
-
-        std::cout << "Successfully wrote " << current_device_user_id->GetValue() << " to the camera "
-                  << camera.GetDeviceInfo().GetModelName() << std::endl;
-        camera.Close();
-    }
-    catch (GenICam::GenericException &e)
-    {
-        // Error handling.
-        std::cerr << "An exception occurred."
-                  << std::endl
-                  << e.GetDescription()
-                  << std::endl;
-        return 3;
-    }
-
-    // Releases all pylon resources.
-    Pylon::PylonTerminate();
-
-    return 0;
+  return 0;
 }

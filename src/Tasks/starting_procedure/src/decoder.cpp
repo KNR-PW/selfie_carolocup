@@ -99,8 +99,8 @@ void QrDecoder::decodeImage(const cv_bridge::CvImagePtr raw_img)
   zbar_scanner_.scan(img);
 
   ++count_frame_;
-  if (boost::algorithm::any_of(img.symbol_begin(), img.symbol_end(),
-                               [](zbar::Symbol sym) { return sym.get_data() == "STOP"; })) // NOLINT
+  if (boost::algorithm::any_of(
+          img.symbol_begin(), img.symbol_end(), [](zbar::Symbol sym) { return sym.get_data() == "STOP"; }))  // NOLINT
   {
     ++count_bar_;
     if (!init_)

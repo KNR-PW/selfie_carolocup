@@ -116,7 +116,7 @@ void Park::preemptCB()
   as_.setAborted();
 }
 
-void Park::updateState(const int &state)
+void Park::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;
@@ -127,7 +127,7 @@ void Park::initParkingSpot(const custom_msgs::Box2D& msg)
   park_spot_middle_ = msg.point_centroid.x;
   float mid_on_line(0.);
   float powered_x = 1.;
-  for (float& coef : right_line_)
+  for (auto&& coef : right_line_)
   {
     mid_on_line += coef * powered_x;
     powered_x *= park_spot_middle_;
@@ -280,7 +280,7 @@ void Park::blink(bool left, bool right)
   return;
 }
 
-void Park::reconfigureCB(park::ParkConfig& config, uint32_t level)
+void Park::reconfigureCB(const park::ParkConfig& config, uint32_t level)
 {
   if (idle_time_ != static_cast<float>(config.idle_time))
   {

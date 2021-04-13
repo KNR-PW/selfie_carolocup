@@ -1,7 +1,7 @@
-/** 
-* Copyright ( c ) 2019, KNR Selfie 
-* This code is licensed under BSD license (see LICENSE for details) 
-**/
+/**
+ * Copyright ( c ) 2019, KNR Selfie
+ * This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
@@ -51,9 +51,8 @@ class Odometry
   std::string rear_axis_frame_;
   const std::string ODOM_FRAME = "odom";
 
-  void motionCallback(const custom_msgs::Motion &msg);
+  void motionCallback(const custom_msgs::Motion& msg);
   bool resetOdom(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-
 
 public:
   void publishOdometryTransform();
@@ -61,4 +60,3 @@ public:
   Odometry(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);
 };
 #endif  // ODOMETRY_ODOMETRY_H
-

@@ -19,7 +19,8 @@ RUN sh -c 'echo "yaml https://raw.githubusercontent.com/magazino/pylon_camera/in
 RUN rosdep update 2>/dev/null
 
 # python
-RUN apt-get install -y python3-catkin-lint >/dev/null 2>&1
+RUN apt-get install -y python3-catkin-lint python3-pip clang-format-11 >/dev/null 2>&1
+RUN pip3 install yapf
 
 ################################################################################
 # Install selfie dependencies

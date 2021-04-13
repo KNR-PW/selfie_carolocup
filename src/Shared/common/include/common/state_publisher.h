@@ -13,23 +13,23 @@
 
 class StatePublisher
 {
-    ros::NodeHandle nh_;
-    ros::Timer timer_;
-    ros::Publisher publisher_;
-    std_msgs::Int8 state_;
+  ros::NodeHandle nh_;
+  ros::Timer timer_;
+  ros::Publisher publisher_;
+  std_msgs::Int8 state_;
 
 public:
-    // Timer mode
-    StatePublisher(const std::string& topic_name, float pub_freq);
+  // Timer mode
+  StatePublisher(const std::string& topic_name, float pub_freq);
 
-    // Latching mode
-    explicit StatePublisher(const std::string& topic_name);
+  // Latching mode
+  explicit StatePublisher(const std::string& topic_name);
 
-    void updateState(int8_t new_state);
-    void updateState(std_msgs::Int8 new_state);
+  void updateState(int8_t new_state);
+  void updateState(std_msgs::Int8 new_state);
 
 private:
-    void sendState();
-    void timerCallback(const ros::TimerEvent& event);
+  void sendState();
+  void timerCallback(const ros::TimerEvent& event);
 };
 #endif  // COMMON_STATE_PUBLISHER_H

@@ -4,7 +4,6 @@ import rospy
 
 from std_msgs.msg import Float64
 
-
 if __name__ == '__main__':
     rospy.init_node('const_float64')
 

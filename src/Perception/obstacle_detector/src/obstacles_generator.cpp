@@ -1,7 +1,7 @@
 /**
-* Copyright ( c ) 2019, KNR Selfie
-* This code is licensed under BSD license (see LICENSE for details)
-**/
+ * Copyright ( c ) 2019, KNR Selfie
+ * This code is licensed under BSD license (see LICENSE for details)
+ **/
 
 #include <obstacle_detector/obstacles_generator.h>
 #include <vector>
@@ -140,26 +140,26 @@ Point ObstaclesGenerator::getXY(float angle, float range)
   return p;
 }
 
-float ObstaclesGenerator::getSlope(Point& p1, Point& p2)
+float ObstaclesGenerator::getSlope(const Point& p1, const Point& p2)
 {
   return atan((p2.y - p1.y) / (p2.x - p1.x));
 }
 
-float ObstaclesGenerator::getDistance(Point& p1, Point& p2)
+float ObstaclesGenerator::getDistance(const Point& p1, const Point& p2)
 {
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
   return std::sqrt(dx * dx + dy * dy);
 }
 
-float ObstaclesGenerator::getDistance(geometry_msgs::Point& p1, geometry_msgs::Point& p2)
+float ObstaclesGenerator::getDistance(const geometry_msgs::Point& p1, const geometry_msgs::Point& p2)
 {
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
   return std::sqrt(dx * dx + dy * dy);
 }
 
-float ObstaclesGenerator::getA(Point& p1, Point& p2)
+float ObstaclesGenerator::getA(const Point& p1, const Point& p2)
 {
   return (p2.y - p1.y) / (p2.x - p1.x);
 }
@@ -242,7 +242,7 @@ void ObstaclesGenerator::generateObstacles()
         {
           points[0].x = ((line_array_[i + 1].b - line_array_[i].b) / (line_array_[i].a - line_array_[i + 1].a));
           points[0].y = (((line_array_[i + 1].b * line_array_[i].a) - (line_array_[i].b * line_array_[i + 1].a)) /
-                        (line_array_[i].a - line_array_[i + 1].a));
+                         (line_array_[i].a - line_array_[i + 1].a));
 
           points[1].x = line_array_[i].start_point.x;
           points[1].y = line_array_[i].start_point.y;
@@ -250,8 +250,8 @@ void ObstaclesGenerator::generateObstacles()
           float b1 = line_array_[i].start_point.y - line_array_[i + 1].a * line_array_[i].start_point.x;
           float b2 = line_array_[i + 1].end_point.y - line_array_[i].a * line_array_[i + 1].end_point.x;
           points[2].x = ((b1 - b2) / (line_array_[i].a - line_array_[i + 1].a));
-          points[2].y = ((b1 * line_array_[i].a - b2 * line_array_[i + 1].a) /
-                        (line_array_[i].a - line_array_[i + 1].a));
+          points[2].y =
+              ((b1 * line_array_[i].a - b2 * line_array_[i + 1].a) / (line_array_[i].a - line_array_[i + 1].a));
 
           points[3].x = line_array_[i + 1].end_point.x;
           points[3].y = line_array_[i + 1].end_point.y;
@@ -296,11 +296,11 @@ void ObstaclesGenerator::generateObstacles()
       }
 
       // defining the apex
-      std::sort(std::begin(points), std::end(points),
-                [](const geometry_msgs::Point &p1, const geometry_msgs::Point &p2) -> bool
-                {   // NOLINT
-                  return p1.y > p2.y;   // NOLINT
-                });  // NOLINT
+      std::sort(std::begin(points),
+                std::end(points),
+                [](const geometry_msgs::Point& p1, const geometry_msgs::Point& p2) -> bool {  // NOLINT
+                  return p1.y > p2.y;                                                         // NOLINT
+                });                                                                           // NOLINT
 
       if (points[0].x > points[1].x)
       {
@@ -449,8 +449,8 @@ void ObstaclesGenerator::initializeTransform()
   ROS_INFO("Waiting for any transform from %s to %s", output_frame_.c_str(), obstacles_frame_.c_str());
   try
   {
-    transformListener_.waitForTransform(output_frame_, obstacles_frame_, ros::Time(0), ros::Duration(5),
-                                        ros::Duration(0.0001));
+    transformListener_.waitForTransform(
+        output_frame_, obstacles_frame_, ros::Time(0), ros::Duration(5), ros::Duration(0.0001));
     ROS_INFO("Transform from %s to %s found", output_frame_.c_str(), obstacles_frame_.c_str());
     transformListener_.lookupTransform(output_frame_, obstacles_frame_, ros::Time(0), transform_);
   }
@@ -458,8 +458,8 @@ void ObstaclesGenerator::initializeTransform()
   {
     ROS_INFO("No transform from %s to %s - using default", output_frame_.c_str(), obstacles_frame_.c_str());
     // init zero
-    transform_ = tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1)), ros::Time::now(),
-                                      obstacles_frame_.c_str(), output_frame_.c_str());
+    transform_ = tf::StampedTransform(
+        tf::Transform(tf::Quaternion(0, 0, 0, 1)), ros::Time::now(), obstacles_frame_.c_str(), output_frame_.c_str());
   }
 }
 
@@ -483,7 +483,7 @@ void ObstaclesGenerator::convertUpsideDown()
   }
 }
 
-void ObstaclesGenerator::reconfigureCB(obstacle_detector::ObstacleDetectorConfig& config, uint32_t level)
+void ObstaclesGenerator::reconfigureCB(const obstacle_detector::ObstacleDetectorConfig& config, uint32_t level)
 {
   if (max_range_ != static_cast<float>(config.max_range))
   {

@@ -7,7 +7,6 @@ from State import State
 
 
 class Tester:
-
     def __init__(self, name, topic, directory, msg_type, desired_frequency):
         self.name = name
         self.directory_ = directory
@@ -23,17 +22,19 @@ class Tester:
 
     def callback(self, data):
         try:
-            if(self.last_stamp_ is None):
+            if (self.last_stamp_ is None):
                 self.last_stamp_ = data.header.stamp
             else:
-                self.frequency_ = 1 / (data.header.stamp.to_sec() - self.last_stamp_.to_sec())  # Hz
+                self.frequency_ = 1 / (data.header.stamp.to_sec() -
+                                       self.last_stamp_.to_sec())  # Hz
                 self.last_stamp_ = data.header.stamp
         except Exception:
-            if(self.last_stamp_ is None):
+            if (self.last_stamp_ is None):
                 self.last_stamp_ = rospy.get_rostime()
             else:
                 now = rospy.get_rostime()
-                self.frequency_ = 1 / (now.to_sec() - self.last_stamp_.to_sec())  # Hz
+                self.frequency_ = 1 / (
+                    now.to_sec() - self.last_stamp_.to_sec())  # Hz
                 self.last_stamp_ = now
         if self.msg_type_ == Imu:
             if data.orientation.x != 0.0 and data.orientation.y != 0.0 and data.orientation.z != 0.0:
@@ -80,9 +81,11 @@ class Tester:
             msg += '[Diagnostic Node] ' + self.name + " stopped publishing "
             self.state_ = State.ERROR
         elif self.frequency_ < self.desired_frequency_ - 0.5 or self.frequency_ > self.desired_frequency_ + 0.5:
-            msg = '[Diagnostic Node] ' + self.name + " rate: " + str(self.frequency_) + " " + msg
+            msg = '[Diagnostic Node] ' + self.name + " rate: " + str(
+                self.frequency_) + " " + msg
             self.state_ = State.WARNING
         else:
-            msg = '[Diagnostic Node] ' + self.name + " rate: " + str(self.frequency_) + " " + msg
+            msg = '[Diagnostic Node] ' + self.name + " rate: " + str(
+                self.frequency_) + " " + msg
         rospy.loginfo(msg)
         self.pub_.publish(msg)
