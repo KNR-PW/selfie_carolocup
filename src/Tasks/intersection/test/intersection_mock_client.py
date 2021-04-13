@@ -7,16 +7,20 @@ import time
 
 from std_msgs.msg import Float32
 from custom_msgs.msg import PolygonArray
-import custom_msgs.msg 
+import custom_msgs.msg
+
 
 def intersection_client():
-    client = actionlib.SimpleActionClient('intersection', custom_msgs.msg.intersectionAction)
+    client = actionlib.SimpleActionClient('intersection',
+                                          custom_msgs.msg.intersectionAction)
     client.wait_for_server()
     goal = custom_msgs.msg.intersectionGoal()
     print("Sending goal")
     client.send_goal(goal)
-    distance_pub=rospy.Publisher('/intersection_distance', Float32, queue_size=10)
-    distance=Float32(data=5)
+    distance_pub = rospy.Publisher('/intersection_distance',
+                                   Float32,
+                                   queue_size=10)
+    distance = Float32(data=5)
     time.sleep(0.5)
     print("Sending mock (far) distance to intersection.")
     distance_pub.publish(distance)
@@ -28,7 +32,7 @@ def intersection_client():
     time.sleep(0.8)
     print("."),
     pub.publish(polygons)
-    distance.data=0.05
+    distance.data = 0.05
     distance_pub.publish(distance)
     time.sleep(0.8)
     print("."),

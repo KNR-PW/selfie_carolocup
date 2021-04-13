@@ -36,15 +36,35 @@ public:
   bool pfExecute();
   void pfReset();
 
-
   // getters
-  bool isExist()                        { return exist_; }
-  int getDegree()                       { return degree_; }
-  float getLength()                     { return length_; }
-  bool isShort()                        { return is_short_; }
-  bool isPFInitialized()                { return pf_.initialized(); }
-  std::vector<float> getCoeff()         { return coeff_; }
-  std::vector<cv::Point2f> getPoints()  { return points_; }
+  bool isExist()
+  {
+    return exist_;
+  }
+  int getDegree()
+  {
+    return degree_;
+  }
+  float getLength()
+  {
+    return length_;
+  }
+  bool isShort()
+  {
+    return is_short_;
+  }
+  bool isPFInitialized()
+  {
+    return pf_.initialized();
+  }
+  std::vector<float> getCoeff()
+  {
+    return coeff_;
+  }
+  std::vector<cv::Point2f> getPoints()
+  {
+    return points_;
+  }
   std::vector<float> getParticleCoeff(int particle_id)
   {
     return pf_.getCoeff(particle_id);
@@ -102,10 +122,10 @@ public:
   }
 
 private:
-  bool exist_    {false};
-  int degree_    {2};
-  float length_  {0};
-  bool is_short_ {false};
+  bool exist_{ false };
+  int degree_{ 2 };
+  float length_{ 0 };
+  bool is_short_{ false };
   std::vector<cv::Point2f> points_;
   std::vector<float> coeff_;
 
@@ -115,8 +135,8 @@ private:
   int pf_num_particles_;
   int pf_num_points_;
 
-  float length_not_short_ {0.5};
-  float points_density_   {15};
+  float length_not_short_{ 0.5 };
+  float points_density_{ 15 };
 
   float getDistance(cv::Point2f p1, cv::Point2f p2);
   float getA(cv::Point2f p1, cv::Point2f p2);

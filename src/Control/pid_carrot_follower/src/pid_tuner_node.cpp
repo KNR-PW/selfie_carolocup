@@ -11,5 +11,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "pid_tuner");
   PidTuner pidTuner;
   while (1)
-  { ros::spinOnce();}
+  {
+    ros::spinOnce();
+  }
 }

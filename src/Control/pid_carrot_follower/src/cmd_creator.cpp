@@ -11,17 +11,17 @@ std_msgs::Float64 _speed;
 std_msgs::Float64 _steering_angle;
 std_msgs::Float64 _acceleration;
 
-void steeringCallback(const std_msgs::Float64 &msg)
+void steeringCallback(const std_msgs::Float64& msg)
 {
   _steering_angle = msg;
 }
 
-void speedCallback(const std_msgs::Float64 &msg)
+void speedCallback(const std_msgs::Float64& msg)
 {
   _speed = msg;
 }
 
-void accelerationCallback(const std_msgs::Float64 &msg)
+void accelerationCallback(const std_msgs::Float64& msg)
 {
   _acceleration = msg;
 }

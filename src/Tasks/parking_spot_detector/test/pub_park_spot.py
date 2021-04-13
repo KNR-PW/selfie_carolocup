@@ -5,7 +5,6 @@ import actionlib
 from custom_msgs.msg import parkAction, parkGoal
 from geometry_msgs.msg import Point32
 
-
 rospy.init_node('publish_place')
 goal = parkGoal()
 client = actionlib.SimpleActionClient('park', parkAction)
@@ -32,8 +31,3 @@ goal.parking_spot.points.append(tr)
 goal.parking_spot.points.append(tl)
 client.wait_for_server()
 client.send_goal(goal)
-
-
-
-
-

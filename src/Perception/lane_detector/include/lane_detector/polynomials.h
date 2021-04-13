@@ -17,7 +17,7 @@
 #include <opencv2/highgui/highgui.hpp>
 // #define BOOST_UBLAS_TYPE_CHECK 0
 
-bool polyfit(const std::vector<cv::Point2f> &points, int degree, std::vector<float> &coeff);
-float getPolyY(const std::vector<float> &coeff, float x);
+bool polyfit(const std::vector<cv::Point2f>& points, int degree, std::vector<float>& coeff);
+float getPolyY(const std::vector<float>& coeff, float x);
 
 #endif  //  LANE_DETECTOR_POLYNOMIALS_H

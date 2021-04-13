@@ -45,8 +45,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   dr_server_.setCallback(dr_server_CB_);
   passive_mode_service_ =
       nh_.advertiseService("/avoiding_obst_set_passive", &RoadObstacleDetector::switchToPassive, this);
-  active_mode_service_ =
-      nh_.advertiseService("/avoiding_obst_set_active", &RoadObstacleDetector::switchToActive, this);
+  active_mode_service_ = nh_.advertiseService("/avoiding_obst_set_active", &RoadObstacleDetector::switchToActive, this);
   reset_node_service_ = nh_.advertiseService("/resetLaneControl", &RoadObstacleDetector::resetNode, this);
   offset_pub_ = nh_.advertise<std_msgs::Float64>("/path_offset", 1);
   speed_pub_ = nh_.advertise<std_msgs::Float64>("/max_speed", 1);
@@ -100,7 +99,7 @@ RoadObstacleDetector::~RoadObstacleDetector()
 {
 }
 
-void RoadObstacleDetector::updateState(const selfie::EnumLaneControl &state)
+void RoadObstacleDetector::updateState(const selfie::EnumLaneControl& state)
 {
   state_publisher_.updateState(state);
   state_ = state;
@@ -202,7 +201,7 @@ void RoadObstacleDetector::filterBoxes(const custom_msgs::Box2DArray& msg)
 {
   filtered_boxes_.clear();
 
-  for (const custom_msgs::Box2D &box : msg.boxes)
+  for (const custom_msgs::Box2D& box : msg.boxes)
   {
     int corners_ok = 0;
     if (isPointOnRightLane(box.bl) && isPointInsideROI(box.bl, ROI_min_x_, ROI_max_x_, ROI_min_y_, ROI_max_y_))
@@ -252,29 +251,29 @@ bool RoadObstacleDetector::isObstacleNextToCar(const custom_msgs::Box2DArray& ms
   if (visualization_)
     selfie::visualizeBox2D(right_obst_area_box_, visualizer_, "area_of_right_boxes", 1, 0.9, 0.7);
 
-  for (const custom_msgs::Box2D &box : msg.boxes)
+  for (const custom_msgs::Box2D& box : msg.boxes)
   {
     int corners_ok = 0;
-    if (isPointInsideROI(box.br, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
-                             right_obst_area_max_y_))
+    if (isPointInsideROI(
+            box.br, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_, right_obst_area_max_y_))
     {
       ++corners_ok;
     }
 
-    if (isPointInsideROI(box.bl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
-                             right_obst_area_max_y_))
+    if (isPointInsideROI(
+            box.bl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_, right_obst_area_max_y_))
     {
       ++corners_ok;
     }
 
-    if (isPointInsideROI(box.tr, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
-                             right_obst_area_max_y_))
+    if (isPointInsideROI(
+            box.tr, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_, right_obst_area_max_y_))
     {
       ++corners_ok;
     }
 
-    if (isPointInsideROI(box.tl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_,
-                             right_obst_area_max_y_))
+    if (isPointInsideROI(
+            box.tl, right_obst_area_min_x_, right_obst_area_max_x_, right_obst_area_min_y_, right_obst_area_max_y_))
     {
       ++corners_ok;
     }
@@ -461,7 +460,7 @@ void RoadObstacleDetector::sendIndicators(bool is_left_on, bool is_right_on)
   indicators_pub_.publish(msg);
 }
 
-void RoadObstacleDetector::reconfigureCB(lane_pilot::LaneControllerConfig& config, uint32_t level)
+void RoadObstacleDetector::reconfigureCB(const lane_pilot::LaneControllerConfig& config, uint32_t level)
 {
   if (left_lane_offset_ != static_cast<float>(config.left_lane_offset))
   {

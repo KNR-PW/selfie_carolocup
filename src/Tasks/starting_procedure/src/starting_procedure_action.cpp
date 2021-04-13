@@ -57,8 +57,7 @@ void StartingProcedureAction::executeCB()
 
 void StartingProcedureAction::buttonCB(const custom_msgs::Buttons& msg)
 {
-  if (state_ != selfie::WAITING_FOR_BUTTON &&
-      state_ != selfie::GATE_CLOSED)
+  if (state_ != selfie::WAITING_FOR_BUTTON && state_ != selfie::GATE_CLOSED)
   {
     return;
   }
@@ -182,7 +181,7 @@ void StartingProcedureAction::odomCallback(const nav_msgs::Odometry& msg)
   tf::poseMsgToTF(msg.pose.pose, current_pose_);
 }
 
-inline void StartingProcedureAction::updateState(const int &state)
+inline void StartingProcedureAction::updateState(const int& state)
 {
   state_publisher_.updateState(state);
   state_ = state;
@@ -200,7 +199,7 @@ void StartingProcedureAction::driveBoxOut(float speed)
   drive_pub_.publish(cmd);
 }
 
-void StartingProcedureAction::reconfigureCB(starting_procedure::StartingProcedureConfig& config, uint32_t level)
+void StartingProcedureAction::reconfigureCB(const starting_procedure::StartingProcedureConfig& config, uint32_t level)
 {
   if (Kp_ != static_cast<float>(config.Kp))
   {

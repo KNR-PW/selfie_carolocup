@@ -24,9 +24,15 @@ class ParticleFilter
 {
 public:
   ParticleFilter(int num_particles, int num_control_points)
-    : num_particles_(num_particles), num_control_points_(num_control_points) {}
-  ParticleFilter() {}
-  ~ParticleFilter() {}
+    : num_particles_(num_particles), num_control_points_(num_control_points)
+  {
+  }
+  ParticleFilter()
+  {
+  }
+  ~ParticleFilter()
+  {
+  }
 
   void init(std::vector<cv::Point2f> points);
 
@@ -69,10 +75,10 @@ public:
   }
 
 private:
-  int poly_degree_{2};
-  int num_particles_{0};
-  int num_control_points_{0};
-  bool is_initialized_{false};
+  int poly_degree_{ 2 };
+  int num_particles_{ 0 };
+  int num_control_points_{ 0 };
+  bool is_initialized_{ false };
   std::vector<float> weights_;
   std::vector<Particle> particles_;
   Particle best_particle_;

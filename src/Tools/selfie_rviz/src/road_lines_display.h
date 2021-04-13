@@ -11,42 +11,41 @@ namespace rviz
 {
 class ColorProperty;
 class FloatProperty;
-}
+}  // namespace rviz
 
 namespace selfie_rviz
 {
-
 class RoadLinesVisual;
 
-class RoadLinesDisplay: public rviz::MessageFilterDisplay<custom_msgs::RoadLines>
+class RoadLinesDisplay : public rviz::MessageFilterDisplay<custom_msgs::RoadLines>
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	RoadLinesDisplay();
-	virtual ~RoadLinesDisplay();
+  RoadLinesDisplay();
+  virtual ~RoadLinesDisplay();
 
 protected:
-	virtual void onInitialize();
-	virtual void reset();
+  virtual void onInitialize();
+  virtual void reset();
 
 private Q_SLOTS:
-	void updateColorsAndAlpha();
-	void updateRenderingRange();
+  void updateColorsAndAlpha();
+  void updateRenderingRange();
 
 private:
-	void processMessage(const custom_msgs::RoadLines::ConstPtr& msg);
+  void processMessage(const custom_msgs::RoadLines::ConstPtr& msg);
 
-	RoadLinesVisual* visual_;
+  RoadLinesVisual* visual_;
 
-	// User-editable property variables.
-	rviz::ColorProperty* boundaries_color_property_;
-	rviz::ColorProperty* centerline_color_property_;
-	rviz::FloatProperty* alpha_property_;
-	rviz::FloatProperty* rendering_start_property_;
-	rviz::FloatProperty* rendering_end_property_;
-	rviz::FloatProperty* rendering_step_property_;
+  // User-editable property variables.
+  rviz::ColorProperty* boundaries_color_property_;
+  rviz::ColorProperty* centerline_color_property_;
+  rviz::FloatProperty* alpha_property_;
+  rviz::FloatProperty* rendering_start_property_;
+  rviz::FloatProperty* rendering_end_property_;
+  rviz::FloatProperty* rendering_step_property_;
 };
 
-} // end namespace selfie_rviz
+}  // end namespace selfie_rviz
 
-#endif // ROAD_LINES_DISPLAY_H
+#endif  // ROAD_LINES_DISPLAY_H

@@ -43,14 +43,13 @@ private:
 
   dynamic_reconfigure::Server<park::ParkConfig> dr_server_;
   dynamic_reconfigure::Server<park::ParkConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(park::ParkConfig& config, uint32_t level);
+  void reconfigureCB(const park::ParkConfig& config, uint32_t level);
 
   void distanceCallback(const custom_msgs::Motion& msg);
   void markingsCallback(const custom_msgs::RoadLines& msg);
   void goalCB();
   void preemptCB();
-  void updateState(const int &state);
-
+  void updateState(const int& state);
 
   void drive(float speed, float steering_angle_front, float steering_angle_rear);
   bool toParkingSpot();
@@ -72,7 +71,7 @@ private:
   };
   Parking_State parking_state_;
 
-  int state_{selfie::TASK_SHIFTING};
+  int state_{ selfie::TASK_SHIFTING };
   StatePublisher state_publisher_;
 
   float parking_speed_;

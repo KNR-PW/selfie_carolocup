@@ -15,7 +15,7 @@ catkin_make:
 catkin_make roslint:
   stage: test
   script:
-    - catkin_make roslint
+    - catkin_make roslint -DROSLINT_CPP_OPTS="--filter=-whitespace/braces,-runtime/references"
   only:
     - develop
     - master
@@ -28,4 +28,15 @@ catkin lint:
   only:
     - develop
     - master
+    - merge_requests
+
+Code formatting check:
+  stage: test
+  script:
+    - echo "Checking formatting of python code in cane of fail you can format it using yapf (command yapf -i -r ./)"
+    - yapf --diff --recursive ./src/
+    - echo "Checking formatting of C++ code in case of fail you can format it using clang-format"
+    - wget https://raw.githubusercontent.com/Sarcasm/run-clang-format/master/run-clang-format.py
+    - python3 run-clang-format.py -r src --clang-format-executable clang-format-11
+  only:
     - merge_requests

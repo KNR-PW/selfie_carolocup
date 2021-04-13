@@ -30,8 +30,8 @@ def path_callback(msg):
     global look_ahead
     global heading_offset
     global position_offset
-    if msg.poses[len(msg.poses)-1].pose.position.x < look_ahead:
-        print(msg.poses[len(msg.poses)-1].pose.position.x)
+    if msg.poses[len(msg.poses) - 1].pose.position.x < look_ahead:
+        print(msg.poses[len(msg.poses) - 1].pose.position.x)
         print(look_ahead)
         raise ValueError("Look_ahead is greater than path range")
 
@@ -71,23 +71,22 @@ if __name__ == '__main__':
 
     srv = Server(ControlCalculatorConfig, config_callback)
 
-    path_sub = rospy.Subscriber('path',
-                                Path,
-                                path_callback,
-                                queue_size=1)
+    path_sub = rospy.Subscriber('path', Path, path_callback, queue_size=1)
 
     max_speed_sub = rospy.Subscriber('max_speed',
                                      Float64,
                                      max_speed_callback,
                                      queue_size=1)
 
-    combined_offset_pub = rospy.Publisher('combined_offset', Float64, queue_size=1)
+    combined_offset_pub = rospy.Publisher('combined_offset',
+                                          Float64,
+                                          queue_size=1)
     speed_pub = rospy.Publisher('speed', Float64, queue_size=1)
     acceleration_pub = rospy.Publisher('acceleration', Float64, queue_size=1)
 
     rate = rospy.Rate(publish_rate)
     while not rospy.is_shutdown():
-        combined_offset = position_offset + L*math.sin(heading_offset)
+        combined_offset = position_offset + L * math.sin(heading_offset)
         combined_offset_pub.publish(combined_offset)
 
         speed_pub.publish(speed)

@@ -23,7 +23,6 @@
 #include <common/state_publisher.h>
 #include <custom_msgs/task_enum.h>
 
-
 class StartingProcedureAction
 {
 protected:
@@ -53,8 +52,8 @@ protected:
   // publishers
   ros::Publisher drive_pub_;
 
-  int state_{selfie::TASK_SHIFTING};
-  StatePublisher state_publisher_{"/state/task"};
+  int state_{ selfie::TASK_SHIFTING };
+  StatePublisher state_publisher_{ "/state/task" };
 
 private:
   enum Buttons
@@ -72,7 +71,7 @@ private:
   ros::Time min_second_press_time_;
   ros::Duration debounce_duration_;
 
-  inline void updateState(const int &state);
+  inline void updateState(const int& state);
 
   void executeCB();
   void preemptCB();
@@ -83,7 +82,7 @@ private:
   void odomCallback(const nav_msgs::Odometry& msg);
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig> dr_server_;
   dynamic_reconfigure::Server<starting_procedure::StartingProcedureConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(starting_procedure::StartingProcedureConfig& config, uint32_t level);
+  void reconfigureCB(const starting_procedure::StartingProcedureConfig& config, uint32_t level);
 
 public:
   StartingProcedureAction(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);

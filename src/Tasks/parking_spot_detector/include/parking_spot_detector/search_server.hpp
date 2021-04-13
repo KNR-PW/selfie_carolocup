@@ -66,14 +66,14 @@ private:
   float speed_when_found_place;
   std_msgs::Float64 speed_current;
 
-  int state_{selfie::TASK_SHIFTING};
+  int state_{ selfie::TASK_SHIFTING };
   StatePublisher state_publisher_;
 
   custom_msgs::searchResult result;
 
   dynamic_reconfigure::Server<parking_spot_detector::DetectParkingSpotConfig> dr_server_;
   dynamic_reconfigure::Server<parking_spot_detector::DetectParkingSpotConfig>::CallbackType dr_server_CB_;
-  void reconfigureCB(parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level);
+  void reconfigureCB(const parking_spot_detector::DetectParkingSpotConfig& config, uint32_t level);
 
   // area of interest (used unit- meter)
   float ROI_min_x_;
@@ -82,7 +82,7 @@ private:
   float ROI_min_y_;
   float ROI_max_y_;
 
-  void updateState(const int &state);
+  void updateState(const int& state);
   bool init();
   void preemptCB();
   void endAction();
