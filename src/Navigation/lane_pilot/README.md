@@ -40,8 +40,6 @@ rosrun selfie_avoiding_obstacles lane_pilot
 ## Parameters
  - `visualization` (*bool*, default: true)
    - Whether or not visualization topics are active
- - `ackermann_mode` (*bool*, default: false)
-   - set if ackermann mode is active (if not then front_axis_steering_mode is used)
  - `max_length_of_obstacle` (*float*)
    - How long can be approached obstacle (described in regulations)
  - `max_distance_to_obstacle` (*float*)

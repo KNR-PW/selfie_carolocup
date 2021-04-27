@@ -32,6 +32,8 @@ cmd_creator:
 
 pid_tuner:
   {
+    pid_tuner_disabled: false,
+
     L_Kp: 1.0,
     L_Ki: 0,
     L_Kd: 0.12,
@@ -43,6 +45,10 @@ pid_tuner:
     H_Kp: 1.0,
     H_Ki: 0,
     H_Kd: 0.12,
+
+    LaneChange_Kp: 1.0,
+    LaneChange_Ki: 0,
+    LaneChange_Kd: 0.12,
 
     M_speed: 0.5,
     H_speed: 1.0,
