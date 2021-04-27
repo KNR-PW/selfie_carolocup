@@ -15,10 +15,10 @@ PidTuner::PidTuner() : pnh_("~"), dr_server_CB_(boost::bind(&PidTuner::reconfigu
   dr_server_.setCallback(dr_server_CB_);
 
   sub_motion_ = nh_.subscribe("/selfie_out/motion", 50, &PidTuner::speedCallback, this);
-  set_lane_change_pid_settings_srv_ = nh_.advertiseService("/pidTuner/setLaneChangePidSettings",
-                                                           &PidTuner::setLaneChangePidSettingsCb, this);
-  set_default_pid_settings_srv_ = nh_.advertiseService("/pidTuner/setDefaultPidSettings",
-                                                       &PidTuner::setDefaultPidSettingsCb, this);
+  set_lane_change_pid_settings_srv_ =
+      nh_.advertiseService("/pidTuner/setLaneChangePidSettings", &PidTuner::setLaneChangePidSettingsCb, this);
+  set_default_pid_settings_srv_ =
+      nh_.advertiseService("/pidTuner/setDefaultPidSettings", &PidTuner::setDefaultPidSettingsCb, this);
   use_lane_change_pid_settings_ = false;
 
   pnh_.getParam("pid_tuner_disabled", pid_tuner_disabled_);
