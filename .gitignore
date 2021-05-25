@@ -47,6 +47,7 @@ qtcreator-*
 
 #vscode stuff
 /.vscode
+/src/.vscode
 
 # Emacs
 .#*

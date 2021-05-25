@@ -20,7 +20,6 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   , dr_server_CB_(boost::bind(&RoadObstacleDetector::reconfigureCB, this, _1, _2))
 {
   pnh_.param<bool>("visualization", visualization_, true);
-  pnh_.param<bool>("ackermann_mode", ackermann_mode_, false);
   pnh_.param<float>("max_length_of_obstacle", max_length_of_obstacle_, 0.8);
   pnh_.param<float>("max_distance_to_obstacle", max_distance_to_obstacle_, 0.5);
   pnh_.param<float>("ROI_min_x", ROI_min_x_, 0.3);
@@ -119,11 +118,6 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
       {
         proof_slowdown_ = 0;
         calculateReturnDistance();
-        if (ackermann_mode_)
-        {
-          std_srvs::Empty e;
-          ackerman_steering_service_.call(e);
-        }
         distance_when_started_changing_lane_ = current_distance_;
         ROS_INFO("LC: OVERTAKE");
         updateState(EnumLaneControl::OVERTAKE);
@@ -150,11 +144,6 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 
     if (proof_return_ > num_proof_to_return_)
     {
-      if (ackermann_mode_)
-      {
-        std_srvs::Empty e;
-        ackerman_steering_service_.call(e);
-      }
       updateState(EnumLaneControl::RETURN_RIGHT);
       ROS_INFO("LC: RETURN");
       return_distance_calculated_ = false;
@@ -350,11 +339,6 @@ void RoadObstacleDetector::motionCallback(const custom_msgs::Motion& msg)
   if (state_ == EnumLaneControl::OVERTAKE &&
       current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
-    if (ackermann_mode_)
-    {
-      std_srvs::Empty e;
-      front_axis_steering_service_.call(e);
-    }
     updateState(EnumLaneControl::ON_LEFT);
     proof_return_ = 0;
     ROS_INFO("LC: ON_LEFT");
@@ -365,11 +349,6 @@ void RoadObstacleDetector::motionCallback(const custom_msgs::Motion& msg)
   else if (state_ == EnumLaneControl::RETURN_RIGHT &&
            current_distance_ - distance_when_started_changing_lane_ > lane_change_distance_)
   {
-    if (ackermann_mode_)
-    {
-      std_srvs::Empty e;
-      front_axis_steering_service_.call(e);
-    }
     updateState(EnumLaneControl::ON_RIGHT);
     ROS_INFO("LC: ON_RIGHT");
     sendIndicators(false, false);
@@ -400,11 +379,6 @@ bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std
   proof_slowdown_ = 0;
   timer_.stop();
   updateState(EnumLaneControl::ON_RIGHT);
-  if (ackermann_mode_)
-  {
-    ackerman_steering_service_ = nh_.serviceClient<std_srvs::Empty>("/steering_ackerman");
-    front_axis_steering_service_ = nh_.serviceClient<std_srvs::Empty>("/steering_front_axis");
-  }
   ROS_INFO("Lane control active mode");
   return true;
 }

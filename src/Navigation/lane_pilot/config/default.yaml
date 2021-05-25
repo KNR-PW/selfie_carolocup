@@ -3,8 +3,6 @@ lane_pilot:
     right_lane_offset: -0.26,
     left_lane_offset: 0.19,
 
-    ackermann_mode: true,
-
     maximum_speed: 2.2,
     slowdown_speed: 1.7,
     lane_change_speed: 1.2,
