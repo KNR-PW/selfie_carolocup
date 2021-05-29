@@ -114,7 +114,7 @@ private:
   selfie::EnumLaneControl state_;
 
   custom_msgs::Box2D area_of_interest_box_;
-  custom_msgs::Box2D right_obst_area_box_;
+  custom_msgs::Box2D right_obst_area_box_;  // scanned area on the right line when we are on the left one
 
   dynamic_reconfigure::Server<lane_pilot::LaneControllerConfig> dr_server_;
   dynamic_reconfigure::Server<lane_pilot::LaneControllerConfig>::CallbackType dr_server_CB_;
