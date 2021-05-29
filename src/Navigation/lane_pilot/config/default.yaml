@@ -22,5 +22,5 @@ lane_pilot:
     right_obst_area_min_x: 0.3,
     right_obst_area_max_x: 1.6,
     right_obst_area_min_y: -0.85,
-    right_obst_area_max_y: 0.15,
+    right_obst_area_max_y: -0.2,
   }
