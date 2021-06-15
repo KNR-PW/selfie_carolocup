@@ -4,10 +4,12 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
+<arg name="custom_config"
+     value="false" />
 <arg name="config"
      value="$(optenv SELFIE_CONFIG sim)" />
 
-<group unless="$(eval config == 'default')">
+<group unless="$(arg custom_config)">
     <rosparam command="load"
         file="$(find startup)/config/custom/$(arg config).yaml"  />
 </group>
@@ -18,7 +20,10 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
+
     </include>
 
     <!-- pid_carrot_follower -->
@@ -26,7 +31,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
 <!-- Navigation -->
@@ -35,7 +42,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- path_generator -->
@@ -43,7 +52,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
 <!-- Perception -->
@@ -52,7 +63,9 @@
         <arg name="debug" 
              value="false" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
         <arg name="homography_file" 
              value="/home/$(env USER)/.ros/homography_sim.yaml" />
     </include>
@@ -62,7 +75,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- odometry -->
@@ -70,7 +85,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
 <!-- Tasks -->
@@ -79,7 +96,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- intersection -->
@@ -87,7 +106,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- park -->
@@ -95,7 +116,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- parking_spot_detector -->
@@ -103,7 +126,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- scheduler -->
@@ -111,7 +136,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
     <!-- starting_procedure -->
@@ -119,7 +146,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
     </include>
 
 <!-- Startup -->
