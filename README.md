@@ -46,4 +46,4 @@ If you use Visual Studio Code as your IDE you may find this link useful: https:/
 
 ## System graph
 
-![](./docs/assets/graph_of_system.svg)
+![](./docs/assets/graph_of_system.jpg)
