@@ -44,3 +44,6 @@ git submodule update --init
 ### Bonus 2
 If you use Visual Studio Code as your IDE you may find this link useful: https://github.com/pktiuk/vscode_ros_config
 
+## System graph
+
+![](./docs/assets/graph_of_system.svg)
