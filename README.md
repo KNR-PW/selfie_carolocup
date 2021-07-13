@@ -48,4 +48,4 @@ If you use Visual Studio Code as your IDE you may find this link useful: https:/
 
 ## System graph
 
-![System graph](docs/assets/graph_of_system_cc2022v1.0.png)
+![System graph](docs/assets/drawio_graphs/graph_of_system_latest.png)
