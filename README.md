@@ -35,6 +35,7 @@ source ./devel/setup.bash
 ```
 
 ### Bonus:
+
 If you want to init latest and official version of selfie simulator type:
 ```bash
 git submodule update --init
@@ -42,8 +43,9 @@ git submodule update --init
 <em>Note: You need to configure your gitlab profile SSH key</em>
 
 ### Bonus 2
+
 If you use Visual Studio Code as your IDE you may find this link useful: https://github.com/pktiuk/vscode_ros_config
 
 ## System graph
 
-![](./docs/assets/graph_of_system.jpg)
+![System graph](docs/assets/graph_of_system_cc2022v1.0.png)
