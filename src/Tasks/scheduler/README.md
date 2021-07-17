@@ -18,10 +18,10 @@ In current implementation following clients are used:
 ### Subscribed topics
 `/state/rc` ([std_msgs/Int8](http://docs.ros.org/kinetic/api/std_msgs/html/msg/Int8.html))
 - state of RC task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/rc_enum.h))
-
-### Published topics
 -  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
+### Published topics
+-
 
 ## Parameters
 `~starting_distance` (*float*)
