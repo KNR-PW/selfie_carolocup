@@ -24,11 +24,11 @@ In current implementation following clients are used:
   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ## Parameters
-`~starting_distance` (*float*, default: 1.0)
+`~starting_distance` (*float*)
 Distance car should cover to drive out of the starting box (m)
 
-`~parking_spot` (*float*, default: 0.5)
+`~parking_spot` (*float*)
 Minimum parking spot width (m)
 
-`~num_park_to_complete` (*int*, default: 2)
+`~num_park_to_complete` (*int*)
 Number of successful parkings
