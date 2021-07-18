@@ -1,63 +1,79 @@
 # PID carrot follower
+
+PID-based system generating control commands for car.  
+It regulates speed and steering angle based on current position and curvature of path.
+
 Consist of nodes:
-- cmd_creator
-- pid_controller ([link](http://wiki.ros.org/pid))
-- control_calculator
-- const_setpoint
-- pid_tuner
+
+- cmd_creator - generates command from base values (like speed, angle, acceleration etc.) and changes mode of pid_tuner (default or lane_change)
+- pid_controller ([link](http://wiki.ros.org/pid)) - pure pid regulator
+- control_calculator - calculates offset based on path and max_speed
+- const_setpoint - generates constant setpoint for PID
+- pid_tuner - regulates PID parameters based on speed
+
+## Inner structure of system - graph
+
+![graph](./images/pid_carrot_controller.drawio.png)
+
 ## Usage
-```
+
+```bash
 . devel/setup.bash
 roslaunch pid_carrot_follower pid_carrot_follower_example.launch
 ```
+
 ## Topics
+
 ### Subscribed topics
+
 - `/path` ([nav_msgs/Path](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float64.html))
 - `/max_speed` ([std_msgs/Float64](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float64.html))
+
 ### Published topics
+
 - `/drive/lane_control` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 
 ## Parameters
-###
-- `L` (*float*, default: 0.3)
-  - position_offset + L*heading_offset
-- `lookahead` (*float*, default: 0.0)
+
+- `L` (_float_, default: 0.3)
+  - position_offset + L\*heading_offset
+- `lookahead` (_float_, default: 0.0)
   - Distance from the car where offsets are calculated [m]
-- `min_spped` (*float*, default: 0.5)
+- `min_spped` (_float_, default: 0.5)
   - Min speed of the car [m/s]
--  `max_acceleration` (*float*)
-   - max acceleration of the car
--  `max_curvature` (*float*)
-   - max possible curvature (linear speed control)
--  `pid_tuner_disabled` (*bool*)
-   - whether or not PID tuner is activated
--  `L_Kp` (*float*)
-   - Kp for low range of speed
--  `L_Ki` (*float*)
-   - Ki for low range of speed
--  `L_Kd` (*float*)
-   - Kd for low range of speed
--  `M_Kp` (*float*)
-   - Kp for medium range of speed
--  `M_Ki` (*float*)
-   - Ki for medium range of speed
--  `M_Kd` (*float*)
-   - Kd for medium range of speed
--  `H_Kp` (*float*)
-   - Kp for high range of speed
--  `H_Ki` (*float*)
-   - Ki for high range of speed
--  `H_Kd` (*float*)
-   - Kd for high range of speed
--  `LaneChange_Kp` (*float*)
-   - Kp for lane change manuver
--  `LaneChange_Ki` (*float*)
-   - Ki for lane change manuver
--  `LaneChange_Kd` (*float*)
-   - Kd for lane change manuver
--  `M_speed` (*float*)
-   - lower bound for medium range of speed [m/s]
--  `H_speed` (*float*)
-   - lower bound for low range of speed [m/s]
--  `speed_change_treshold` (*float*)
-   - the smallest change of speed for PID modification to be considered [m/s]
+- `max_acceleration` (_float_)
+  - max acceleration of the car
+- `max_curvature` (_float_)
+  - max possible curvature (linear speed control)
+- `pid_tuner_disabled` (_bool_)
+  - whether or not PID tuner is activated
+- `L_Kp` (_float_)
+  - Kp for low range of speed
+- `L_Ki` (_float_)
+  - Ki for low range of speed
+- `L_Kd` (_float_)
+  - Kd for low range of speed
+- `M_Kp` (_float_)
+  - Kp for medium range of speed
+- `M_Ki` (_float_)
+  - Ki for medium range of speed
+- `M_Kd` (_float_)
+  - Kd for medium range of speed
+- `H_Kp` (_float_)
+  - Kp for high range of speed
+- `H_Ki` (_float_)
+  - Ki for high range of speed
+- `H_Kd` (_float_)
+  - Kd for high range of speed
+- `LaneChange_Kp` (_float_)
+  - Kp for lane change manuver
+- `LaneChange_Ki` (_float_)
+  - Ki for lane change manuver
+- `LaneChange_Kd` (_float_)
+  - Kd for lane change manuver
+- `M_speed` (_float_)
+  - lower bound for medium range of speed [m/s]
+- `H_speed` (_float_)
+  - lower bound for low range of speed [m/s]
+- `speed_change_treshold` (_float_)
+  - the smallest change of speed for PID modification to be considered [m/s]
