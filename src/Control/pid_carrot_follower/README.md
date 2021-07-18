@@ -5,7 +5,7 @@ It regulates speed and steering angle based on current position and curvature of
 
 Consist of nodes:
 
-- cmd_creator - generates command from base values (like speed, angle, acceleration etc.)
+- cmd_creator - generates command from base values (like speed, angle, acceleration etc.) and changes mode of pid_tuner (default or lane_change)
 - pid_controller ([link](http://wiki.ros.org/pid)) - pure pid regulator
 - control_calculator - calculates offset based on path and max_speed
 - const_setpoint - generates constant setpoint for PID
