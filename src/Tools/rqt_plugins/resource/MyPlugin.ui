@@ -262,7 +262,7 @@
       <item>
        <layout class="QVBoxLayout" name="mode_switches_layout">
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="select_auto_button">
           <property name="text">
            <string>Autonomous mode</string>
           </property>
@@ -272,14 +272,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_3">
+         <widget class="QRadioButton" name="select_manual_button">
           <property name="text">
            <string>ManualMode</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="select_semi_auto_button">
           <property name="text">
            <string>Semi-autnonmous</string>
           </property>
