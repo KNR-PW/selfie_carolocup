@@ -7,6 +7,7 @@ import math
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
+from python_qt_binding.QtCore import Qt
 from std_msgs.msg import Int8
 from std_srvs.srv import Empty
 from rqt_selfie_base.car_widget import CarWidget
@@ -105,6 +106,9 @@ class MyPlugin(Plugin):
 
         self.car_scene = CarWidget()
         self._widget.graphicsView.setScene(self.car_scene)
+        # Reimplement resize Event to fit scene
+        self._widget.graphicsView.resizeEvent = lambda x: self._widget.graphicsView.fitInView(
+            self.car_scene.sceneRect(), Qt.KeepAspectRatio)
 
         # init publishers and subscribers
         self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME,
