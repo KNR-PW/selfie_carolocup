@@ -23,6 +23,7 @@ class MyPlugin(Plugin):
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
+    RES_GAZEBO_WORLD = "/gazebo/reset_world"
     DRIVE_COMMAND_TOPIC = "/drive/manual"
 
     RC_MODES = {
@@ -115,6 +116,7 @@ class MyPlugin(Plugin):
                                                    Empty)
         self.srv_res_vision = rospy.ServiceProxy(self.RES_VISION_SERVICE_NAME,
                                                  Empty)
+        self.srv_res_world = rospy.ServiceProxy(self.RES_GAZEBO_WORLD, Empty)
 
         self.sub_lane_pilot_state = rospy.Subscriber(
             self.LANE_PILOT_STATE_TOPIC,
@@ -188,7 +190,13 @@ class MyPlugin(Plugin):
             self.srv_res_vision()
 
     def restart_simulation(self):
-        rospy.logwarn("Restarting simulation not implemented yet")
+        rospy.logdebug("Pressed restart vision button")
+        service_list = rosservice.get_service_list()
+        if self.RES_GAZEBO_WORLD not in service_list:
+            rospy.logwarn(self.RES_GAZEBO_WORLD +
+                          " service server is not active")
+        else:
+            self.srv_res_world()
 
     def lane_pilot_state_callback(self, data: Int8):
         self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
