@@ -96,6 +96,8 @@ class MyPlugin(Plugin):
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
+        self._widget.check_box_advanced_view.pressed.connect(
+            self.switch_view_callback)
 
         self.car_scene = CarWidget()
         self._widget.graphicsView.setScene(self.car_scene)
@@ -131,6 +133,9 @@ class MyPlugin(Plugin):
 
         # Other variables
         self._widget.rc_label.setText(self.RC_MODES[-1])
+
+        self.check_if_running_simulation()
+        rospy.loginfo("Rqt plugin initialized successfully")
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")
@@ -184,3 +189,14 @@ class MyPlugin(Plugin):
     def drive_command_callback(self, data: DriveCommand):
         self.car_scene.rotate_wheels(front_angle=data.front_angle,
                                      back_angle=data.back_angle)
+
+    def switch_view_callback(self, state):
+        pass  #TODO
+
+    def check_if_running_simulation(self):
+        topic_list = rospy.get_published_topics()
+        rospy.loginfo(topic_list)
+        if ['/gazebo/link_states', 'gazebo_msgs/LinkStates'] in topic_list:
+            self._widget.button_restart_simulation.setEnabled(True)
+        else:
+            self._widget.button_restart_simulation.setEnabled(False)
