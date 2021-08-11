@@ -3,6 +3,7 @@ import rospy
 import rospkg
 import rosservice
 import math
+from datetime import datetime, timedelta
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -25,7 +26,7 @@ class CarStatusPlugin(Plugin):
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
     RES_GAZEBO_WORLD = "/gazebo/reset_world"
-    DRIVE_COMMAND_TOPIC = "/drive/manual"
+    DRIVE_COMMAND_TOPIC = "/selfie_in/drive"
 
     RC_MODES = {
         -1: "itself",
@@ -151,6 +152,9 @@ class CarStatusPlugin(Plugin):
 
         self.check_if_running_simulation()
         self._widget.advanced_elements.hide()
+
+        self.redraw_wheels_time = datetime.now()
+        self.redraw_timeout = timedelta(milliseconds=250)
         rospy.loginfo("Rqt plugin initialized successfully")
 
     def press_button1(self):
@@ -218,9 +222,16 @@ class CarStatusPlugin(Plugin):
         self.pub_button.unregister()
 
     def drive_command_callback(self, data: DriveCommand):
+        if self.redraw_wheels_time > datetime.now():
+            return
+
+        print(math.degrees(-data.steering_angle_front))
         self.car_scene.rotate_wheels(
             front_angle=math.degrees(-data.steering_angle_front),
             back_angle=math.degrees(-data.steering_angle_rear))
+
+        print("draw")
+        self.redraw_wheels_time = datetime.now() + self.redraw_timeout
 
     def switch_view_callback(self, state):
         if state:
