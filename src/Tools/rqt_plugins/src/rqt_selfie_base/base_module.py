@@ -103,6 +103,9 @@ class CarStatusPlugin(Plugin):
             self.restart_simulation)
         self._widget.check_box_advanced_view.stateChanged.connect(
             self.switch_view_callback)
+        self._widget.button_select_manual.clicked.connect(self.change_mode)
+        self._widget.button_select_semi_auto.clicked.connect(self.change_mode)
+        self._widget.button_select_auto.clicked.connect(self.change_mode)
 
         self.car_scene = CarWidget()
         self._widget.graphicsView.setScene(self.car_scene)
@@ -114,6 +117,9 @@ class CarStatusPlugin(Plugin):
         self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME,
                                           Buttons,
                                           queue_size=1)
+        self.pub_switch_state = rospy.Publisher("/simulation/switch_state",
+                                                Int8,
+                                                queue_size=1)
         self.srv_res_lane = rospy.ServiceProxy(
             self.RES_LANE_CONTROL_SERVICE_NAME, Empty)
         self.srv_res_odometry = rospy.ServiceProxy(self.RES_ODOM_SERVICE_NAME,
@@ -228,3 +234,12 @@ class CarStatusPlugin(Plugin):
             self._widget.button_restart_simulation.setEnabled(True)
         else:
             self._widget.button_restart_simulation.setEnabled(False)
+
+    def change_mode(self, checked):
+        RADIO_BUTTON_MODES = {
+            self._widget.button_select_manual: 0,
+            self._widget.button_select_semi_auto: 1,
+            self._widget.button_select_auto: 2
+        }
+        self.pub_switch_state.publish(
+            Int8(RADIO_BUTTON_MODES[self._widget.sender()]))
