@@ -97,8 +97,9 @@ class MyPlugin(Plugin):
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
-        self._widget.button_restart_simulation.connect(self.restart_simulation)
-        self._widget.check_box_advanced_view.pressed.connect(
+        self._widget.button_restart_simulation.pressed.connect(
+            self.restart_simulation)
+        self._widget.check_box_advanced_view.stateChanged.connect(
             self.switch_view_callback)
 
         self.car_scene = CarWidget()
@@ -137,6 +138,7 @@ class MyPlugin(Plugin):
         self._widget.rc_label.setText(self.RC_MODES[-1])
 
         self.check_if_running_simulation()
+        self._widget.advanced_elements.hide()
         rospy.loginfo("Rqt plugin initialized successfully")
 
     def press_button1(self):
@@ -150,7 +152,13 @@ class MyPlugin(Plugin):
         self.pub_button.publish(msg)
 
     def changed_rc_callback(self, data: Int8):
+        RADIO_BUTTONS = [
+            self._widget.button_select_manual,
+            self._widget.button_select_semi_auto,
+            self._widget.button_select_auto
+        ]
         self._widget.rc_label.setText(self.RC_MODES[data.data])
+        RADIO_BUTTONS[data.data].setChecked(True)
 
     def restart_lane_control(self):
         rospy.logdebug("Pressed restart lane_control button")
@@ -196,8 +204,8 @@ class MyPlugin(Plugin):
             front_angle=math.degrees(-data.steering_angle_front),
             back_angle=math.degrees(-data.steering_angle_rear))
 
-    def switch_view_callback(self):
-        if self._widget.check_box_advanced_view.isChecked() == 1:
+    def switch_view_callback(self, state):
+        if state:
             self._widget.advanced_elements.show()
         else:
             self._widget.advanced_elements.hide()

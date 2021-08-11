@@ -58,7 +58,7 @@
          <item row="1" column="1">
           <widget class="QLabel" name="task_label">
            <property name="text">
-            <string>task_label</string>
+            <string>offline</string>
            </property>
           </widget>
          </item>
@@ -71,7 +71,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>offline</string>
            </property>
           </widget>
          </item>
@@ -82,6 +82,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>130</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="text">
             <string>Auto</string>
@@ -161,6 +167,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="text">
             <string>Button2</string>
@@ -278,11 +290,14 @@
        </item>
        <item>
         <widget class="QCheckBox" name="check_box_advanced_view">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string>Advanced View</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
