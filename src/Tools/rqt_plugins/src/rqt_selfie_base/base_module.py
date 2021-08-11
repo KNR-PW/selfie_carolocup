@@ -8,8 +8,10 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
 from std_msgs.msg import Int8
 from std_srvs.srv import Empty
+from rqt_selfie_base.car_widget import CarWidget
 
 from custom_msgs.msg import Buttons
+from custom_msgs.msg import DriveCommand
 
 
 class MyPlugin(Plugin):
@@ -20,6 +22,7 @@ class MyPlugin(Plugin):
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
+    DRIVE_COMMAND_TOPIC = "selfie_in/drive"
 
     RC_MODES = {
         -1: "itself",
@@ -94,6 +97,9 @@ class MyPlugin(Plugin):
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
 
+        self.car_scene = CarWidget()
+        self._widget.graphicsView.setScene(self.car_scene)
+
         # init publishers and subscribers
         self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME,
                                           Buttons,
@@ -118,6 +124,10 @@ class MyPlugin(Plugin):
                                              Int8,
                                              self.changed_rc_callback,
                                              queue_size=1)
+        self.sub_car_drive = rospy.Subscriber(self.DRIVE_COMMAND_TOPIC,
+                                              DriveCommand,
+                                              self.drive_command_callback,
+                                              queue_size=1)
 
         # Other variables
         self._widget.rc_label.setText(self.RC_MODES[-1])
@@ -170,3 +180,7 @@ class MyPlugin(Plugin):
 
     def shutdown_plugin(self):
         self.pub_button.unregister()
+
+    def drive_command_callback(self, data: DriveCommand):
+        self.car_scene.rotate_wheels(front_angle=data.front_angle,
+                                     back_angle=data.back_angle)
