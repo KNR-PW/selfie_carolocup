@@ -49,7 +49,7 @@ class MyPlugin(Plugin):
         17: "PARKING_COMPLETED",
         18: "APPROACHING_TO_INTERSECTION",
         19: "BLIND_APPROACHING",
-        10: "STOP_TIME_ON_INTERSECTION",
+        20: "STOP_TIME_ON_INTERSECTION",
         21: "STOP_OBSTACLE_ON_INTERSECTION",
         22: "PASSING_INTERSECTION"
     }
@@ -68,13 +68,9 @@ class MyPlugin(Plugin):
         # Give QObjects reasonable names
         self.setObjectName('MyPlugin')
 
-        # Process standalone plugin command-line arguments
-        from argparse import ArgumentParser
-        parser = ArgumentParser()
-
         # Create QWidget
         self._widget = QWidget()
-        # Get path to UI file which should be in the "resource" folder of this package
+        # Get path to UI file which should be in the "resource" folder
         ui_file = os.path.join(rospkg.RosPack().get_path('rqt_selfie_base'),
                                'resource', 'MyPlugin.ui')
         # Extend the widget with all attributes and children from UI file
@@ -146,7 +142,7 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_LANE_CONTROL_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_lane()
+            self.srv_res_lane()
 
     def restart_odometry(self):
         rospy.logdebug("Pressed restart odometry button")
@@ -155,7 +151,7 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_ODOM_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_odometry()
+            self.srv_res_odometry()
 
     def restart_vision(self):
         rospy.logdebug("Pressed restart vision button")
@@ -164,7 +160,7 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_VISION_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_vision()
+            self.srv_res_vision()
 
     def lane_pilot_state_callback(self, data: Int8):
         self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
