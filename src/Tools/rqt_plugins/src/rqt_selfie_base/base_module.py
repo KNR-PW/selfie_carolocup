@@ -16,7 +16,7 @@ from custom_msgs.msg import Buttons
 from custom_msgs.msg import DriveCommand
 
 
-class MyPlugin(Plugin):
+class CarStatusPlugin(Plugin):
     LANE_PILOT_STATE_TOPIC = "/state/lane_control"
     TASK_STATE_TOPIC = "/state/task"
     BUTTON_TOPIC_NAME = "/selfie_out/buttons"
@@ -70,19 +70,19 @@ class MyPlugin(Plugin):
     }
 
     def __init__(self, context):
-        super(MyPlugin, self).__init__(context)
+        super(CarStatusPlugin, self).__init__(context)
         # Give QObjects reasonable names
-        self.setObjectName('MyPlugin')
+        self.setObjectName('CarStatusPlugin')
 
         # Create QWidget
         self._widget = QWidget()
         # Get path to UI file which should be in the "resource" folder
         ui_file = os.path.join(rospkg.RosPack().get_path('rqt_selfie_base'),
-                               'resource', 'MyPlugin.ui')
+                               'resource', 'CarStatusPlugin.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
-        self._widget.setObjectName('MyPluginUi')
+        self._widget.setObjectName('CarStatusPluginUi')
         # Show _widget.windowTitle on left-top of each plugin (when
         # it's set in _widget). This is useful when you open multiple
         # plugins at once. Also if you open multiple instances of your
