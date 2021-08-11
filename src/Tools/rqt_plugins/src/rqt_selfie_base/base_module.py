@@ -190,8 +190,11 @@ class MyPlugin(Plugin):
         self.car_scene.rotate_wheels(front_angle=data.front_angle,
                                      back_angle=data.back_angle)
 
-    def switch_view_callback(self, state):
-        pass  #TODO
+    def switch_view_callback(self):
+        if self._widget.check_box_advanced_view.isChecked() == 1:
+            self._widget.advanced_elements.show()
+        else:
+            self._widget.advanced_elements.hide()
 
     def check_if_running_simulation(self):
         topic_list = rospy.get_published_topics()
