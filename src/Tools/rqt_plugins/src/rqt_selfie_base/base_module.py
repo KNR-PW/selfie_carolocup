@@ -2,6 +2,7 @@ import os
 import rospy
 import rospkg
 import rosservice
+import math
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -22,7 +23,7 @@ class MyPlugin(Plugin):
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
-    DRIVE_COMMAND_TOPIC = "selfie_in/drive"
+    DRIVE_COMMAND_TOPIC = "/drive/manual"
 
     RC_MODES = {
         -1: "itself",
@@ -96,6 +97,7 @@ class MyPlugin(Plugin):
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
+        self._widget.button_restart_simulation.connect(self.restart_simulation)
         self._widget.check_box_advanced_view.pressed.connect(
             self.switch_view_callback)
 
@@ -177,6 +179,9 @@ class MyPlugin(Plugin):
         else:
             self.srv_res_vision()
 
+    def restart_simulation(self):
+        rospy.logwarn("Restarting simulation not implemented yet")
+
     def lane_pilot_state_callback(self, data: Int8):
         self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
 
@@ -187,8 +192,9 @@ class MyPlugin(Plugin):
         self.pub_button.unregister()
 
     def drive_command_callback(self, data: DriveCommand):
-        self.car_scene.rotate_wheels(front_angle=data.front_angle,
-                                     back_angle=data.back_angle)
+        self.car_scene.rotate_wheels(
+            front_angle=math.degrees(-data.steering_angle_front),
+            back_angle=math.degrees(-data.steering_angle_rear))
 
     def switch_view_callback(self):
         if self._widget.check_box_advanced_view.isChecked() == 1:
@@ -198,7 +204,6 @@ class MyPlugin(Plugin):
 
     def check_if_running_simulation(self):
         topic_list = rospy.get_published_topics()
-        rospy.loginfo(topic_list)
         if ['/gazebo/link_states', 'gazebo_msgs/LinkStates'] in topic_list:
             self._widget.button_restart_simulation.setEnabled(True)
         else:
