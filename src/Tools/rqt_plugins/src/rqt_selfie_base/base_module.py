@@ -2,17 +2,22 @@ import os
 import rospy
 import rospkg
 import rosservice
+import math
+from datetime import datetime, timedelta
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
+from python_qt_binding.QtCore import Qt
 from std_msgs.msg import Int8
 from std_srvs.srv import Empty
+from rqt_selfie_base.car_widget import CarWidget
 
 from custom_msgs.msg import Buttons
+from custom_msgs.msg import DriveCommand
 
 
-class MyPlugin(Plugin):
+class CarStatusPlugin(Plugin):
     LANE_PILOT_STATE_TOPIC = "/state/lane_control"
     TASK_STATE_TOPIC = "/state/task"
     BUTTON_TOPIC_NAME = "/selfie_out/buttons"
@@ -20,6 +25,8 @@ class MyPlugin(Plugin):
     RES_ODOM_SERVICE_NAME = "/reset/odom"
     RES_VISION_SERVICE_NAME = "/resetVision"
     RES_LANE_CONTROL_SERVICE_NAME = "/resetLaneControl"
+    RES_GAZEBO_WORLD = "/gazebo/reset_world"
+    DRIVE_COMMAND_TOPIC = "/selfie_in/drive"
 
     RC_MODES = {
         -1: "itself",
@@ -49,7 +56,7 @@ class MyPlugin(Plugin):
         17: "PARKING_COMPLETED",
         18: "APPROACHING_TO_INTERSECTION",
         19: "BLIND_APPROACHING",
-        10: "STOP_TIME_ON_INTERSECTION",
+        20: "STOP_TIME_ON_INTERSECTION",
         21: "STOP_OBSTACLE_ON_INTERSECTION",
         22: "PASSING_INTERSECTION"
     }
@@ -64,23 +71,19 @@ class MyPlugin(Plugin):
     }
 
     def __init__(self, context):
-        super(MyPlugin, self).__init__(context)
+        super(CarStatusPlugin, self).__init__(context)
         # Give QObjects reasonable names
-        self.setObjectName('MyPlugin')
-
-        # Process standalone plugin command-line arguments
-        from argparse import ArgumentParser
-        parser = ArgumentParser()
+        self.setObjectName('CarStatusPlugin')
 
         # Create QWidget
         self._widget = QWidget()
-        # Get path to UI file which should be in the "resource" folder of this package
+        # Get path to UI file which should be in the "resource" folder
         ui_file = os.path.join(rospkg.RosPack().get_path('rqt_selfie_base'),
-                               'resource', 'MyPlugin.ui')
+                               'resource', 'CarStatusPlugin.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
-        self._widget.setObjectName('MyPluginUi')
+        self._widget.setObjectName('CarStatusPluginUi')
         # Show _widget.windowTitle on left-top of each plugin (when
         # it's set in _widget). This is useful when you open multiple
         # plugins at once. Also if you open multiple instances of your
@@ -97,17 +100,34 @@ class MyPlugin(Plugin):
         self._widget.button_res_lane.pressed.connect(self.restart_lane_control)
         self._widget.button_res_odometry.pressed.connect(self.restart_odometry)
         self._widget.button_res_vision.pressed.connect(self.restart_vision)
+        self._widget.button_restart_simulation.pressed.connect(
+            self.restart_simulation)
+        self._widget.check_box_advanced_view.stateChanged.connect(
+            self.switch_view_callback)
+        self._widget.button_select_manual.clicked.connect(self.change_mode)
+        self._widget.button_select_semi_auto.clicked.connect(self.change_mode)
+        self._widget.button_select_auto.clicked.connect(self.change_mode)
+
+        self.car_scene = CarWidget()
+        self._widget.graphicsView.setScene(self.car_scene)
+        # Reimplement resize Event to fit scene
+        self._widget.graphicsView.resizeEvent = lambda x: self._widget.graphicsView.fitInView(
+            self.car_scene.sceneRect(), Qt.KeepAspectRatio)
 
         # init publishers and subscribers
         self.pub_button = rospy.Publisher(self.BUTTON_TOPIC_NAME,
                                           Buttons,
                                           queue_size=1)
+        self.pub_switch_state = rospy.Publisher("/simulation/switch_state",
+                                                Int8,
+                                                queue_size=1)
         self.srv_res_lane = rospy.ServiceProxy(
             self.RES_LANE_CONTROL_SERVICE_NAME, Empty)
         self.srv_res_odometry = rospy.ServiceProxy(self.RES_ODOM_SERVICE_NAME,
                                                    Empty)
         self.srv_res_vision = rospy.ServiceProxy(self.RES_VISION_SERVICE_NAME,
                                                  Empty)
+        self.srv_res_world = rospy.ServiceProxy(self.RES_GAZEBO_WORLD, Empty)
 
         self.sub_lane_pilot_state = rospy.Subscriber(
             self.LANE_PILOT_STATE_TOPIC,
@@ -122,9 +142,20 @@ class MyPlugin(Plugin):
                                              Int8,
                                              self.changed_rc_callback,
                                              queue_size=1)
+        self.sub_car_drive = rospy.Subscriber(self.DRIVE_COMMAND_TOPIC,
+                                              DriveCommand,
+                                              self.drive_command_callback,
+                                              queue_size=1)
 
         # Other variables
         self._widget.rc_label.setText(self.RC_MODES[-1])
+
+        self.check_if_running_simulation()
+        self._widget.advanced_elements.hide()
+
+        self.redraw_wheels_time = datetime.now()
+        self.redraw_timeout = timedelta(milliseconds=250)
+        rospy.loginfo("Rqt plugin initialized successfully")
 
     def press_button1(self):
         rospy.logdebug("Pressed button1 button")
@@ -137,7 +168,13 @@ class MyPlugin(Plugin):
         self.pub_button.publish(msg)
 
     def changed_rc_callback(self, data: Int8):
+        RADIO_BUTTONS = [
+            self._widget.button_select_manual,
+            self._widget.button_select_semi_auto,
+            self._widget.button_select_auto
+        ]
         self._widget.rc_label.setText(self.RC_MODES[data.data])
+        RADIO_BUTTONS[data.data].setChecked(True)
 
     def restart_lane_control(self):
         rospy.logdebug("Pressed restart lane_control button")
@@ -146,7 +183,7 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_LANE_CONTROL_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_lane()
+            self.srv_res_lane()
 
     def restart_odometry(self):
         rospy.logdebug("Pressed restart odometry button")
@@ -155,7 +192,7 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_ODOM_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_odometry()
+            self.srv_res_odometry()
 
     def restart_vision(self):
         rospy.logdebug("Pressed restart vision button")
@@ -164,7 +201,16 @@ class MyPlugin(Plugin):
             rospy.logwarn(self.RES_VISION_SERVICE_NAME +
                           " service server is not active")
         else:
-            response = self.srv_res_vision()
+            self.srv_res_vision()
+
+    def restart_simulation(self):
+        rospy.logdebug("Pressed restart vision button")
+        service_list = rosservice.get_service_list()
+        if self.RES_GAZEBO_WORLD not in service_list:
+            rospy.logwarn(self.RES_GAZEBO_WORLD +
+                          " service server is not active")
+        else:
+            self.srv_res_world()
 
     def lane_pilot_state_callback(self, data: Int8):
         self._widget.lane_control_label.setText(self.LANE_MODES[data.data])
@@ -174,3 +220,37 @@ class MyPlugin(Plugin):
 
     def shutdown_plugin(self):
         self.pub_button.unregister()
+
+    def drive_command_callback(self, data: DriveCommand):
+        if self.redraw_wheels_time > datetime.now():
+            return
+
+        print(math.degrees(-data.steering_angle_front))
+        self.car_scene.rotate_wheels(
+            front_angle=math.degrees(-data.steering_angle_front),
+            back_angle=math.degrees(-data.steering_angle_rear))
+
+        print("draw")
+        self.redraw_wheels_time = datetime.now() + self.redraw_timeout
+
+    def switch_view_callback(self, state):
+        if state:
+            self._widget.advanced_elements.show()
+        else:
+            self._widget.advanced_elements.hide()
+
+    def check_if_running_simulation(self):
+        topic_list = rospy.get_published_topics()
+        if ['/gazebo/link_states', 'gazebo_msgs/LinkStates'] in topic_list:
+            self._widget.button_restart_simulation.setEnabled(True)
+        else:
+            self._widget.button_restart_simulation.setEnabled(False)
+
+    def change_mode(self, checked):
+        RADIO_BUTTON_MODES = {
+            self._widget.button_select_manual: 0,
+            self._widget.button_select_semi_auto: 1,
+            self._widget.button_select_auto: 2
+        }
+        self.pub_switch_state.publish(
+            Int8(RADIO_BUTTON_MODES[self._widget.sender()]))
