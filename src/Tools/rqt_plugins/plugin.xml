@@ -1,7 +1,7 @@
 <library path="src">
-  <class name="Selfie base plugin" type="rqt_selfie_base.base_module.MyPlugin" base_class_type="rqt_gui_py::Plugin">
+<class name="Selfie base plugin" type="rqt_selfie_base.base_module.CarStatusPlugin" base_class_type="rqt_gui_py::Plugin">
     <description>
-      Base plugin for monitoring and contrilling state of Selfie.
+      Base plugin for monitoring and controlling state of Selfie.
     </description>
     <qtgui>
       <!-- optional grouping...
@@ -12,9 +12,9 @@
         <label>Subgroup</label>
       </group>
       -->
-      <label>RQT Python Plugin</label>
+      <label>RQT Car Status Plugin</label>
       <icon type="theme">system-help</icon>
-      <statustip>Plugin for monitoring and contrilling state of Selfie.</statustip>
+      <statustip>Plugin for monitoring and controlling state of Selfie.</statustip>
     </qtgui>
   </class>
 </library>
