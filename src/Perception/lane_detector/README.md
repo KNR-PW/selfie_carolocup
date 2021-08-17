@@ -3,8 +3,15 @@
 ## Usage
 ```
 . devel/setup.bash
-rosrun lane_detector detect_markings
+rosrun lane_detector lane_detector
 ```
+### Launch files:
+- `hom_cut_maker.launch`
+  - Create mask of homography black area cover.
+- `lane_detector.launch`
+  - Default.
+- `tune_params.launch`
+  - Activate slider for changing vision params.
 ## Topics
 ### Subscribed topics
 - `camera_basler/image_rect` ([sensor_msgs/Image](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html))
@@ -21,7 +28,7 @@ rosrun lane_detector detect_markings
 - `/reset_vison` ([std_srvs/Empty](https://docs.ros.org/api/std_srvs/html/srv/Empty.html))
   - used to reset vision
 
-## Scipts
+## Scripts
 #### make hom cut file
   - make yaml file containts mask of homography black area cover.
 
@@ -31,13 +38,13 @@ rosrun lane_detector detect_markings
   - Path to yaml file with homography matrix
 - `hom_cut_file` (*string*)
   - Path to yaml file with mask of homography black area cover
-- `debug_mode` (*bool*, default: false)
+- `debug_mode` (*bool*)
   - Whether or not opencv visualization windows are displayed
-- `real_window_size` (*float*, default: 0.1)
+- `real_window_size` (*float*)
   - Size of adaptive threshold window (m)
-- `threshold_c` (*int*, default: -40)
+- `threshold_c` (*int*)
   - Constant subtracted from the mean or weighted mean
-- `tune_params_mode` (*bool*, default: false)
+- `tune_params_mode` (*bool*)
   - special mode of the node to tune thresholds parameters
 - `max_mid_line_distance` (*float*)
   - max side line distance to merge (used to merge middle lines)
