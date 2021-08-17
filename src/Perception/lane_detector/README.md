@@ -8,7 +8,7 @@ rosrun lane_detector lane_detector
 ### Launch files:
 - `hom_cut_maker.launch`
   - Create mask of homography black area cover.
-- `lane_detector.launch`
+- `lane_detector_example.launch`
   - Default.
 - `tune_params.launch`
   - Activate slider for changing vision params.
