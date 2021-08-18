@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  actionlib
   custom_msgs
 )
 
@@ -81,7 +82,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES crosswalk
- CATKIN_DEPENDS custom_msgs
+ CATKIN_DEPENDS actionlib custom_msgs
 #  DEPENDS system_lib
 )
 
