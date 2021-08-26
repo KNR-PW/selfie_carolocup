@@ -3,6 +3,6 @@
   - 2D Camera Image
 ### Published topics
 - `/obstacles` ([custom_msgs/Box3DArray](./../../Shared/custom_msgs/msg/Box3DArray.msg))
-  - Polygon Array contains vertexes of every obstacle in local XYZ
+  - Polygon Array contains vertexes of every cuboid obstacle in local XYZ
 - `/probable_signs` ([custom_msgs/ProbableSignArray](./../../Shared/custom_msgs/msg/ProbableSignArray.msg))
-  - Polygon Array contains vertexes of every obstacle that can be a sign in local XYZ with position on 2D image
+  - Polygon Array contains vertexes of every cuboid obstacle that can be a sign in local XYZ with position on 2D image
