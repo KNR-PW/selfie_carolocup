@@ -29,7 +29,7 @@ rosrun lane_detector lane_detector
   - used to reset vision
 
 ## Scripts
-#### make hom cut file
+#### make_hom_cut_file.py
   - make yaml file containts mask of homography black area cover.
 
 ## Parameters
