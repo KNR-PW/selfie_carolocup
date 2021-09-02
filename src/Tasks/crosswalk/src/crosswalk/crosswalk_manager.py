@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 import actionlib
 import rospy
 from std_msgs.msg import String
+from custom_msgs.msg import parkGoal
 
 
 def talker():
@@ -16,9 +15,5 @@ def talker():
         rate.sleep()
 
 
-if __name__ == '__main__':
-    rospy.loginfo("Started")
-    try:
-        talker()
-    except rospy.ROSInterruptException:
-        pass
+class Test:
+    pass
