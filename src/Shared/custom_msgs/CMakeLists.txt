@@ -38,6 +38,7 @@ add_message_files(
    action
    
    FILES
+   crosswalk.action
    search.action
    driving.action
    starting.action
