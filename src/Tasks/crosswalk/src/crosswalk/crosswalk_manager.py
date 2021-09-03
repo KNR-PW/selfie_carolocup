@@ -3,18 +3,7 @@ import rospy
 
 from enum import Enum, auto
 
-from std_msgs.msg import String
 from custom_msgs.msg import crosswalkGoal, crosswalkAction, Box2DArray
-
-
-def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rate = rospy.Rate(5)  # 10hz
-    while not rospy.is_shutdown():
-        hello_str = "hello world %s" % rospy.get_time()
-        rospy.loginfo(hello_str)
-        pub.publish(hello_str)
-        rate.sleep()
 
 
 class CrosswalkManager:
