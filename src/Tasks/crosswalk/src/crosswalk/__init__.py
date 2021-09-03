@@ -1,1 +1,1 @@
-from .crosswalk_manager import talker
+from .crosswalk_manager import talker, CrosswalkManager

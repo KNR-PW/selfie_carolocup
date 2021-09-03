@@ -5,11 +5,14 @@ import rospy
 from std_msgs.msg import String
 from custom_msgs.msg import parkGoal
 
-from crosswalk import talker
+from crosswalk import talker, CrosswalkManager
 
 if __name__ == '__main__':
+    rospy.init_node('crosswalk_node')
     rospy.loginfo("Started")
+    manager = CrosswalkManager()
     try:
-        talker()
+        manager.start()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass
