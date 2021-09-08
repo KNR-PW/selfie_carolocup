@@ -1,5 +1,6 @@
 # Input pointcloud topic name
-points_node: /points_raw
+# points_node: /points_raw
+points_node: /camera/depth/color/points
 
 # Enabled GPU via CUDA for Euclidean Cluster Extraction only
 use_gpu: false
