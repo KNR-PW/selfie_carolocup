@@ -1001,7 +1001,10 @@ int main(int argc, char **argv)
   {
     ROS_INFO("euclidean_cluster > No points node received, defaulting to points_raw, you can use "
                "_points_node:=YOUR_TOPIC");
-    points_topic = "/points_raw";
+    // points_topic = "/points_raw";
+    points_topic = "/camera/depth/color/points";
+
+    
   }
 
   _use_diffnormals = false;
