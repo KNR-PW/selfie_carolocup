@@ -23,6 +23,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+## Declare python library in setup.py
+catkin_python_setup()
+
 ## Declare a C++ library
 add_library(commonlib
   src/${PROJECT_NAME}/marker_visualization.cpp
