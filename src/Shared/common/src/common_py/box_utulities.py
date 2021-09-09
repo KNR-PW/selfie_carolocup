@@ -1,3 +1,4 @@
+from std_msgs.msg import Header
 from geometry_msgs.msg import Point
 
 from custom_msgs.msg import Box2D
@@ -27,3 +28,12 @@ def filter_boxes(area_of_interest: Box2D, boxes_list: list) -> list:
     for box in boxes_list:
         pass
     return result
+
+
+def create_square_box(x_min, y_min, x_max, y_max) -> Box2D:
+    box = Box2D(header=Header())
+    box.tl = Point(x=x_max, y=y_max, z=0)
+    box.tr = Point(x=x_max, y=y_min, z=0)
+    box.bl = Point(x=x_min, y=y_max, z=0)
+    box.br = Point(x=x_min, y=y_min, z=0)
+    return box
