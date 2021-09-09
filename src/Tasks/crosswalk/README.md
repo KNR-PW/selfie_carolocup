@@ -17,3 +17,6 @@ Server uses `crosswalk.action` to communicate with client.
 ### Published topics
 
 ## Parameters
+
+- `roi_min_x`, `roi_max_x`, `roi_min_y`, `roi_max_y` (_float_)
+  - describing area of interest
