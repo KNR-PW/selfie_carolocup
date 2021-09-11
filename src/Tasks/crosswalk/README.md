@@ -4,6 +4,17 @@ Crosswalk node - node activated when crosswalk is detected. It manages detection
 
 Server uses `crosswalk.action` to communicate with client.
 
+```mermaid
+stateDiagram-v2
+    [*] --> DISABLED
+    DISABLED --> IDLE
+    IDLE --> APPROACHING_TO_EMPTY_CROSSWALK: Goal received
+    APPROACHING_TO_EMPTY_CROSSWALK --> IDLE: Passed crosswalk
+    APPROACHING_TO_EMPTY_CROSSWALK --> APPROACHING_TO_NOT_EMPTY_CROSSWALK: Detected pedestrian
+    APPROACHING_TO_NOT_EMPTY_CROSSWALK --> WAITING_FOR_PEDESTRIANS
+    WAITING_FOR_PEDESTRIANS --> IDLE: Pedestrian left
+```
+
 ## Topics
 
 ### Action name
