@@ -86,6 +86,8 @@
 
 using namespace cv;
 
+ros::Publisher _test_cloud;
+
 ros::Publisher _pub_cluster_cloud;
 ros::Publisher _pub_ground_cloud;
 ros::Publisher _centroid_pub;
@@ -742,7 +744,7 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
 
 void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                  pcl::PointCloud<pcl::PointXYZ>::Ptr out_nofloor_cloud_ptr,
-                 pcl::PointCloud<pcl::PointXYZ>::Ptr out_onlyfloor_cloud_ptr, float in_max_height = 0.2,
+                 pcl::PointCloud<pcl::PointXYZ>::Ptr out_onlyfloor_cloud_ptr, float in_max_height = 0.05,
                  float in_floor_max_angle = 0.1)
 {
 
@@ -754,7 +756,7 @@ void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
   seg.setMethodType(pcl::SAC_RANSAC);
   seg.setMaxIterations(100);
-  seg.setAxis(Eigen::Vector3f(0, 0, 1));
+  seg.setAxis(Eigen::Vector3f(0, 1, 0));
   seg.setEpsAngle(in_floor_max_angle);
 
   seg.setDistanceThreshold(in_max_height);  // floor distance
@@ -772,6 +774,9 @@ void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   extract.setIndices(inliers);
   extract.setNegative(true);  // true removes the indices, false leaves only the indices
   extract.filter(*out_nofloor_cloud_ptr);
+
+  publishCloud(&_test_cloud, out_nofloor_cloud_ptr);
+  // pc2_color_filter_publisher = pnh_.advertise<sensor_msgs::PointCloud2>("pc2/filtered", 1);
 
   // EXTRACT THE FLOOR FROM THE CLOUD
   extract.setNegative(false);  // true removes the indices, false leaves only the indices
@@ -793,7 +798,7 @@ void clipCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   out_cloud_ptr->points.clear();
   for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
   {
-    if (in_cloud_ptr->points[i].z >= in_min_height && in_cloud_ptr->points[i].z <= in_max_height)
+    if (in_cloud_ptr->points[i].y >= in_min_height && in_cloud_ptr->points[i].y <= in_max_height)
     {
       out_cloud_ptr->points.push_back(in_cloud_ptr->points[i]);
     }
@@ -917,7 +922,13 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     else
       downsampled_cloud_ptr = removed_points_cloud_ptr;
 
+    // publishCloud(&_pub_points_lanes_cloud, downsampled_cloud_ptr);
+
     clipCloud(downsampled_cloud_ptr, clipped_cloud_ptr, _clip_min_height, _clip_max_height);
+
+    // clipped_cloud_ptr  = downsampled_cloud_ptr;
+
+    // publishCloud(&_pub_points_lanes_cloud, downsampled_cloud_ptr);
 
     if (_keep_lanes)
       keepLanePoints(clipped_cloud_ptr, inlanes_cloud_ptr, _keep_lane_left_distance, _keep_lane_right_distance);
@@ -935,6 +946,7 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     }
 
     publishCloud(&_pub_points_lanes_cloud, nofloor_cloud_ptr);
+
 
     if (_use_diffnormals)
       differenceNormalsSegmentation(nofloor_cloud_ptr, diffnormals_cloud_ptr);
@@ -980,6 +992,7 @@ int main(int argc, char **argv)
   cv::generateColors(_colors, 255);
 #endif
 
+  _test_cloud = h.advertise<sensor_msgs::PointCloud2>("/test_cloud", 1);
   
   _pub_cluster_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_cluster", 1);
   _pub_ground_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_ground", 1);
