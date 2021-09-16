@@ -1,6 +1,6 @@
 <!-- -->
 <launch>
-  <arg name="points_node" default="/camera/depth/color/points" /><!--CHANGE THIS TO READ WHETHER FROM VSCAN OR POINTS_RAW -->
+  <arg name="points_node" default="/depth_camera/depth/points" /><!--CHANGE THIS TO READ WHETHER FROM VSCAN OR POINTS_RAW -->
   <arg name="remove_ground" default="true" />
   <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
   <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
@@ -15,7 +15,7 @@
   <arg name="keep_lanes" default="false" />
   <arg name="keep_lane_left_distance" default="3" />
   <arg name="keep_lane_right_distance" default="3" />
-  <arg name="output_frame" default="camera_depth_frame" />
+  <arg name="output_frame" default="selfie2021" />
 
   <arg name="remove_points_upto" default="0.0" />
 
