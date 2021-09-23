@@ -6,6 +6,8 @@
      value="$(optenv SELFIE_DEBUG false)" />
 <arg name="config"
      value="$(optenv SELFIE_CONFIG sim)" />
+<arg name="homography_file"
+     default="$(find lane_detector)/config/homography_sim.yaml" />
 
 <group unless="$(eval config == 'default')">
     <rosparam command="load"
@@ -54,7 +56,7 @@
         <arg name="load_config" 
              value="$(eval config == 'default')" />
         <arg name="homography_file" 
-             value="/home/$(env USER)/.ros/homography_sim.yaml" />
+             value="$(arg homography_file)" />
     </include>
 
     <!-- obstacle_detector -->
