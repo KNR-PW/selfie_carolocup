@@ -437,7 +437,7 @@ std::vector<ClusterPtr> clusterAndColorGpu(const pcl::PointCloud<pcl::PointXYZ>:
 }
 
 #endif
-
+// TODO nie dziala, zmienione z -> y
 std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
                                         autoware_msgs::Centroids &in_out_centroids,
@@ -449,10 +449,10 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_2d(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::copyPointCloud(*in_cloud_ptr, *cloud_2d);
   // make it flat
-  for (size_t i = 0; i < cloud_2d->points.size(); i++)
-  {
-    cloud_2d->points[i].z = 0;
-  }
+  // for (size_t i = 0; i < cloud_2d->points.size(); i++)
+  // {
+  //   cloud_2d->points[i].y = 0;
+  // }
 
   if (cloud_2d->points.size() > 0)
     tree->setInputCloud(cloud_2d);
@@ -461,9 +461,9 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
 
   // perform clustering on 2d cloud
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-  ec.setClusterTolerance(in_max_cluster_distance);  //
-  ec.setMinClusterSize(_cluster_size_min);
-  ec.setMaxClusterSize(_cluster_size_max);
+  ec.setClusterTolerance(0.009);  //in_max_cluster_distance
+  ec.setMinClusterSize(_cluster_size_min); // _cluster_size_min
+  ec.setMaxClusterSize(100000); //_cluster_size_max
   ec.setSearchMethod(tree);
   ec.setInputCloud(cloud_2d);
   ec.extract(cluster_indices);
@@ -602,21 +602,21 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
 
       cloud_ptr->points.push_back(current_point);
     }
-#ifdef GPU_CLUSTERING
-    if (_use_gpu)
-    {
-      all_clusters = clusterAndColorGpu(cloud_ptr, out_cloud_ptr, in_out_centroids,
-                                        _clustering_distance);
-    } else
-    {
-      all_clusters =
-        clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
-    }
-#else
+// #ifdef GPU_CLUSTERING
+//     if (_use_gpu)
+//     {
+//       all_clusters = clusterAndColorGpu(cloud_ptr, out_cloud_ptr, in_out_centroids,
+//                                         _clustering_distance);
+//     } else
+//     {
+//       all_clusters =
+//         clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
+//     }
+// #else
     all_clusters =
         clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
-#endif
-  } else
+// #endif
+} else
   {
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloud_segments_array(5);
     for (unsigned int i = 0; i < cloud_segments_array.size(); i++)
@@ -632,7 +632,7 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
       current_point.y = in_cloud_ptr->points[i].y;
       current_point.z = in_cloud_ptr->points[i].z;
 
-      float origin_distance = sqrt(pow(current_point.x, 2) + pow(current_point.y, 2));
+      float origin_distance = sqrt(pow(current_point.x, 2) + pow(current_point.z, 2));
 
       if (origin_distance < _clustering_ranges[0])
       {
@@ -659,20 +659,19 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
     std::vector<ClusterPtr> local_clusters;
     for (unsigned int i = 0; i < cloud_segments_array.size(); i++)
     {
-#ifdef GPU_CLUSTERING
-      if (_use_gpu)
-      {
-        local_clusters = clusterAndColorGpu(cloud_segments_array[i], out_cloud_ptr,
-                                            in_out_centroids, _clustering_distances[i]);
-      } else
-      {
-        local_clusters = clusterAndColor(cloud_segments_array[i], out_cloud_ptr,
-                                         in_out_centroids, _clustering_distances[i]);
-      }
-#else
-      local_clusters = clusterAndColor(
-          cloud_segments_array[i], out_cloud_ptr, in_out_centroids, _clustering_distances[i]);
-#endif
+// #ifdef GPU_CLUSTERING
+//       if (_use_gpu)
+//       {
+//         local_clusters = clusterAndColorGpu(cloud_segments_array[i], out_cloud_ptr,
+//                                             in_out_centroids, _clustering_distances[i]);
+//       } else
+//       {
+//         local_clusters = clusterAndColor(cloud_segments_array[i], out_cloud_ptr,
+//                                          in_out_centroids, _clustering_distances[i]);
+//       }
+// #else
+      local_clusters = clusterAndColor(cloud_segments_array[i], out_cloud_ptr, in_out_centroids, _clustering_distances[i]);
+// #endif
       all_clusters.insert(all_clusters.end(), local_clusters.begin(), local_clusters.end());
     }
   }
@@ -775,7 +774,7 @@ void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   extract.setNegative(true);  // true removes the indices, false leaves only the indices
   extract.filter(*out_nofloor_cloud_ptr);
 
-  publishCloud(&_test_cloud, out_nofloor_cloud_ptr);
+  // publishCloud(&_test_cloud, out_nofloor_cloud_ptr);
   // pc2_color_filter_publisher = pnh_.advertise<sensor_msgs::PointCloud2>("pc2/filtered", 1);
 
   // EXTRACT THE FLOOR FROM THE CLOUD
@@ -793,7 +792,7 @@ void downsampleCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
 }
 
 void clipCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
-               pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud_ptr, float in_min_height = -1.3, float in_max_height = 0.5)
+               pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud_ptr, float in_min_height =-1.3, float in_max_height = 0.5)
 {
   out_cloud_ptr->points.clear();
   for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
@@ -992,7 +991,7 @@ int main(int argc, char **argv)
   cv::generateColors(_colors, 255);
 #endif
 
-  _test_cloud = h.advertise<sensor_msgs::PointCloud2>("/test_cloud", 1);
+  // _test_cloud = h.advertise<sensor_msgs::PointCloud2>("/test_cloud", 1);
   
   _pub_cluster_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_cluster", 1);
   _pub_ground_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_ground", 1);
@@ -1066,7 +1065,7 @@ int main(int argc, char **argv)
   private_nh.param("use_gpu", _use_gpu, false);
   ROS_INFO("[%s] use_gpu: %d", __APP_NAME__, _use_gpu);
 
-  private_nh.param("use_multiple_thres", _use_multiple_thres, false);
+  private_nh.param("use_multiple_thres", _use_multiple_thres, true);
   ROS_INFO("[%s] use_multiple_thres: %d", __APP_NAME__, _use_multiple_thres);
 
   std::string str_distances;
