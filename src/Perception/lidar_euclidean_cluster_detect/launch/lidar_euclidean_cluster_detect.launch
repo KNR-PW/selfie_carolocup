@@ -1,7 +1,7 @@
 <!-- -->
 <launch>
   <arg name="points_node" default="/depth_camera/depth/points" /><!--CHANGE THIS TO READ WHETHER FROM VSCAN OR POINTS_RAW -->
-  <arg name="remove_ground" default="false" />
+  <arg name="remove_ground" default="true" />
   <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
   <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
   <arg name="cluster_size_min" default="20" /><!-- Minimum number of points to consider a cluster as valid-->
