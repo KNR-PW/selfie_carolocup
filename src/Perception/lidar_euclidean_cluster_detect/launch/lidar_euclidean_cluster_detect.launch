@@ -2,8 +2,8 @@
 <launch>
   <arg name="points_node" default="/depth_camera/depth/points" /><!--CHANGE THIS TO READ WHETHER FROM VSCAN OR POINTS_RAW -->
   <arg name="remove_ground" default="true" />
-  <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
-  <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
+  <arg name="downsample_cloud" default="true" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
+  <arg name="leaf_size" default="0.05" /><!-- Voxel Grid Filter leaf size-->
   <arg name="cluster_size_min" default="20" /><!-- Minimum number of points to consider a cluster as valid-->
   <arg name="cluster_size_max" default="100000" /><!-- Maximum number of points to allow inside a cluster-->
   <arg name="sync" default="false" />
@@ -21,13 +21,13 @@
   <arg name="use_vector_map" default="false" />
   <arg name="wayarea_gridmap_layer" default="wayarea" />
 
-  <arg name="output_frame" default="selfie2021" />
+  <arg name="output_frame" default="depth_camera_lens_optical" />
 
   <arg name="remove_points_upto" default="0.0" />
 
   <arg name="use_gpu" default="false" />
 
-  <arg name="use_multiple_thres" default="false"/>
+  <arg name="use_multiple_thres" default="true"/>
   <arg name="clustering_ranges" default="[15,30,45,60]"/><!-- Distances to segment pointcloud -->
   <arg name="clustering_distances"
        default="[0.5,1.1,1.6,2.1,2.6]"/><!-- Euclidean Clustering threshold distance for each segment -->

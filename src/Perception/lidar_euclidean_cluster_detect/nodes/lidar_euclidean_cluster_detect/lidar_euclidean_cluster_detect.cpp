@@ -461,9 +461,9 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
 
   // perform clustering on 2d cloud
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-  ec.setClusterTolerance(0.009);  //in_max_cluster_distance
+  ec.setClusterTolerance(0.5);  //in_max_cluster_distance
   ec.setMinClusterSize(_cluster_size_min); // _cluster_size_min
-  ec.setMaxClusterSize(100000); //_cluster_size_max
+  ec.setMaxClusterSize(500); //_cluster_size_max (10000)
   ec.setSearchMethod(tree);
   ec.setInputCloud(cloud_2d);
   ec.extract(cluster_indices);
