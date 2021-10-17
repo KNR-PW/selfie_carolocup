@@ -25,6 +25,7 @@ stateDiagram-v2
 ### Subscribed topics
 
 - `/obstacles` ([custom_msgs/Box2DArray](./../../Shared/custom_msgs/msg/Box2DArray.msg))
+- `/road_lines`
 
 ### Published topics
 
