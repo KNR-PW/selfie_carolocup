@@ -18,12 +18,10 @@ StartingProcedureAction::StartingProcedureAction(const ros::NodeHandle& nh, cons
   as_.registerPreemptCallback(boost::bind(&StartingProcedureAction::preemptCB, this));
   as_.registerGoalCallback(boost::bind(&StartingProcedureAction::executeCB, this));
 
-  qr_start_search_ = nh_.serviceClient<std_srvs::Empty>("startQrSearch");
-  qr_stop_search_ = nh_.serviceClient<std_srvs::Empty>("stopQrSearch");
-  scan_client_ = nh_.serviceClient<std_srvs::Empty>("startGateScan");
-  drive_pub_ = nh_.advertise<custom_msgs::DriveCommand>("drive_starting", 1);
+  qr_start_search_ = nh_.serviceClient<std_srvs::Empty>("/startQrSearch");
+  qr_stop_search_ = nh_.serviceClient<std_srvs::Empty>("/stopQrSearch");
+  drive_pub_ = nh_.advertise<custom_msgs::DriveCommand>("/drive/starting_procedure", 1);
   pnh_.param<float>("starting_speed", starting_speed_, 2.f);
-  pnh_.param<bool>("use_scan", use_scan_, false);
   pnh_.param<bool>("use_qr", use_qr_, true);
   pnh_.param<float>("Kp", Kp_, 1.0);
 
@@ -31,7 +29,6 @@ StartingProcedureAction::StartingProcedureAction(const ros::NodeHandle& nh, cons
 
   ROS_INFO("Starting_speed: %.3f", starting_speed_);
   ROS_INFO("use_qr: %d", use_qr_);
-  ROS_INFO("use_scan: %d", use_scan_);
   as_.start();
   ROS_INFO("Starting procedure object created");
 }
@@ -45,11 +42,7 @@ void StartingProcedureAction::executeCB()
   {
     qr_sub_ = nh_.subscribe("qr_gate_open", 1, &StartingProcedureAction::gateOpenCB, this);
   }
-  if (use_scan_)
-  {
-    gate_scan_sub_ = nh_.subscribe("scan_gate_open", 1, &StartingProcedureAction::gateOpenCB, this);
-  }
-  distance_sub_ = nh_.subscribe("selfie_out/motion", 10, &StartingProcedureAction::distanceCB, this);
+  distance_sub_ = nh_.subscribe("/selfie_out/motion", 10, &StartingProcedureAction::distanceCB, this);
   button_sub_ = nh_.subscribe("/selfie_out/buttons", 10, &StartingProcedureAction::buttonCB, this);
   odom_sub_ = nh_.subscribe("/odom", 10, &StartingProcedureAction::odomCallback, this);
   updateState(selfie::WAITING_FOR_BUTTON);
@@ -94,12 +87,6 @@ void StartingProcedureAction::buttonCB(const custom_msgs::Buttons& msg)
       std_srvs::Empty call = std_srvs::Empty();
       qr_start_search_.call(call);
     }
-    if (use_scan_)
-    {
-      ROS_INFO("Start scan search");
-      std_srvs::Empty call = std_srvs::Empty();
-      scan_client_.call(call);
-    }
     updateState(selfie::GATE_CLOSED);
   }
   else if (state_ == selfie::GATE_CLOSED)
@@ -127,18 +114,6 @@ void StartingProcedureAction::buttonCB(const custom_msgs::Buttons& msg)
   }
 }
 
-void StartingProcedureAction::gateOpenCB(const std_msgs::Empty& msg)
-{
-  if (state_ == selfie::GATE_CLOSED)
-  {
-    distance_goal_ = distance_read_ + distance_goal_;
-    ROS_INFO("Gate was opened");
-    starting_distance_ = distance_read_;
-    init_pose_ = current_pose_;
-    updateState(selfie::STARTING_DRIVE);
-  }
-}
-
 void StartingProcedureAction::preemptCB()
 {
   as_.setAborted();
@@ -149,8 +124,6 @@ void StartingProcedureAction::preemptCB()
   odom_sub_.shutdown();
   if (use_qr_)
     qr_sub_.shutdown();
-  if (use_scan_)
-    gate_scan_sub_.shutdown();
   as_.setAborted();
 }
 
@@ -169,12 +142,23 @@ void StartingProcedureAction::distanceCB(const custom_msgs::Motion& msg)
       odom_sub_.shutdown();
       if (use_qr_)
         qr_sub_.shutdown();
-      if (use_scan_)
-        gate_scan_sub_.shutdown();
       as_.setSucceeded(result_);
     }
   }
 }
+
+void StartingProcedureAction::gateOpenCB(const std_msgs::Empty& msg)
+{
+  if (state_ == selfie::GATE_CLOSED)
+  {
+    distance_goal_ = distance_read_ + distance_goal_;
+    ROS_INFO("Gate was opened");
+    starting_distance_ = distance_read_;
+    init_pose_ = current_pose_;
+    updateState(selfie::STARTING_DRIVE);
+  }
+}
+
 
 void StartingProcedureAction::odomCallback(const nav_msgs::Odometry& msg)
 {

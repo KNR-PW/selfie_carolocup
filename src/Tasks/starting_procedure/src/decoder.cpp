@@ -19,7 +19,7 @@ QrDecoder::QrDecoder(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
 {
   zbar_scanner_.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 0);
   zbar_scanner_.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
-  gate_open_pub_ = nh_.advertise<std_msgs::Empty>("qr_gate_open", 1);
+  gate_open_pub_ = nh_.advertise<std_msgs::Empty>("/qr_gate_open", 1);
   pnh_.param<float>("min_detect_rate", min_detect_rate_, 0.4);
   pnh_.param<int>("iterations_to_vaild", iterations_to_valid_, 2);
   pnh_.param("visualization", visualization_, false);
@@ -27,8 +27,8 @@ QrDecoder::QrDecoder(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   ROS_INFO("min_detect_rate: %.2f", min_detect_rate_);
   ROS_INFO("iterations_to_vaild: %d", iterations_to_valid_);
   ROS_INFO("visualization: %d", visualization_);
-  start_serv_ = nh_.advertiseService("startQrSearch", &QrDecoder::startSearching, this);
-  stop_serv_ = nh_.advertiseService("stopQrSearch", &QrDecoder::stopSearching, this);
+  start_serv_ = nh_.advertiseService("/startQrSearch", &QrDecoder::startSearching, this);
+  stop_serv_ = nh_.advertiseService("/stopQrSearch", &QrDecoder::stopSearching, this);
 
   ROS_INFO("QrDetector initialized");
 }
