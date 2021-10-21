@@ -1,0 +1,5 @@
+vision: 
+  {
+    some_param: 2.0,
+    other_param: 3.0
+  }
