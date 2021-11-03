@@ -1,0 +1,12 @@
+parking_spot_detector: 
+  {
+    default_speed_in_parking_zone: 1.5,
+    max_distance_to_free_place: 0.4,
+    speed_when_found_place: 0.8,
+    length_of_parking_area: 5.5,
+
+    ROI_max_x: 2,
+    ROI_max_y: 0.2,
+    ROI_min_x: 0.01,
+    ROI_min_y: -0.3
+  }
