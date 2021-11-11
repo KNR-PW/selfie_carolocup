@@ -159,7 +159,6 @@ void StartingProcedureAction::gateOpenCB(const std_msgs::Empty& msg)
   }
 }
 
-
 void StartingProcedureAction::odomCallback(const nav_msgs::Odometry& msg)
 {
   tf::poseMsgToTF(msg.pose.pose, current_pose_);
