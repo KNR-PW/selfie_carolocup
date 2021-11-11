@@ -35,11 +35,11 @@ roslaunch pid_carrot_follower pid_carrot_follower_example.launch
 
 ## Parameters
 
-- `L` (_float_, default: 0.3)
-  - position_offset + L\*heading_offset
-- `lookahead` (_float_, default: 0.0)
+- `L` (_float_)
+  - Heading offset coefficient for calculating input to PID
+- `lookahead` (_float_)
   - Distance from the car where offsets are calculated [m]
-- `min_spped` (_float_, default: 0.5)
+- `min_speed` (_float_)
   - Min speed of the car [m/s]
 - `max_acceleration` (_float_)
   - max acceleration of the car
