@@ -20,7 +20,7 @@ roslaunch starting_procedure starting_procedure_example.launch
 - `/drive/starting_procedure` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
    Drive commands for uC to run the car
 -  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
-  - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
+  state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 ### Called services
 - `/startQrSearch` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
@@ -54,44 +54,14 @@ rosrun starting_procedure qr_decoder
    used to detect the qr code
 
 ### Advertised services
-- `startQrSearch` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
+- `/startQrSearch` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
    Starts the search for the qr code
-- `stopQrSearch` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
+- `/stopQrSearch` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
    Stops the search for the qr code
 ### Parameters
-- `min_detect_rate` (float, default=0.4)
+- `min_detect_rate` (float)
    the rate of detection that needs to be exceeded 
-- `iterations_to_valid` (int, default=2)
+- `iterations_to_valid` (int)
    minimal number of timer iterations with detect rate over the threshold in order to validate the detection of the qr code
-- `visualization` (bool, default=false)
+- `visualization` (bool)
    open the visualization of the qr code detection
-
-## Gate scanner
-Searches for the starting gate with the laser scans, and informs whenever the gate stops being detected.
-### Usage
-```
-rosrun starting_procedure gate_scanner
-```
-
-### Published topics
-- `/scan_gate_open` ([std_msg/Empty](http://docs.ros.org/api/std_msgs/html/msg/Empty.html))
-   indicates the starting gate was opened
-### Subscibed topics
-- `/scan` ([sensor_msgs/LaserScan](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/LaserScan.html))
-   used to detect the gate
-
-### Advertised services
-- `startGateScan` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
-   starts searching for the gate with the lidar sensor when called
-
-### Parameters
-- `no_obstacle_time_thresh` (float, default=1.5)
-   when there are no detections throughout this amount of time, the feedback is sent
-- `min_distance` (float, default=0.1)
-   start distance of ROI
-- `max_distance` (float, default=0.5)
-   end distance of ROI
-- `min_width` (float, default=0.2)
-   width of ROI
-- `min_gate_seen_count` (float, default=5)
-   minimal amount of detections to send the feedback

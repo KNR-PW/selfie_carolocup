@@ -18,17 +18,17 @@ In current implementation following clients are used:
 ### Subscribed topics
 `/state/rc` ([std_msgs/Int8](http://docs.ros.org/kinetic/api/std_msgs/html/msg/Int8.html))
 - state of RC task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/rc_enum.h))
-
-### Published topics
 -  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
   - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
+### Published topics
+-
 
 ## Parameters
-`~starting_distance` (*float*, default: 1.0)
+`~starting_distance` (*float*)
 Distance car should cover to drive out of the starting box (m)
 
-`~parking_spot` (*float*, default: 0.5)
+`~parking_spot` (*float*)
 Minimum parking spot width (m)
 
-`~num_park_to_complete` (*int*, default: 2)
+`~num_park_to_complete` (*int*)
 Number of successful parkings
