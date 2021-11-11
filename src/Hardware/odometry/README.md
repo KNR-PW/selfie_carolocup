@@ -7,12 +7,12 @@
 ### Subscribed topics
 
 
-- `selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
+- `/selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
   - motion description data
 
 ### Published topics
 
-- `odom` ([nav_msgs/Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html))
+- `/odom` ([nav_msgs/Odometry](http://docs.ros.org/melodic/api/nav_msgs/html/msg/Odometry.html))
   - odometry data
 
 ### Called services
@@ -21,9 +21,9 @@
 
 ## Parameters
 
-- `~rear_axis_frame` (*string*, default: base_link)
+- `~rear_axis_frame` (*string*)
   - The name of the rear axis frame.
 
 ## Provided tf transforms
 
-- `odom` → `~rear_axis_frame`
+- `/odom` → `~rear_axis_frame`

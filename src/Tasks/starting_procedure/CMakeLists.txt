@@ -54,10 +54,6 @@ add_executable(qr_decoder  src/qr_decoder.cpp src/decoder.cpp)
 target_link_libraries(qr_decoder ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} zbar)
 add_dependencies(qr_decoder ${catkin_EXPORTED_TARGETS})
 
-add_executable(gate_scanner src/gate_scanner.cpp src/scanner.cpp)
-target_link_libraries(gate_scanner ${catkin_LIBRARIES})
-add_dependencies(gate_scanner ${catkin_EXPORTED_TARGETS})
-
-install(TARGETS starting_procedure qr_decoder gate_scanner
+install(TARGETS starting_procedure qr_decoder
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -1,0 +1,57 @@
+const_setpoint:
+  {
+    topic: "setpoint",
+    value: 0,
+    publish_rate: 2
+  }
+
+control_calculator:
+  {
+    L: 0.3,
+    look_ahead: 0.3,
+    publish_rate: 50,
+    max_acceleration: 5.0,
+    max_curvature: 1.8,
+    min_speed: 1.0
+  }
+
+pid_controller: 
+  {
+    Kd: 0.12,
+    Ki: 0.0,
+    Kp: 1.0,
+    lower_limit: -0.785,
+    upper_limit: 0.785,
+    windup_limit: 10
+  }
+
+cmd_creator:
+  {
+    publish_rate: 80
+  }
+
+pid_tuner:
+  {
+    pid_tuner_disabled: false,
+
+    L_Kp: 1.0,
+    L_Ki: 0,
+    L_Kd: 0.12,
+
+    M_Kp: 1.0,
+    M_Ki: 0,
+    M_Kd: 0.12,
+
+    H_Kp: 1.0,
+    H_Ki: 0,
+    H_Kd: 0.12,
+
+    LaneChange_Kp: 1.0,
+    LaneChange_Ki: 0,
+    LaneChange_Kd: 0.12,
+
+    M_speed: 0.5,
+    H_speed: 1.0,
+
+    speed_change_treshold: 0.1
+  }
