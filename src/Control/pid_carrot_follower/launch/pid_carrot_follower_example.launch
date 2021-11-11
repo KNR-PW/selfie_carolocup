@@ -5,7 +5,9 @@
     <arg name="load_config"
         default="true"  />
     <arg name="config_file"
-        default="$(find pid_carrot_follower)/config/default.yaml"  />
+        default="default" />
+    <arg name="config_path"
+        default="$(find pid_carrot_follower)/config/$(arg config_file).yaml"  />
     <arg name="node_respawn"
         default="true"  />
     <arg name="node_output"
@@ -13,7 +15,7 @@
 
     <group if="$(arg load_config)">
         <rosparam command="load"
-            file="$(arg config_file)"  />
+            file="$(arg config_path)"  />
     </group>
 
   <node 

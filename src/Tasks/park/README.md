@@ -8,39 +8,35 @@ rosrun park park
 
 ## Topics
 ### Subscribed
-- `/distance` ([std_msgs/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
+- `/selfie_out/motion` ([std_msgs/Float32](http://docs.ros.org/melodic/api/std_msgs/html/msg/Float32.html))
 used for localization
 - `/RoadLines` ([custom_msgs/RoadLines](./../../Shared/custom_msgs/msg/RoadLines.msg))
 parking position is determined relative to the right lane marking
 ### Published
-- `/drive/park` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
+- `/drive_park` ([custom_msgs/DriveCommand](./../../Shared/custom_msgs/msg/DriveCommand.msg))
 steering commands
 - `/selfie_in/indicators` ([custom_msgs/Indicators](./../../Shared/custom_msgs/msg/Indicators.msg))
 -  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
    - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
-## Called Services
-- `/steering_parallel` ([std_srvs/Empty](http://docs.ros.org/melodic/api/std_srvs/html/srv/Empty.html))
-changes the steering mode to parallel when starting the parking manouvre
-
 ## Parameters
-- `state_msgs` (bool, default=false)
+- `state_msgs` (bool)
 printing messages indicating the current state of the parking manouvre
-- `parking_speed` (float, default=0.8)
+- `parking_speed` (float)
 speed during the parking manouvre
-- `back_to_mid` (float, default=0.18)
+- `back_to_mid` (float)
 distance between the base_link and the middle of the vehicle
-- `idle_time` (float, default=2)
+- `idle_time` (float)
 time spent idle in the parking spot
-- `iter_distance` (float, default=0.2)
+- `iter_distance` (float)
 one move distance
-- `angle_coeff` (float, default=0.5)
+- `angle_coeff` (float)
 angle coefficient for localization (higher = parked closer to the lane)
-- `max_turn` (float, default=0.5)
+- `max_turn` (float)
 maximal wheel turn angle
-- `turn_delay` (float, default=0.1)
+- `turn_delay` (float)
 time to wait for the turning direction change
-- `line_dist_end` (float, default=0.15)
+- `line_dist_end` (float)
 distance to the left parking spot bounding line, at which the parking manouvre is to be finished
-- `start_parking_speed` (float, default=0.5)
+- `start_parking_speed` (float)
 the speed at which the car goes right before starting the parking manouvre

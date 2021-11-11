@@ -19,25 +19,24 @@ rosrun selfie_park detect_parking_spot
 ### Published topics
 - `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
   - current speed of car
-- `/free_place` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
+- `/visualization/free_place` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
   - (only when parameter `visualization=true` visualizes found boxes and places in rviz)
 -  `/state/task` ([std_msgs/Int8](https://docs.ros.org/api/std_msgs/html/msg/Int8.html))
-  - state of the task - see ([enums](./../../Shared/custom_msgs/include/custom_msgs/task_enum.h))
 
 
 ## Parameters
 ###
  - `point_min_x`,`point_min_y`,`point_max_x`,`point_max_x` (*float*)
    - describing area of interest
- - `visualization_in_searching` (*bool*, default: true)
+ - `visualization_in_searching` (*bool*)
    - Whether or not visualization topics are active
- - `default_speed_in_parking_zone` (*float*, default: 0.8)
- - `speed_when_found_place` (*float*, default: 0.3)
+ - `default_speed_in_parking_zone` (*float*)
+ - `speed_when_found_place` (*float*)
    - speed when found possible free place
- - `box_angle_deg` (*float*, default: 55)
+ - `box_angle_deg` (*float*)
    - describes maximum angle (in degrees) between car and found place (used mainly in filtering out wrong places)
- - `max_distance_to_free_place` (*float*, default: 0.8)
+ - `max_distance_to_free_place` (*float*)
    - describes maximum angle between car and found place (used mainly in filtering out wrong places)
- - `length_of_parking_area` (*float*, default: 0.8)
+ - `length_of_parking_area` (*float*)
    - how long will be covered before cancelling searching
 
