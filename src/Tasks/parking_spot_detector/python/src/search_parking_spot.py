@@ -119,6 +119,7 @@ class SearchParkingSpot():
         rospy.loginfo(message)
     
     def is_parking_spot_found(self) -> bool:
+        
         #if warunek z czujników -> return True
 
         return False
