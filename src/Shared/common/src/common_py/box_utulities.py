@@ -1,20 +1,11 @@
 from std_msgs.msg import Header
 from geometry_msgs.msg import Point
-
 from custom_msgs.msg import Box2D
 
 from shapely.geometry import Point as PointShapely
 from shapely.geometry.polygon import Polygon as PolygonShapely
 
-#https://stackoverflow.com/questions/8721406/how-to-determine-if-a-point-is-inside-a-2d-convex-polygon
-# result = False
-# for (i = 0, j = points.length - 1; i < points.length; j = i++) {
-# if (points[i].y > test.y) != (points[j].y > test.y) &&
-#    (test.x < (points[j].x - points[i].x) * (test.y - points[i].y) /
-#       (points[j].y-points[i].y) + points[i].x)
-# {
-#  result = !result;
-# }
+
 def is_point_inside_box(box: Box2D, point: Point) -> bool:
 
     tl = (Box2D.tl.x, Box2D.tl.y)
@@ -34,7 +25,7 @@ def is_point_inside_box(box: Box2D, point: Point) -> bool:
 
 def is_box_center_inside(area_of_interest: Box2D, box: Box2D) -> bool:
     center = box.point_centroid
-    return is_point_inside_box(area_of_interest ,center)
+    return is_point_inside_box(area_of_interest, center)
 
 
 def filter_boxes(area_of_interest: Box2D, boxes_list: list) -> list:
@@ -52,9 +43,8 @@ def filter_boxes(area_of_interest: Box2D, boxes_list: list) -> list:
         bl_point = box.bl
         center = box.point_centroid
         points = [tl_point, tr_point, br_point, bl_point, center]
-        
         for point in points:
-            if is_point_inside_box(area_of_interest ,point):
+            if is_point_inside_box(area_of_interest, point):
                 points_in_area_of_interest += 1
         if points_in_area_of_interest >= 4:
             result.append(box)
