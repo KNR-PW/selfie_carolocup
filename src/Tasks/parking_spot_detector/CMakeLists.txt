@@ -47,6 +47,7 @@ include_directories(
 )
 
 add_executable(detect_parking_spot
+  python/src/search_parking_spot.py
   src/search_server.cpp
   include/parking_spot_detector/search_server.hpp
   src/detect_parking_spot.cpp

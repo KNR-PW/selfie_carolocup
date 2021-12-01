@@ -4,7 +4,7 @@ parking_spot_detector:
     max_distance_to_free_place: 0.4,
     speed_when_found_place: 0.8,
     length_of_parking_area: 5.5,
-    min_space_between_rectangles: 2,
+    min_space_between_rectangles: 0.7,
 
 
     ROI_max_x: 2,

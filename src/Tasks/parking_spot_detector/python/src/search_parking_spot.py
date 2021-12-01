@@ -5,13 +5,12 @@ from rospkg import RosPack
 #non-ros imports
 from enum import Enum
 import yaml
-#file imports
-from std_msgs.msg import String
-from custom_msgs import Motion
+#msg imports
+from std_msgs.msg import String, Float64, Int8
+from custom_msgs.msg import Motion
 
 
-
-#this enum will be in different file
+#this enum will be in a different file
 class Task(Enum):
 
 
@@ -92,19 +91,39 @@ class Task(Enum):
 class SearchParkingSpot():
     def __init__(self):
         self.rosPack = RosPack()
-        # self.params = rosparam.load_file("python/config/default.yaml")
         self.params = self.load_params()["parking_spot_detector"]
-        self.is_spot_found = False
-        self.distance = 0
-        self.task_state = Task.PARKING_SPOT_DETECTION
         
+        self.task_state = Task.PARKING_SPOT_DETECTION
+
+        #data from /selfie_out/motion
+        self.current_distance = None
+
+        #data from /back_distance
+        self.back_sensor_data = float("inf")
+
+        self.max_distance_of_parking_area = None
+
+        #data for measuring distance between obstacles
+        self.last_data_read_distance = None
+
         #Subscibers
-        #zmienic typ wiadomosci
         self.dictance_sub = rospy.Subscriber('/selfie_out/motion', Motion, self.distance_callback)
-        #subscriber na wiadomosci z 
+        self.back_sensor_sub = rospy.Subscriber('/back_distance', Float64, self.back_sensor_callback )
+
+        #Publishers
+        self.state_publisher = rospy.Publisher("/state/task", Int8, queue_size=10)
+        self.speed_publisher = rospy.Publisher("/max_speed", Float64, queue_size=10)
+
+        #set speed for parking search
+        self.change_speed(self.task_state)
+
+
+    def back_sensor_callback(self, data):
+        self.back_sensor_data = data
+        
+
 
     def start_searching(self):
-        #change speed 
         self.change_task_state(Task.SEARCHING_PARKING_SPOT, "Searching parking spot")
 
 
@@ -116,31 +135,50 @@ class SearchParkingSpot():
 
     def change_task_state(self, state, message):
         self.task_state = state
-        rospy.loginfo(message)
+        self.state_publisher.publish(state.value)
     
     def is_parking_spot_found(self) -> bool:
         
-        #if warunek z czujników -> return True
-
+        if self.back_sensor_data.data != float("inf"):
+            if self.current_distance != None:
+                self.penultimate_data_read_distance = self.last_data_read_distance if self.last_data_read_distance != None else self.current_distance
+                self.last_data_read_distance = self.current_distance
+                if self.last_data_read_distance - self.penultimate_data_read_distance > self.params["min_space_between_rectangles"]:
+                    return True
+                    
         return False
 
+    def change_speed(self, task_state):
+        if task_state == Task.PLACE_INITIALLY_FOUND or task_state == Task.PLACE_PROPER_FOUND:
+            self.speed_publisher.publish(self.params["speed_when_found_place"])
+        elif task_state == Task.SEARCHING_PARKING_SPOT:
+            self.speed_publisher.publish(self.params["default_speed_in_parking_zone"])
+
+
     def loop(self):
-        if self.params["length_of_parking_area"] < "odleglosc aktualna":
+        if self.max_distance_of_parking_area < self.current_distance:
             self.change_task_state(Task.PLACE_NOT_FOUND, "parking spot not found")
 
+        
         elif self.task_state == Task.SEARCHING_PARKING_SPOT and self.is_parking_spot_found():
             self.change_task_state(Task.PLACE_INITIALLY_FOUND, "parking spot found")
-            TODO: odleglosc
-            # tu cos wiecej zrobic
-            self.change_task_state(Task.PLACE_PROPER_FOUND, "proper parking spot found")
+            self.change_speed(self.task_state)
+
+            if self.penultimate_data_read_distance < self.max_distance_of_parking_area:
+                self.change_task_state(Task.PLACE_PROPER_FOUND, "proper parking spot found")
+            else:
+                self.change_task_state(Task.PLACE_NOT_FOUND)
         elif self.task_state == Task.PLACE_NOT_FOUND:
             self.change_task_state(Task.FREE_DRIVE)
             #przestan szukac, włącz freedrive
         elif self.task_state == Task.PLACE_PROPER_FOUND:
+            #jechanie do miejsca
             pass
 
     def distance_callback(self, motion):
         self.current_distance = motion.distance
+        if self.max_distance_of_parking_area == None and self.task_state == Task.PARKING_SPOT_DETECTION:
+            self.max_distance_of_parking_area = self.current_distance + self.params["lengtg_of_parking_area"]
         
             
 
@@ -149,5 +187,13 @@ class SearchParkingSpot():
 
 
 if __name__ =="__main__":
-    s1 = SearchParkingSpot()
-    s1.load_params()
+    try:
+        rospy.init_node('search_parking_spot', anonymous=True)
+        rate = rospy.Rate(10)
+        s1 = SearchParkingSpot()
+        s1.load_params()
+        while not rospy.is_shutdown():
+            s1.loop()
+            rate.sleep()
+    except rospy.ROSInterruptException:
+        pass
