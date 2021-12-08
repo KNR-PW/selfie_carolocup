@@ -18,6 +18,8 @@ Header header
 #      bl  br |  bl  br
 #             |
 
+sensor_msgs/PointCloud2 cloud
+
 # apex points
 # t - top
 # b - back

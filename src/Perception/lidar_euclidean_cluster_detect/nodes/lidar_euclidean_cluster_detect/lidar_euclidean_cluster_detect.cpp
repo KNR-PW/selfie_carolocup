@@ -7,6 +7,9 @@
 
 #include <ros/ros.h>
 
+#include "custom_msgs/Box3D.h"
+#include "custom_msgs/Box3DArray.h"
+
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
@@ -89,10 +92,13 @@ using namespace cv;
 ros::Publisher _test_cloud;
 
 ros::Publisher _pub_cluster_cloud;
+ros::Publisher _pub_cluster_cloud_box;
 ros::Publisher _pub_ground_cloud;
 ros::Publisher _centroid_pub;
 
 ros::Publisher _pub_clusters_message;
+
+ros::Publisher _pub_clusters_box_message;
 
 ros::Publisher _pub_points_lanes_cloud;
 
@@ -219,6 +225,14 @@ void publishDetectedObjects(const autoware_msgs::CloudClusterArray &in_clusters)
   }
   _pub_detected_objects.publish(detected_objects);
 }
+
+
+// void publishCloudClustersBox(const ros::Publisher* in_publisher, const custom_msgs::Box3DArray& in_clusters,
+//                           const std::string& in_target_frame)
+// {
+//   in_publisher->publish(in_clusters);
+//   publishDetectedObjects(in_clusters);
+// }
 
 void publishCloudClusters(const ros::Publisher* in_publisher, const autoware_msgs::CloudClusterArray& in_clusters,
                           const std::string& in_target_frame, const std_msgs::Header& in_header)
@@ -575,7 +589,8 @@ void checkAllForMerge(std::vector<ClusterPtr> &in_clusters, std::vector<ClusterP
 
 void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
-                       autoware_msgs::Centroids &in_out_centroids, autoware_msgs::CloudClusterArray &in_out_clusters)
+                       autoware_msgs::Centroids &in_out_centroids, autoware_msgs::CloudClusterArray &in_out_clusters,
+                       custom_msgs::Box3DArray &box3D_cloud_clusters)
 {
   // cluster the pointcloud according to the distance of the points using different thresholds (not only one for the
   // entire pc)
@@ -735,8 +750,14 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
         in_out_centroids.points.push_back(centroid);
 
         autoware_msgs::CloudCluster cloud_cluster;
+        custom_msgs::Box3D box3D_cloud_cluster;
+
+        
         final_clusters[i]->ToROSMessage(_velodyne_header, cloud_cluster);
         in_out_clusters.clusters.push_back(cloud_cluster);
+
+        final_clusters[i]->BoxToROSMessage(_velodyne_header, box3D_cloud_cluster);
+        box3D_cloud_clusters.boxes.push_back(box3D_cloud_cluster);
       }
     }
 }
@@ -903,6 +924,8 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     autoware_msgs::Centroids centroids;
     autoware_msgs::CloudClusterArray cloud_clusters;
 
+    custom_msgs::Box3DArray box3D_cloud_clusters;
+
     pcl::fromROSMsg(*in_sensor_cloud, *current_sensor_cloud_ptr);
 
     _velodyne_header = in_sensor_cloud->header;
@@ -953,9 +976,14 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
       diffnormals_cloud_ptr = nofloor_cloud_ptr;
 
     segmentByDistance(diffnormals_cloud_ptr, colored_clustered_cloud_ptr, centroids,
-                      cloud_clusters);
+                      cloud_clusters, box3D_cloud_clusters);
+
+    //TODO - powinno byc git
+    _pub_clusters_box_message.publish(box3D_cloud_clusters);
 
     publishColorCloud(&_pub_cluster_cloud, colored_clustered_cloud_ptr);
+
+    _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
 
     centroids.header = _velodyne_header;
 
@@ -994,11 +1022,15 @@ int main(int argc, char **argv)
   // _test_cloud = h.advertise<sensor_msgs::PointCloud2>("/test_cloud", 1);
   
   _pub_cluster_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_cluster", 1);
+  _pub_cluster_cloud_box = h.advertise<sensor_msgs::PointCloud2>("/points_cluster_box", 1);
   _pub_ground_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_ground", 1);
   _centroid_pub = h.advertise<autoware_msgs::Centroids>("/cluster_centroids", 1);
 
   _pub_points_lanes_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_lanes", 1);
   _pub_clusters_message = h.advertise<autoware_msgs::CloudClusterArray>("/detection/lidar_detector/cloud_clusters", 1);
+
+  _pub_clusters_box_message = h.advertise<custom_msgs::Box3DArray>("/obstacles", 1);
+
   _pub_detected_objects = h.advertise<autoware_msgs::DetectedObjectArray>("/detection/lidar_detector/objects", 1);
 
   std::string points_topic, gridmap_topic;

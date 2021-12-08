@@ -46,6 +46,7 @@
 #include <jsk_rviz_plugins/PictogramArray.h>
 
 #include "autoware_msgs/CloudCluster.h"
+#include "custom_msgs/Box3D.h"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -94,6 +95,8 @@ public:
   /* \brief Returns the autoware_msgs::CloudCluster message associated to this Cluster */
   void ToROSMessage(std_msgs::Header in_ros_header, autoware_msgs::CloudCluster& out_cluster_message);
 
+  void BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box3D& out_cluster_message);
+
   Cluster();
   virtual ~Cluster();
 
@@ -114,7 +117,7 @@ public:
   /* \brief Returns the angle in radians of the BoundingBox. 0 if pose estimation was not enabled. */
   double GetOrientationAngle();
   /* \brief Returns the Length of the Cluster */
-  float GetLenght();
+  float GetLength();
   /* \brief Returns the Width of the Cluster */
   float GetWidth();
   /* \brief Returns the Height of the Cluster */
