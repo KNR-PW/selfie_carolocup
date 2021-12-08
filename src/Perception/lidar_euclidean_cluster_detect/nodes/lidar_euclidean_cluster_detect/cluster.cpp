@@ -62,6 +62,21 @@ Eigen::Vector3f Cluster::GetEigenValues()
   return eigen_values_;
 }
 
+float Cluster::GetLength()
+{
+  return max_point_.x - min_point_.x;
+}
+
+float Cluster::GetWidth()
+{
+  return max_point_.y - min_point_.y;
+}
+
+float Cluster::GetHeight()
+{
+  return max_point_.z - min_point_.z;
+}
+
 void Cluster::ToROSMessage(std_msgs::Header in_ros_header, autoware_msgs::CloudCluster &out_cluster_message)
 {
   sensor_msgs::PointCloud2 cloud_msg;
@@ -117,6 +132,44 @@ void Cluster::ToROSMessage(std_msgs::Header in_ros_header, autoware_msgs::CloudC
 
   /*std::vector<float> fpfh_descriptor = GetFpfhDescriptor(8, 0.3, 0.3);
   out_cluster_message.fpfh_descriptor.data = fpfh_descriptor;*/
+}
+
+void Cluster::BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box3D& out_cluster_message)
+{
+  sensor_msgs::PointCloud2 cloud_msg;
+
+  pcl::toROSMsg(*(this->GetCloud()), cloud_msg);
+  cloud_msg.header = in_ros_header;
+
+  out_cluster_message.header = in_ros_header;
+
+  out_cluster_message.cloud = cloud_msg;
+
+  //out_cluster_message.tr.header = in_ros_header;
+  out_cluster_message.tr.x = this->GetMaxPoint().x;
+  out_cluster_message.tr.y = this->GetMinPoint().y;
+
+  //out_cluster_message.tl.header = in_ros_header;
+  out_cluster_message.tl.x = this->GetMaxPoint().x;
+  out_cluster_message.tl.y = this->GetMaxPoint().y;
+
+  //out_cluster_message.br.header = in_ros_header;
+  out_cluster_message.br.x = this->GetMinPoint().x;
+  out_cluster_message.br.y = this->GetMinPoint().y;
+
+  //out_cluster_message.bl.header = in_ros_header;
+  out_cluster_message.bl.x = this->GetMinPoint().x;
+  out_cluster_message.bl.y = this->GetMaxPoint().y;
+
+  //out_cluster_message.centroid_point.header = in_ros_header;
+  out_cluster_message.point_centroid.x = this->GetCentroid().x;
+  out_cluster_message.point_centroid.y = this->GetCentroid().y;
+  out_cluster_message.point_centroid.z = this->GetCentroid().z;
+
+  out_cluster_message.width = this->GetWidth();
+  out_cluster_message.length= this->GetLength();
+  out_cluster_message.height = this->GetHeight();
+
 }
 
 void Cluster::SetCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_origin_cloud_ptr,
