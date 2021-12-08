@@ -4,6 +4,9 @@ from rospkg import RosPack
 
 from enum import Enum
 import yaml
+import time
+import math
+from math import sin,cos,atan2
 
 from std_msgs.msg import String, Float64, Int8
 
@@ -89,6 +92,7 @@ class Park:
     def __init__(self) -> None:
         self.rosPack = RosPack()
         #self.distance_when_spot_found = distance_when_spot_found
+        self.counter = 0
         self.distance_when_spot_found = None
         self.params = self.load_params()["park"]
         self.task_state = Task.PARK
@@ -100,7 +104,8 @@ class Park:
         self.dictance_sub = rospy.Subscriber('/selfie_out/motion', Motion, self.distance_callback)
         self.back_sensor_sub = rospy.Subscriber('/back_distance', Float64, self.back_sensor_callback)
         #publishers
-        self.drive_park_pub = rospy.Publisher('/drive_park', DriveCommand, queue_size=10)
+        self.drive_park_pub = rospy.Publisher('/selfie_in/drive', DriveCommand, queue_size=10)
+        #powinno byc /drive/park
         self.state_publisher = rospy.Publisher("/state/task", Int8, queue_size=10)
         while self.distance_when_spot_found == None:
             self.get_find_spot_distance()
@@ -120,7 +125,7 @@ class Park:
     def publish_speed(self, speed, angle=0):
         drive_command =  DriveCommand()
         drive_command.speed = speed
-        drive_command.steering_angle_front = angle
+        drive_command.steering_angle_front = -angle
         drive_command.steering_angle_rear = angle
         self.drive_park_pub.publish(drive_command)
 
@@ -128,6 +133,7 @@ class Park:
     def distance_callback(self, motion):
         self.current_distance = motion.distance
         self.current_speed = motion.speed_linear
+        self.current_angle = motion.yaw
     
     def back_sensor_callback(self, data):
         self.current_back_sensor_data = data.data
@@ -138,39 +144,103 @@ class Park:
     def go_to_parking_spot(self):
         if abs(self.current_distance - self.distance_when_spot_found) < self.params["distance_after_place_spot"]:
             self.publish_speed(self.params["approaching_parking_speed"])
+            print("miejsce dobre osiągnięte")
         else:
             self.publish_speed(0)
+            self.angle_before_parking = self.current_angle
             self.task_state = Task.ENTRY_PARKING_SPOT
+            print("publikacja predkosci 0")
 
     def entry_parking_spot(self):
+        linear_speed = -1 * self.params["parking_speed"]
 
         if self.parking_stage == 1:
             #zadajemy sterowanie
+            print('wchodzi w 1 fazę')
             angle = self.params["wheel_angle"]
-            linear_speed = -1 * self.params["parking_speed"]
             self.publish_speed(linear_speed, angle)
-            if self.current_back_sensor_data == float("inf"):
-                self.entry_parking_spot = 2
+            print(atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)))
+            if abs(atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)))>math.pi/4:
+                self.parking_stage = 2
+                self.middle_distance = self.current_distance
+                self.publish_speed(0,0)
+
 
         if self.parking_stage == 2:
+            self.publish_speed(linear_speed,0)
+
+            if abs(self.current_distance-self.middle_distance) > self.params["parking_straight_distance"]:
+                self.parking_stage = 3
+
+        if self.parking_stage == 3:
+            print("wchozdi w 3gą fazę")
+            angle = -self.params["wheel_angle"]
+            self.publish_speed(linear_speed, angle)
+            if atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)) < 0.01:
+                self.parking_stage = 1
+                print("zaparkowano")
+                self.publish_speed(0,0)
+                self.task_state = Task.PARKING_IDLE
+            
+
+    def wait_in_parking_spot(self):
+        time.sleep(3)
+        self.task_state = Task.EXIT_PARKING_SPOT
+
+    def leave_parking_spot(self):
+        linear_speed = self.params["parking_speed"]
+
+        if self.parking_stage == 1:
             #zadajemy sterowanie
-            pass
+            print('wchodzi w 1 fazę')
+            angle = -self.params["wheel_angle"]
+            self.publish_speed(linear_speed, angle)
+            print(atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)))
+            if abs(atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)))>math.pi/4:
+                self.parking_stage = 2
+                self.middle_distance = self.current_distance
+                self.publish_speed(0,0)
+
+
+        if self.parking_stage == 2:
+            self.publish_speed(linear_speed,0)
+
+            if abs(self.current_distance-self.middle_distance) > self.params["parking_straight_distance"]:
+                self.parking_stage = 3
+
+        if self.parking_stage == 3:
+            print("wchozdi w 3gą fazę")
+            angle = self.params["wheel_angle"]
+
+            self.publish_speed(linear_speed, angle)
+            if atan2(sin(self.current_angle-self.angle_before_parking), cos(self.current_angle-self.angle_before_parking)) < 0.01:
+                self.parking_stage = 0
+                print("zaparkowano")
+                self.publish_speed(0,0)
+                self.task_state = Task.PARKING_COMPLETED
+                print("ukonczono parkowanie")
+            
+    def test_angles(self):
+        self.publish_speed(0, 0+self.counter)
+        self.counter+=0.01
+        print(self.counter)
+
+    def reset(self):
+        self.publish_speed(0, 0)
 
 
 
-    
-    def park(self):
-        pass
-    def return_from_parking(self):
-        pass
+
 
     def loop(self):
         if self.task_state == Task.APPROACHING_TO_PARKING_SPOT:
             self.go_to_parking_spot()
         if self.task_state == Task.ENTRY_PARKING_SPOT:
             self.entry_parking_spot()
-
-
+        if self.task_state == Task.PARKING_IDLE:
+            self.wait_in_parking_spot()
+        if self.task_state == Task.EXIT_PARKING_SPOT:
+            self.leave_parking_spot()
 
 
 
@@ -183,6 +253,8 @@ if __name__ =="__main__":
         s1.load_params()
         while not rospy.is_shutdown():
             s1.loop()
+            #s1.test_angles()
+            #s1.reset()
             rate.sleep()
     except rospy.ROSInterruptException:
         pass
