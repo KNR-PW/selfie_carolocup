@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   autoware_msgs
-  vector_map_server
+  # vector_map_server
 )
 find_package(autoware_msgs REQUIRED)
 find_package(OpenMP)
@@ -31,7 +31,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS
-    vector_map_server
+    # vector_map_server
     grid_map_ros
     grid_map_cv
     grid_map_msgs
