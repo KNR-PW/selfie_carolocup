@@ -191,7 +191,6 @@ if __name__ =="__main__":
         rospy.init_node('search_parking_spot', anonymous=True)
         rate = rospy.Rate(10)
         s1 = SearchParkingSpot()
-        s1.load_params()
         while not rospy.is_shutdown():
             s1.loop()
             rate.sleep()
