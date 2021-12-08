@@ -54,7 +54,7 @@
 #include "autoware_msgs/DetectedObject.h"
 #include "autoware_msgs/DetectedObjectArray.h"
 
-#include <vector_map/vector_map.h>
+// #include <vector_map/vector_map.h>
 
 #include <tf/tf.h>
 
@@ -138,7 +138,7 @@ static std::chrono::system_clock::time_point _start, _end;
 std::vector<std::vector<geometry_msgs::Point>> _way_area_points;
 std::vector<cv::Scalar> _colors;
 pcl::PointCloud<pcl::PointXYZ> _sensor_cloud;
-visualization_msgs::Marker _visualization_marker;
+// visualization_msgs::Marker _visualization_marker;
 
 static bool _use_multiple_thres;
 std::vector<double> _clustering_distances;

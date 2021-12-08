@@ -22,7 +22,8 @@
   <arg name="use_vector_map" default="false" />
   <arg name="wayarea_gridmap_layer" default="wayarea" />
 
-<arg name="output_frame" default="depth_camera_lens_optical" />
+<arg name="output_frame" default="base_link" />
+<!-- <arg name="output_frame" default="depth_camera_lens_optical" /> -->
   <!-- <arg name="output_frame" default="camera_color_frame" /> -->
 
   <arg name="remove_points_upto" default="0.0" />
