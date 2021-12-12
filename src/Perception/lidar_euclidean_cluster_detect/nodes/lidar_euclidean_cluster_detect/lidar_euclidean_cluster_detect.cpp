@@ -465,7 +465,7 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
   // make it flat
   // for (size_t i = 0; i < cloud_2d->points.size(); i++)
   // {
-  //   cloud_2d->points[i].y = 0;
+  //   cloud_2d->points[i].z = 0;
   // }
 
   if (cloud_2d->points.size() > 0)
@@ -475,9 +475,9 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
 
   // perform clustering on 2d cloud
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-  ec.setClusterTolerance(0.5);  //in_max_cluster_distance
+  ec.setClusterTolerance(in_max_cluster_distance);  //in_max_cluster_distance - 0.5
   ec.setMinClusterSize(_cluster_size_min); // _cluster_size_min
-  ec.setMaxClusterSize(500); //_cluster_size_max (10000)
+  ec.setMaxClusterSize(_cluster_size_max); //_cluster_size_max (10000) - 500
   ec.setSearchMethod(tree);
   ec.setInputCloud(cloud_2d);
   ec.extract(cluster_indices);
@@ -517,7 +517,7 @@ void checkClusterMerge(size_t in_cluster_id, std::vector<ClusterPtr> &in_cluster
     if (i != in_cluster_id && !in_out_visited_clusters[i])
     {
       pcl::PointXYZ point_b = in_clusters[i]->GetCentroid();
-      double distance = sqrt(pow(point_b.x - point_a.x, 2) + pow(point_b.y - point_a.y, 2));
+      double distance = sqrt(pow(point_b.x - point_a.x, 2) + pow(point_b.z - point_a.z, 2));
       if (distance <= in_merge_threshold)
       {
         in_out_visited_clusters[i] = true;
@@ -895,8 +895,22 @@ void removePointsUpTo(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   out_cloud_ptr->points.clear();
   for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
   {
-    float origin_distance = sqrt(pow(in_cloud_ptr->points[i].x, 2) + pow(in_cloud_ptr->points[i].y, 2));
+    float origin_distance = sqrt(pow(in_cloud_ptr->points[i].x, 2) + pow(in_cloud_ptr->points[i].z, 2));
     if (origin_distance > in_distance)
+    {
+      out_cloud_ptr->points.push_back(in_cloud_ptr->points[i]);
+    }
+  }
+}
+
+void removePointsFurther(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
+                      pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud_ptr, const double in_distance)
+{
+  out_cloud_ptr->points.clear();
+  for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
+  {
+    float origin_distance = sqrt(pow(in_cloud_ptr->points[i].x, 2) + pow(in_cloud_ptr->points[i].z, 2));
+    if (origin_distance < in_distance && in_cloud_ptr->points[i].x < 0.7 && in_cloud_ptr->points[i].x > -0.7 )
     {
       out_cloud_ptr->points.push_back(in_cloud_ptr->points[i]);
     }
@@ -932,7 +946,9 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     if (_remove_points_upto > 0.0)
     {
-      removePointsUpTo(current_sensor_cloud_ptr, removed_points_cloud_ptr, _remove_points_upto);
+      // TODO
+      // removePointsUpTo(current_sensor_cloud_ptr, removed_points_cloud_ptr, _remove_points_upto);
+      removePointsFurther(current_sensor_cloud_ptr, removed_points_cloud_ptr, _remove_points_upto);
     }
     else
     {
@@ -983,7 +999,10 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     publishColorCloud(&_pub_cluster_cloud, colored_clustered_cloud_ptr);
 
-    _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
+    if(box3D_cloud_clusters.boxes.size() > 0){
+      _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
+    }
+    // _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
 
     centroids.header = _velodyne_header;
 
