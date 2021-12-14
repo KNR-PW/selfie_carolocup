@@ -100,6 +100,8 @@ ros::Publisher _pub_clusters_message;
 
 ros::Publisher _pub_clusters_box_message;
 
+ros::Publisher _pub_clusters_signs_cloud;
+
 ros::Publisher _pub_points_lanes_cloud;
 
 ros::Publisher _pub_detected_objects;
@@ -502,7 +504,7 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
 
     k++;
   }
-  // std::cout << "Clusters: " << k << std::endl;
+  std::cout << "Clusters: " << k << std::endl;
   return clusters;
 }
 
@@ -589,6 +591,7 @@ void checkAllForMerge(std::vector<ClusterPtr> &in_clusters, std::vector<ClusterP
 
 void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
+                       pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_signs_cloud_ptr,
                        autoware_msgs::Centroids &in_out_centroids, autoware_msgs::CloudClusterArray &in_out_clusters,
                        custom_msgs::Box3DArray &box3D_cloud_clusters)
 {
@@ -710,61 +713,68 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
     // Get final PointCloud to be published
     for (unsigned int i = 0; i < final_clusters.size(); i++)
     {
-      *out_cloud_ptr = *out_cloud_ptr + *(final_clusters[i]->GetCloud());
-
-      jsk_recognition_msgs::BoundingBox bounding_box = final_clusters[i]->GetBoundingBox();
-      geometry_msgs::PolygonStamped polygon = final_clusters[i]->GetPolygon();
-      jsk_rviz_plugins::Pictogram pictogram_cluster;
-      pictogram_cluster.header = _velodyne_header;
-
-      // PICTO
-      pictogram_cluster.mode = pictogram_cluster.STRING_MODE;
-      pictogram_cluster.pose.position.x = final_clusters[i]->GetMaxPoint().x;
-      pictogram_cluster.pose.position.y = final_clusters[i]->GetMaxPoint().y;
-      pictogram_cluster.pose.position.z = final_clusters[i]->GetMaxPoint().z;
-      tf::Quaternion quat(0.0, -0.7, 0.0, 0.7);
-      tf::quaternionTFToMsg(quat, pictogram_cluster.pose.orientation);
-      pictogram_cluster.size = 4;
-      std_msgs::ColorRGBA color;
-      color.a = 1;
-      color.r = 1;
-      color.g = 1;
-      color.b = 1;
-      pictogram_cluster.color = color;
-      pictogram_cluster.character = std::to_string(i);
-      // PICTO
-
-      // pcl::PointXYZ min_point = final_clusters[i]->GetMinPoint();
-      // pcl::PointXYZ max_point = final_clusters[i]->GetMaxPoint();
-      pcl::PointXYZ center_point = final_clusters[i]->GetCentroid();
-      geometry_msgs::Point centroid;
-      centroid.x = center_point.x;
-      centroid.y = center_point.y;
-      centroid.z = center_point.z;
-      bounding_box.header = _velodyne_header;
-      polygon.header = _velodyne_header;
-
       if (final_clusters[i]->IsValid())
       {
+        *out_cloud_ptr = *out_cloud_ptr + *(final_clusters[i]->GetCloud());
 
-        in_out_centroids.points.push_back(centroid);
+        jsk_recognition_msgs::BoundingBox bounding_box = final_clusters[i]->GetBoundingBox();
+        geometry_msgs::PolygonStamped polygon = final_clusters[i]->GetPolygon();
+        jsk_rviz_plugins::Pictogram pictogram_cluster;
+        pictogram_cluster.header = _velodyne_header;
 
-        autoware_msgs::CloudCluster cloud_cluster;
-        custom_msgs::Box3D box3D_cloud_cluster;
+        // PICTO
+        pictogram_cluster.mode = pictogram_cluster.STRING_MODE;
+        pictogram_cluster.pose.position.x = final_clusters[i]->GetMaxPoint().x;
+        pictogram_cluster.pose.position.y = final_clusters[i]->GetMaxPoint().y;
+        pictogram_cluster.pose.position.z = final_clusters[i]->GetMaxPoint().z;
+        tf::Quaternion quat(0.0, -0.7, 0.0, 0.7);
+        tf::quaternionTFToMsg(quat, pictogram_cluster.pose.orientation);
+        pictogram_cluster.size = 4;
+        std_msgs::ColorRGBA color;
+        color.a = 1;
+        color.r = 1;
+        color.g = 1;
+        color.b = 1;
+        pictogram_cluster.color = color;
+        pictogram_cluster.character = std::to_string(i);
+        // PICTO
 
-        
-        final_clusters[i]->ToROSMessage(_velodyne_header, cloud_cluster);
-        in_out_clusters.clusters.push_back(cloud_cluster);
+        // pcl::PointXYZ min_point = final_clusters[i]->GetMinPoint();
+        // pcl::PointXYZ max_point = final_clusters[i]->GetMaxPoint();
+        pcl::PointXYZ center_point = final_clusters[i]->GetCentroid();
+        geometry_msgs::Point centroid;
+        centroid.x = center_point.x;
+        centroid.y = center_point.y;
+        centroid.z = center_point.z;
+        bounding_box.header = _velodyne_header;
+        polygon.header = _velodyne_header;
 
-        final_clusters[i]->BoxToROSMessage(_velodyne_header, box3D_cloud_cluster);
-        box3D_cloud_clusters.boxes.push_back(box3D_cloud_cluster);
+        if (final_clusters[i]->IsValid())
+        {
+          in_out_centroids.points.push_back(centroid);
+
+          autoware_msgs::CloudCluster cloud_cluster;
+          custom_msgs::Box3D box3D_cloud_cluster;
+
+          
+          final_clusters[i]->ToROSMessage(_velodyne_header, cloud_cluster);
+          in_out_clusters.clusters.push_back(cloud_cluster);
+
+          final_clusters[i]->BoxToROSMessage(_velodyne_header, box3D_cloud_cluster);
+          box3D_cloud_clusters.boxes.push_back(box3D_cloud_cluster);
+        }
+
+        if (final_clusters[i]->IsSign())
+        {
+          *out_signs_cloud_ptr = *out_signs_cloud_ptr + *(final_clusters[i]->GetCloud());
+        }
       }
     }
 }
 
 void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                  pcl::PointCloud<pcl::PointXYZ>::Ptr out_nofloor_cloud_ptr,
-                 pcl::PointCloud<pcl::PointXYZ>::Ptr out_onlyfloor_cloud_ptr, float in_max_height = 0.05,
+                 pcl::PointCloud<pcl::PointXYZ>::Ptr out_onlyfloor_cloud_ptr, float in_max_height = 0.02,
                  float in_floor_max_angle = 0.1)
 {
 
@@ -910,7 +920,7 @@ void removePointsFurther(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
   {
     float origin_distance = sqrt(pow(in_cloud_ptr->points[i].x, 2) + pow(in_cloud_ptr->points[i].z, 2));
-    if (origin_distance < in_distance && in_cloud_ptr->points[i].x < 0.7 && in_cloud_ptr->points[i].x > -0.7 )
+    if (origin_distance < in_distance && in_cloud_ptr->points[i].x < 0.4 && in_cloud_ptr->points[i].x > -0.4 )
     {
       out_cloud_ptr->points.push_back(in_cloud_ptr->points[i]);
     }
@@ -934,6 +944,7 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     pcl::PointCloud<pcl::PointXYZ>::Ptr diffnormals_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr clipped_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_clustered_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_clustered_signs_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 
     autoware_msgs::Centroids centroids;
     autoware_msgs::CloudClusterArray cloud_clusters;
@@ -991,12 +1002,13 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     else
       diffnormals_cloud_ptr = nofloor_cloud_ptr;
 
-    segmentByDistance(diffnormals_cloud_ptr, colored_clustered_cloud_ptr, centroids,
+    segmentByDistance(diffnormals_cloud_ptr, colored_clustered_cloud_ptr, colored_clustered_signs_cloud_ptr,  centroids,
                       cloud_clusters, box3D_cloud_clusters);
 
     //TODO - powinno byc git
     _pub_clusters_box_message.publish(box3D_cloud_clusters);
 
+    publishColorCloud(&_pub_clusters_signs_cloud, colored_clustered_signs_cloud_ptr);
     publishColorCloud(&_pub_cluster_cloud, colored_clustered_cloud_ptr);
 
     if(box3D_cloud_clusters.boxes.size() > 0){
@@ -1043,6 +1055,7 @@ int main(int argc, char **argv)
   _pub_cluster_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_cluster", 1);
   _pub_cluster_cloud_box = h.advertise<sensor_msgs::PointCloud2>("/points_cluster_box", 1);
   _pub_ground_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_ground", 1);
+  _pub_clusters_signs_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_signs", 1);
   _centroid_pub = h.advertise<autoware_msgs::Centroids>("/cluster_centroids", 1);
 
   _pub_points_lanes_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_lanes", 1);

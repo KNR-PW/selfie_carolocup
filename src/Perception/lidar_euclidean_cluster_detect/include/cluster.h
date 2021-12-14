@@ -136,6 +136,8 @@ public:
   /* \brief Sets whether the Cluster is valid or not*/
   void SetValidity(bool in_valid);
 
+  bool IsSign();
+
   /* \brief Returns a pointer to a PointCloud object containing the merged points between current Cluster and the
    * specified PointCloud
    * \param[in] in_cloud_ptr   Origin PointCloud
