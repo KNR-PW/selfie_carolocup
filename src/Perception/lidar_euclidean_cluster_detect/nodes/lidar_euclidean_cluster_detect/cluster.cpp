@@ -9,7 +9,7 @@
 
 Cluster::Cluster()
 {
-  valid_cluster_ = true;
+  valid_cluster_ = false;
 }
 
 geometry_msgs::PolygonStamped Cluster::GetPolygon()
@@ -249,9 +249,13 @@ void Cluster::SetCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_origin_cloud
   average_point_.z = average_z;
 
   // calculate bounding box
-  length_ = max_point_.x - min_point_.x;
-  width_ = max_point_.y - min_point_.y;
-  height_ = max_point_.z - min_point_.z;
+  // length_ = max_point_.x - min_point_.x;
+  // width_ = max_point_.y - min_point_.y;
+  // height_ = max_point_.z - min_point_.z;
+
+  length_ = max_point_.z - min_point_.z;
+  width_ = max_point_.x - min_point_.x;
+  height_ = min_point_.y - max_point_.y;
 
   bounding_box_.header = in_ros_header;
 
@@ -321,7 +325,8 @@ void Cluster::SetCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_origin_cloud
     eigen_values_ = current_cluster_pca.getEigenValues();
   }
 
-  valid_cluster_ = true;
+  // remove noise TODO - to tak na prawde min_point
+  valid_cluster_ = max_point_.y > 0.1;
   pointcloud_ = current_cluster;
 }
 
@@ -379,6 +384,11 @@ std::vector<float> Cluster::GetFpfhDescriptor(const unsigned int& in_ompnum_thre
   }
 
   return cluster_fpfh_histogram;
+}
+
+bool Cluster::IsSign()
+{
+  return abs( height_ / width_ ) > 1.75;
 }
 
 bool Cluster::IsValid()
