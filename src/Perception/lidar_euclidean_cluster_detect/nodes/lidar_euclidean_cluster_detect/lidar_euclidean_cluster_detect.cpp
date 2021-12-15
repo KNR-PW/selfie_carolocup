@@ -920,7 +920,7 @@ void removePointsFurther(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   for (unsigned int i = 0; i < in_cloud_ptr->points.size(); i++)
   {
     float origin_distance = sqrt(pow(in_cloud_ptr->points[i].x, 2) + pow(in_cloud_ptr->points[i].z, 2));
-    if (origin_distance < in_distance && in_cloud_ptr->points[i].x < 0.4 && in_cloud_ptr->points[i].x > -0.4 )
+    if (origin_distance < in_distance && in_cloud_ptr->points[i].x < 0.6 && in_cloud_ptr->points[i].x > -0.6 )
     {
       out_cloud_ptr->points.push_back(in_cloud_ptr->points[i]);
     }
