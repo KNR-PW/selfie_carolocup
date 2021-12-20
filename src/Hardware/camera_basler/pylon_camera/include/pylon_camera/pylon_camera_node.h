@@ -31,6 +31,7 @@
 #define PYLON_CAMERA_PYLON_CAMERA_NODE_H
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/calib3d.hpp>
 
 #include <boost/thread.hpp>
 #include <string>
