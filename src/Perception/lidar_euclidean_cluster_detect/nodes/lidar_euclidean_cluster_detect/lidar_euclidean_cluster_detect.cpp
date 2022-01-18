@@ -54,36 +54,18 @@
 #include "autoware_msgs/DetectedObject.h"
 #include "autoware_msgs/DetectedObjectArray.h"
 
-// #include <vector_map/vector_map.h>
-
 #include <tf/tf.h>
 
 #include <yaml-cpp/yaml.h>
 
 #include <opencv2/opencv.hpp>
 
-// #include <opencv/cv.h>
-// #include <opencv/highgui.h>
 #include <opencv2/core/version.hpp>
-
-#if (CV_MAJOR_VERSION >= 3)
 
 #include "gencolors.cpp"
 
-#else
-
-// #include <opencv2/contrib/contrib.hpp>
-#include <autoware_msgs/DetectedObjectArray.h>
-
-#endif
-
 #include "cluster.h"
 
-// #ifdef GPU_CLUSTERING
-
-// #include "gpu_euclidean_clustering.h"
-
-// #endif
 
 #define __APP_NAME__ "euclidean_clustering"
 
@@ -228,13 +210,6 @@ void publishDetectedObjects(const autoware_msgs::CloudClusterArray &in_clusters)
   _pub_detected_objects.publish(detected_objects);
 }
 
-
-// void publishCloudClustersBox(const ros::Publisher* in_publisher, const custom_msgs::Box3DArray& in_clusters,
-//                           const std::string& in_target_frame)
-// {
-//   in_publisher->publish(in_clusters);
-//   publishDetectedObjects(in_clusters);
-// }
 
 void publishCloudClusters(const ros::Publisher* in_publisher, const autoware_msgs::CloudClusterArray& in_clusters,
                           const std::string& in_target_frame, const std_msgs::Header& in_header)
@@ -393,66 +368,6 @@ void keepLanePoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   extract.filter(*out_cloud_ptr);
 }
 
-#ifdef GPU_CLUSTERING
-
-std::vector<ClusterPtr> clusterAndColorGpu(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
-                                           pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
-                                           autoware_msgs::Centroids &in_out_centroids,
-                                           double in_max_cluster_distance = 0.5)
-{
-  std::vector<ClusterPtr> clusters;
-
-  // Convert input point cloud to vectors of x, y, and z
-
-  int size = in_cloud_ptr->points.size();
-
-  if (size == 0)
-    return clusters;
-
-  float *tmp_x, *tmp_y, *tmp_z;
-
-  tmp_x = (float *) malloc(sizeof(float) * size);
-  tmp_y = (float *) malloc(sizeof(float) * size);
-  tmp_z = (float *) malloc(sizeof(float) * size);
-
-  for (int i = 0; i < size; i++)
-  {
-    pcl::PointXYZ tmp_point = in_cloud_ptr->at(i);
-
-    tmp_x[i] = tmp_point.x;
-    tmp_y[i] = tmp_point.y;
-    tmp_z[i] = tmp_point.z;
-  }
-
-  GpuEuclideanCluster gecl_cluster;
-
-  gecl_cluster.setInputPoints(tmp_x, tmp_y, tmp_z, size);
-  gecl_cluster.setThreshold(in_max_cluster_distance);
-  gecl_cluster.setMinClusterPts(_cluster_size_min);
-  gecl_cluster.setMaxClusterPts(_cluster_size_max);
-  gecl_cluster.extractClusters();
-  std::vector<GpuEuclideanCluster::GClusterIndex> cluster_indices = gecl_cluster.getOutput();
-
-  unsigned int k = 0;
-
-  for (auto it = cluster_indices.begin(); it != cluster_indices.end(); it++)
-  {
-    ClusterPtr cluster(new Cluster());
-    cluster->SetCloud(in_cloud_ptr, it->points_in_cluster, _velodyne_header, k, (int) _colors[k].val[0],
-                      (int) _colors[k].val[1], (int) _colors[k].val[2], "", _pose_estimation);
-    clusters.push_back(cluster);
-
-    k++;
-  }
-
-  free(tmp_x);
-  free(tmp_y);
-  free(tmp_z);
-
-  return clusters;
-}
-
-#endif
 // TODO nie dziala, zmienione z -> y
 std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
                                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
@@ -464,11 +379,6 @@ std::vector<ClusterPtr> clusterAndColor(const pcl::PointCloud<pcl::PointXYZ>::Pt
   // create 2d pc
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_2d(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::copyPointCloud(*in_cloud_ptr, *cloud_2d);
-  // make it flat
-  // for (size_t i = 0; i < cloud_2d->points.size(); i++)
-  // {
-  //   cloud_2d->points[i].z = 0;
-  // }
 
   if (cloud_2d->points.size() > 0)
     tree->setInputCloud(cloud_2d);
@@ -620,20 +530,8 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
 
       cloud_ptr->points.push_back(current_point);
     }
-// #ifdef GPU_CLUSTERING
-//     if (_use_gpu)
-//     {
-//       all_clusters = clusterAndColorGpu(cloud_ptr, out_cloud_ptr, in_out_centroids,
-//                                         _clustering_distance);
-//     } else
-//     {
-//       all_clusters =
-//         clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
-//     }
-// #else
-    all_clusters =
-        clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
-// #endif
+    all_clusters = clusterAndColor(cloud_ptr, out_cloud_ptr, in_out_centroids, _clustering_distance);
+
 } else
   {
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloud_segments_array(5);
@@ -677,19 +575,7 @@ void segmentByDistance(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
     std::vector<ClusterPtr> local_clusters;
     for (unsigned int i = 0; i < cloud_segments_array.size(); i++)
     {
-// #ifdef GPU_CLUSTERING
-//       if (_use_gpu)
-//       {
-//         local_clusters = clusterAndColorGpu(cloud_segments_array[i], out_cloud_ptr,
-//                                             in_out_centroids, _clustering_distances[i]);
-//       } else
-//       {
-//         local_clusters = clusterAndColor(cloud_segments_array[i], out_cloud_ptr,
-//                                          in_out_centroids, _clustering_distances[i]);
-//       }
-// #else
       local_clusters = clusterAndColor(cloud_segments_array[i], out_cloud_ptr, in_out_centroids, _clustering_distances[i]);
-// #endif
       all_clusters.insert(all_clusters.end(), local_clusters.begin(), local_clusters.end());
     }
   }
@@ -805,9 +691,6 @@ void removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr,
   extract.setNegative(true);  // true removes the indices, false leaves only the indices
   extract.filter(*out_nofloor_cloud_ptr);
 
-  // publishCloud(&_test_cloud, out_nofloor_cloud_ptr);
-  // pc2_color_filter_publisher = pnh_.advertise<sensor_msgs::PointCloud2>("pc2/filtered", 1);
-
   // EXTRACT THE FLOOR FROM THE CLOUD
   extract.setNegative(false);  // true removes the indices, false leaves only the indices
   extract.filter(*out_onlyfloor_cloud_ptr);
@@ -854,7 +737,6 @@ void differenceNormalsSegmentation(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_
   tree->setInputCloud(in_cloud_ptr);
 
   pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::PointNormal> normal_estimation;
-  // pcl::gpu::NormalEstimation<pcl::PointXYZ, pcl::PointNormal> normal_estimation;
   normal_estimation.setInputCloud(in_cloud_ptr);
   normal_estimation.setSearchMethod(tree);
 
@@ -1043,12 +925,7 @@ int main(int argc, char **argv)
   _transform = &transform;
   _transform_listener = &listener;
 
-// TODO
-#if (CV_MAJOR_VERSION >= 3)
   generateColors(_colors, 255);
-#else
-  cv::generateColors(_colors, 255);
-#endif
 
   // _test_cloud = h.advertise<sensor_msgs::PointCloud2>("/test_cloud", 1);
   
