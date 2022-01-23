@@ -6,6 +6,7 @@
  */
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
+#pragma once
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
