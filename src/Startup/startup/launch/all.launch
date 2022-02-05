@@ -2,10 +2,13 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
+<arg name="custom_config"
+     value="true" />
 <arg name="config"
      value="$(optenv SELFIE_CONFIG default)" />
 
-<group unless="$(eval config == 'default')">
+
+<group unless="$(arg custom_config)">
     <rosparam command="load"
         file="$(find startup)/config/custom/$(arg config).yaml"  />
 </group>
@@ -16,15 +19,20 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
+
     </include>
 
     <!-- pid_carrot_follower -->
     <include file="$(find pid_carrot_follower)/launch/pid_carrot_follower_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 <!-- Hardware -->
@@ -32,8 +40,10 @@
     <include file="$(find selfie_basler_fisheye)/launch/selfie_basler_fisheye_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
      <!-- lidar -->
@@ -43,8 +53,10 @@
     <include file="$(find stm32_bridge)/launch/stm32_bridge_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 <!-- Navigation -->
@@ -52,16 +64,20 @@
     <include file="$(find lane_pilot)/launch/lane_pilot_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- path_generator -->
     <include file="$(find path_generator)/launch/path_generator_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 <!-- Perception -->
@@ -69,24 +85,30 @@
     <include file="$(find lane_detector)/launch/lane_detector_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- obstacle_detector -->
     <include file="$(find obstacle_detector)/launch/obstacle_detector_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- odometry -->
     <include file="$(find odometry)/launch/odometry_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 <!-- Tasks -->
@@ -94,48 +116,60 @@
     <include file="$(find free_drive)/launch/free_drive_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- intersection -->
     <include file="$(find intersection)/launch/intersection_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- park -->
     <include file="$(find park)/launch/park_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- parking_spot_detector -->
     <include file="$(find parking_spot_detector)/launch/detect_parking_spot_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- scheduler -->
     <include file="$(find scheduler)/launch/scheduler_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
     <!-- starting_procedure -->
     <include file="$(find starting_procedure)/launch/starting_procedure_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
-        <arg name="load_config" 
-             value="$(eval config == 'default')" />
+        <arg name="load_config"
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 <!-- Startup -->
@@ -145,7 +179,9 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(eval config == 'default')" />
+             value="$(arg custom_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
     </include>
 
 </launch>
