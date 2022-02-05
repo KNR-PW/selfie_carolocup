@@ -1,0 +1,36 @@
+<launch>
+
+    <arg name="debug"
+        default="true"  />
+    <arg name="load_config"
+        default="true"  />
+    <arg name="config_file"
+        default="$(find lane_detector)/config/default.yaml"  />
+    <arg name="node_respawn"
+        default="true"  />
+    <arg name="node_output"
+        default="screen" doc="screen or log" />
+
+    <group if="$(arg load_config)">
+        <rosparam command="load"
+            file="$(arg config_file)"  />
+    </group>
+
+    <arg name="homography_file" default="/home/$(env USER)/.ros/homography_sim.yaml" />
+    <arg name="hom_cut_file" default="/home/$(env USER)/.ros/hom_cut.yaml" />
+
+    <node
+        name="vision"
+        pkg="vision"
+        type="vision"
+        respawn="$(arg node_respawn)"
+        output="$(arg node_output)" >
+        
+        <param name="debug_mode" value="$(arg debug)" />
+        <param name="tune_params_mode" value="false"/>
+
+        <param name="config_file" value="$(arg homography_file)" />
+        <param name="hom_cut_file" value="$(arg hom_cut_file)" />
+    </node>
+
+</launch>
