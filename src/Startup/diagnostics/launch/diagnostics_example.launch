@@ -5,7 +5,9 @@
   <arg name="load_config"
     default="true"  />
   <arg name="config_file"
-    default="$(find diagnostics)/config/default.yaml"  />
+    default="default"  />
+  <arg name="config_path"
+    default="$(find diagnostics)/config/$(arg config_file).yaml"  />
   <arg name="node_respawn"
     default="false"  />
   <arg name="node_output"
@@ -14,7 +16,7 @@
   <!-- PARAMS FROM YAML -->
   <group if="$(arg load_config)">
     <rosparam command="load"
-      file="$(arg config_file)"  />
+      file="$(arg config_path)"  />
   </group>
 
   <node 
