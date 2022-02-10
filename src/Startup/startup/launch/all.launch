@@ -2,13 +2,13 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
-<arg name="custom_config"
-     value="true" />
+<arg name="load_pkg_config"
+     default="true" />
 <arg name="config"
      value="$(optenv SELFIE_CONFIG default)" />
 
 
-<group unless="$(arg custom_config)">
+<group unless="$(arg load_pkg_config)">
     <rosparam command="load"
         file="$(find startup)/config/custom/$(arg config).yaml"  />
 </group>
@@ -19,7 +19,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
 
@@ -30,7 +30,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -41,7 +41,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -54,7 +54,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -65,7 +65,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -75,7 +75,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -86,7 +86,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -96,7 +96,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -106,7 +106,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -117,7 +117,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -127,7 +127,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -137,7 +137,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -147,7 +147,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -157,7 +157,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -167,7 +167,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
@@ -179,7 +179,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config"
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file"
              value="$(arg config)" />
     </include>
