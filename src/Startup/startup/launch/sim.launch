@@ -4,14 +4,14 @@
 
 <arg name="debug"
      value="$(optenv SELFIE_DEBUG false)" />
-<arg name="custom_config"
-     value="false" />
+<arg name="load_pkg_config"
+     value="true" />
 <arg name="config"
      value="$(optenv SELFIE_CONFIG sim)" />
 <arg name="homography_file"
      default="$(find lane_detector)/config/homography_sim.yaml" />
 
-<group unless="$(arg custom_config)">
+<group unless="$(arg load_pkg_config)">
     <rosparam command="load"
         file="$(find startup)/config/custom/$(arg config).yaml"  />
 </group>
@@ -22,7 +22,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
 
@@ -33,7 +33,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -44,7 +44,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -54,7 +54,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -65,7 +65,7 @@
         <arg name="debug" 
              value="false" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
         <arg name="homography_file" 
@@ -77,7 +77,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -87,7 +87,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -98,7 +98,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -108,7 +108,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -118,7 +118,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -128,7 +128,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -138,7 +138,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
@@ -148,7 +148,7 @@
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
-             value="$(arg custom_config)" />
+             value="$(arg load_pkg_config)" />
         <arg name="config_file" 
              value="$(arg config)" />
     </include>
