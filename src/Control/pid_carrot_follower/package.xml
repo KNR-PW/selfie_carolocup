@@ -10,7 +10,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>pid</depend>
   <depend>dynamic_reconfigure</depend>
   <depend>custom_msgs</depend>
   <depend>rospy</depend>

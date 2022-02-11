@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roslint
   geometry_msgs
-  pid
   custom_msgs
 )
 
@@ -19,7 +18,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS dynamic_reconfigure std_msgs nav_msgs geometry_msgs custom_msgs roscpp pid
+  CATKIN_DEPENDS dynamic_reconfigure std_msgs nav_msgs geometry_msgs custom_msgs roscpp
 )
 
 roslint_cpp()
@@ -41,14 +40,7 @@ add_executable(cmd_creator src/cmd_creator.cpp)
 target_link_libraries(cmd_creator ${catkin_LIBRARIES})
 add_dependencies(cmd_creator ${pid_carrot_follower_EXPORTED_TARGETS})
 
-add_executable(pid_tuner src/pid_tuner.cpp src/pid_tuner_node.cpp)
-target_link_libraries(pid_tuner ${catkin_LIBRARIES})
-add_dependencies(pid_tuner ${pid_carrot_follower_EXPORTED_TARGETS})
-
 install(TARGETS cmd_creator
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(TARGETS pid_tuner
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)

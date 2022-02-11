@@ -34,7 +34,7 @@
 
   <node
       name="pid_controller"
-      pkg="pid"
+      pkg="selfie_pid"
       type="controller"
       respawn="$(arg node_respawn)"
       output="$(arg node_output)" >
