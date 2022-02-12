@@ -55,3 +55,7 @@ qtcreator-*
 # Catkin custom files
 CATKIN_IGNORE
 
+#clion
+src/.idea/
+src/cmake-build-debug/
+
