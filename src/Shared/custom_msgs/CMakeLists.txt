@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
 )
 
+catkin_python_setup()
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
@@ -53,7 +54,6 @@ generate_messages(
   actionlib_msgs
   std_msgs
 )
-
 catkin_package(
   INCLUDE_DIRS include 
   CATKIN_DEPENDS geometry_msgs message_runtime actionlib_msgs std_msgs
