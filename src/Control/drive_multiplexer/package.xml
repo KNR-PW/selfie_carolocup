@@ -11,4 +11,9 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>topic_tools</depend>
+
+  <build_depend>roslint</build_depend>
+  <build_export_depend>roslint</build_export_depend>
+
+  <exec_depend>roslint</exec_depend>
 </package>
