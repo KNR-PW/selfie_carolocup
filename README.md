@@ -29,7 +29,21 @@ The following set of commands will in turn download all external dependencies, b
 sudo apt install python3-rosdep
 ./src/Tools/setup/camera_basler/basler.sh
 rosdep update
+```
+
+Ubuntu:
+```
 rosdep install --from-paths src --ignore-src --rosdistro=noetic
+```
+
+Ubuntu-like OS (for example Mint)
+```
+rosdep install --from-paths src --ignore-src --rosdistro=noetic -y --os=ubuntu:focal
+```
+
+Further instructions 
+
+```
 catkin_make
 source ./devel/setup.bash
 ```
