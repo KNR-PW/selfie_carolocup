@@ -1,1 +1,1 @@
-from .schedulerpy_node import talker
+from .schedulerpy_main import talker
