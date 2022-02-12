@@ -59,8 +59,8 @@ PidObject::PidObject() : error_(3, 0), filtered_error_(3, 0), error_deriv_(3, 0)
   }
 
   // dynamic reconfiguration
-  dynamic_reconfigure::Server<pid::PidConfig> config_server;
-  dynamic_reconfigure::Server<pid::PidConfig>::CallbackType f;
+  dynamic_reconfigure::Server<selfie_pid::PidConfig> config_server;
+  dynamic_reconfigure::Server<selfie_pid::PidConfig>::CallbackType f;
   f = boost::bind(&PidObject::reconfigureCallback, this, _1, _2);
   config_server.setCallback(f);
 
@@ -132,7 +132,7 @@ void PidObject::printParameters()
   return;
 }
 
-void PidObject::reconfigureCallback(pid::PidConfig& config, uint32_t level)
+void PidObject::reconfigureCallback(selfie_pid::PidConfig& config, uint32_t level)
 {
   if (first_reconfig_)
   {

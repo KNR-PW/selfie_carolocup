@@ -39,7 +39,7 @@
 #include "ros/ros.h"
 #include <dynamic_reconfigure/server.h>
 #include <iostream>
-#include <pid/PidConfig.h>
+#include <selfie_pid/PidConfig.h>
 #include <ros/time.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
@@ -63,7 +63,7 @@ private:
   void pidEnableCallback(const std_msgs::Bool& pid_enable_msg);
   void plantStateCallback(const std_msgs::Float64& state_msg);
   void printParameters();
-  void reconfigureCallback(pid::PidConfig& config, uint32_t level);
+  void reconfigureCallback(selfie_pid::PidConfig& config, uint32_t level);
   void setpointCallback(const std_msgs::Float64& setpoint_msg);
   bool validateParameters();
 
