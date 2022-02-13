@@ -14,6 +14,7 @@ class TriggeredImageTopic():
     
     The interface is restricted to a rosparam for exposure with a low gain
     """
+
     def __init__(self):
         self.camera_name = rospy.get_param('~camera_name', '')
         self.output_topic_name = rospy.get_param('~triggered_image_topic',

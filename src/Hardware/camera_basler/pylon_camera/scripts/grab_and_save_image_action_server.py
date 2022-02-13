@@ -18,6 +18,7 @@ class GrabAndSaveImageActionServers():
     above goal with a sting describing the full storage path and name of the
     image to be saved
     """
+
     def __init__(self):
         camera_name = rospy.get_param('~camera_name', '')
         if not camera_name:

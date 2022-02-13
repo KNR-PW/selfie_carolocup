@@ -12,6 +12,7 @@ import sys
 
 
 class Diagnose:
+
     def __init__(self):
         # ros communication
         self.pub_ = rospy.Publisher(

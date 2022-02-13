@@ -9,6 +9,7 @@ __author__ = 'klank'
 
 
 class ImageReplicator(object):
+
     def __init__(self, action_name):
         self._action_name = action_name
         rospy.loginfo("open action server: " + str(action_name))
