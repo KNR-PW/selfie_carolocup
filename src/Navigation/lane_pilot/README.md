@@ -20,14 +20,15 @@ rosrun selfie_avoiding_obstacles lane_pilot
   - contains polynomial coefficients for fitted lines
 - `selfie_out/motion` ([custom_msgs/Motion](./../../Shared/custom_msgs/msg/Motion.msg))
   - distance covered by car
-  
+
 ### Published topics
 
 - `/path_offset` ([std_msgs/Float32](https://docs.ros.org/api/std_msgs/html/msg/Float32.html))
   - describes distance to middle lane, changing this value can change lane to left
+  - describes lane, changing this value changes lane
+  - Only this topic is published in `PASSIVE` mode
 - `/max_speed` ([std_msgs/Float64](https://docs.ros.org/api/std_msgs/html/msg/Float64.html))
   - current speed of car
-  - describes lane, changing this value changes lane
 - `/selfie_in/indicators` ([custom_msgs/Indicators](./../../Shared/custom_msgs/msg/Indicators.msg))
   - used for turning on and of turn indicators
 - `/visualization/avoiding_obstacles` ([visualization_msgs/Marker](https://docs.ros.org/api/visualization_msgs/html/msg/Marker.html))
@@ -43,28 +44,28 @@ rosrun selfie_avoiding_obstacles lane_pilot
 
 ## Parameters
 
-- `visualization` (*bool*, default: true)
+- `visualization` (_bool_, default: true)
   - Whether or not visualization topics are active
-- `max_length_of_obstacle` (*float*)
+- `max_length_of_obstacle` (_float_)
   - How long can be approached obstacle (described in regulations)
-- `max_distance_to_obstacle` (*float*)
+- `max_distance_to_obstacle` (_float_)
   - if obstacle in front of car is nearer than this value then car will start overtaking
-- `ROI_min_x`,`ROI_min_y`,`ROI_max_x`,`ROI_max_x` (*float*)
+- `ROI_min_x`,`ROI_min_y`,`ROI_max_x`,`ROI_max_x` (_float_)
   - describing area of interest
-- `right_obst_area_min_x`,`right_obst_area_max_x`,`right_obst_area_min_y`,`right_obst_area_max_y` (*float*)
+- `right_obst_area_min_x`,`right_obst_area_max_x`,`right_obst_area_min_y`,`right_obst_area_max_y` (_float_)
   - describing area of interest used while overtaking (checking if there is still obstacle on thhe right side of car)
-- `right_lane_offset`,`left_lane_offset` (*float*, default: -0.2,0.2)
+- `right_lane_offset`,`left_lane_offset` (_float_, default: -0.2,0.2)
   - How far from middle of road is middle of right and left lane
-- `maximum_speed` (*float*)
-- `slowdown_speed` (*float*)
+- `maximum_speed` (_float_)
+- `slowdown_speed` (_float_)
   - Speed used before lane is being changed
-- `lane_change_speed_` (*float*)
+- `lane_change_speed_` (_float_)
   - Speed used when lane is being changed
-- `safety_margin` (*float*)
+- `safety_margin` (_float_)
 - safety margin considering inaccurations in measuring distance, used to calculate
-- `num_proof_to_slowdown` (*int*)
+- `num_proof_to_slowdown` (_int_)
   - how many times in a row car should discover obstacle to start intersecting (it is used to avoid overtaking caused by static)
-- `num_corners_to_detect` (*int*)
+- `num_corners_to_detect` (_int_)
   - how many corners of box should be in area of interest to consider it as obstacle to avoid
-- `lane_change_distance` (*float*)
+- `lane_change_distance` (_float_)
   - how many meters it should take to change lane
