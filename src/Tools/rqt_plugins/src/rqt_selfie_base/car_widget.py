@@ -6,6 +6,7 @@ from python_qt_binding.QtCore import Qt, QRectF, QPoint
 
 
 class CarWidget(QGraphicsScene):
+
     def __init__(self, x=0, y=0, width=300, height=300, *args):
         super(QGraphicsScene, self).__init__(x, y, width, height, *args)
         self.setBackgroundBrush(QBrush(Qt.gray))

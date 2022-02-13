@@ -7,6 +7,7 @@ from State import State
 
 
 class Tester:
+
     def __init__(self, name, topic, directory, msg_type, desired_frequency):
         self.name = name
         self.directory_ = directory

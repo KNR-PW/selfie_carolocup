@@ -19,6 +19,7 @@ from path_generator.cfg import PathGeneratorConfig
 
 
 class PathGenerator:
+
     def __init__(self):
         self.interval_x = rospy.get_param("~interval_x", 0.1)
         self.max_distance = rospy.get_param("~max_distance", 1.0)
