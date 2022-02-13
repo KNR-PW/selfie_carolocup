@@ -29,6 +29,7 @@ only_once = True
 
 
 class image_converter:
+
     def __init__(self):
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber("image_rect", Image, self.callback)
