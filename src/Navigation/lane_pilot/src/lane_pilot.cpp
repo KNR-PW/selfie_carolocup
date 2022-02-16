@@ -104,6 +104,11 @@ void RoadObstacleDetector::updateState(const selfie::EnumLaneControl& state)
   state_ = state;
 }
 
+void RoadObstacleDetector::overtakingCallback(const std_msgs::Bool& msg)
+{
+  this->can_overtake_ = msg.data;
+}
+
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 {
   if (state_ != EnumLaneControl::OVERTAKE && state_ != EnumLaneControl::ON_LEFT)
@@ -112,7 +117,8 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
     if (!filtered_boxes_.empty())
     {
       ++proof_slowdown_;
-      if ((state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
+      if (can_overtake_ &&
+          (state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
           (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
            nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
       {
@@ -374,6 +380,7 @@ bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std
   obstacles_sub_ = nh_.subscribe("/obstacles", 1, &RoadObstacleDetector::obstacleCallback, this);
   road_lines_sub_ = nh_.subscribe("/road_lines", 1, &RoadObstacleDetector::roadLinesCallback, this);
   motion_sub_ = nh_.subscribe("selfie_out/motion", 1, &RoadObstacleDetector::motionCallback, this);
+  overtaking_sub_ = nh_.subscribe("/can_overtake", 1, &RoadObstacleDetector::overtakingCallback, this);
   sendIndicators(false, false);
   return_distance_calculated_ = false;
   proof_slowdown_ = 0;
