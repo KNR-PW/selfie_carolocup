@@ -39,7 +39,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   pnh_.param<int>("num_proof_to_slowdown", num_proof_to_slowdown_, 2);
   pnh_.param<int>("num_corners_to_detect", num_corners_to_detect_, 3);
   pnh_.param<float>("lane_change_distance", lane_change_distance_, 0.9);
-  pnh_.param<float>("target_distance_to_obstacle", target_distance_to_obstacle_, 0.2);
+  pnh_.param<float>("target_distance_to_obstacle", target_distance_to_obstacle_, 0.5);
 
   num_proof_to_return_ = num_proof_to_slowdown_;  // Maybe change to param later
   dr_server_.setCallback(dr_server_CB_);
@@ -107,7 +107,7 @@ void RoadObstacleDetector::updateState(const selfie::EnumLaneControl& state)
 
 void RoadObstacleDetector::overtakingCallback(const std_msgs::Bool& msg)
 {
-  this->can_overtake_ = msg.data;
+  can_overtake_ = msg.data;
 }
 
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
@@ -122,7 +122,8 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
       {
         float distance = std::min(nearest_box_in_front_of_car_->bl.x,
                                   nearest_box_in_front_of_car_->br.x);
-        if (distance > 2*target_distance_to_obstacle_)
+
+        if (distance > 2 * target_distance_to_obstacle_)
         {
           speed_message_.data = max_speed_;
           offset_value_.data = right_lane_offset_;
