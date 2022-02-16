@@ -18,6 +18,7 @@
 #include <dynamic_reconfigure/client.h>
 #include <dynamic_reconfigure/server.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 #include <std_srvs/Empty.h>
 
 #include <lane_pilot/LaneControllerConfig.h>
@@ -45,6 +46,7 @@ private:
   ros::Subscriber obstacles_sub_;
   ros::Subscriber road_lines_sub_;
   ros::Subscriber motion_sub_;
+  ros::Subscriber overtaking_sub_;
   ros::Publisher speed_pub_;
   ros::Publisher visualizer_;
   ros::Publisher offset_pub_;
@@ -92,6 +94,7 @@ private:
                                                // "lane_change_distance_" meters
   float distance_when_started_changing_lane_;  // saved when we begin changing lane
 
+  bool can_overtake_;
   int proof_slowdown_;
   int num_proof_to_slowdown_;
   int proof_return_;
@@ -124,6 +127,7 @@ private:
                                                           // lane
   void obstacleCallback(const custom_msgs::Box2DArray&);
   void motionCallback(const custom_msgs::Motion&);
+  void overtakingCallback(const std_msgs::Bool&);
   void calculateReturnDistance();
 
   bool switchToActive(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
