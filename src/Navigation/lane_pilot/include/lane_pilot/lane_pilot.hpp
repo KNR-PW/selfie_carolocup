@@ -94,6 +94,7 @@ private:
                                                // "lane_change_distance_" meters
   float distance_when_started_changing_lane_;  // saved when we begin changing lane
 
+  float target_distance_to_obstacle_;
   bool can_overtake_;
   int proof_slowdown_;
   int num_proof_to_slowdown_;
