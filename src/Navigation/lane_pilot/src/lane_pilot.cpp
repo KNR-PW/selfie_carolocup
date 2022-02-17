@@ -438,7 +438,7 @@ bool RoadObstacleDetector::switchToPassive(std_srvs::Empty::Request& request, st
 bool RoadObstacleDetector::resetNode(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("Lane control reset");
-  if (state_ = EnumLaneControl::PASSIVE_RIGHT)
+  if (state_ == EnumLaneControl::PASSIVE_RIGHT)
   {
     switchToPassive(request, response);
     switchToActive(request, response);
