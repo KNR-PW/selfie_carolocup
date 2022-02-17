@@ -6,11 +6,8 @@ from abc import ABC, abstractmethod
 class ActionCallbackPack(ABC):
 
     @abstractmethod
-    def doneCallback(self, state, result):
-        pass
+    def doneCallback(self, state, result): ...
 
-    def activeCallback(self):
-        pass
+    def activeCallback(self): ...
 
-    def feedbackCallback(self, feedback):
-        pass
+    def feedbackCallback(self, feedback): ...
