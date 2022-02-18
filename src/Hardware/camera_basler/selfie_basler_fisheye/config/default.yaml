@@ -1,15 +1,15 @@
 camera_basler: 
   {
-    camera_info_url: "",
+    camera_info_url: "file:///home/selfie/dev/carolocup_2022/src/Hardware/camera_basler/selfie_basler_fisheye/config/dart_distort.yaml",
     image_encoding: "mono8",
-    frame_rate: 150,
-    brightness: 150,
+    frame_rate: 60,
+    brightness: 100,
     brightness_continuous: true,
     exposure_auto: false,
     gain_auto: true,
-    exposure: 6000.0,
-    height: 400,
-    width: 1024,
-    roi_offset_x: 512,
-    roi_offset_y: 460
+    exposure: 10000.0,
+    height: 1200,
+    width: 1600,
+    roi_offset_x: 0,
+    roi_offset_y: 0 
   }

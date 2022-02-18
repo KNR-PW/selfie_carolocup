@@ -17,12 +17,12 @@ control_calculator:
 
 pid_controller: 
   {
-    Kd: 0.12,
+    Kd: 0.15,
     Ki: 0.0,
-    Kp: 1.0,
+    Kp: 1.2,
     lower_limit: -0.785,
     upper_limit: 0.785,
-    windup_limit: 10
+    windup_limit: 1
   }
 
 cmd_creator:

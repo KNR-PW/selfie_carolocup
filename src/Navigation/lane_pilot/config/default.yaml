@@ -1,6 +1,6 @@
 lane_pilot:
   {
-    right_lane_offset: -0.26,
+    right_lane_offset: -0.19,
     left_lane_offset: 0.19,
 
     maximum_speed: 2.2,
