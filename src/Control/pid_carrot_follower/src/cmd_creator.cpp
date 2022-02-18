@@ -14,8 +14,6 @@ std_msgs::Float64 _speed;
 std_msgs::Float64 _steering_angle;
 std_msgs::Float64 _acceleration;
 
-ros::ServiceClient set_lane_change_pid_settings_;
-ros::ServiceClient set_default_pid_settings_;
 
 bool _two_axis_steering_mode = false;
 
@@ -42,11 +40,9 @@ void laneControllCallback(const std_msgs::Int8& msg)
     case selfie::EnumLaneControl::OVERTAKE:
     case selfie::EnumLaneControl::RETURN_RIGHT:
       _two_axis_steering_mode = true;
-      set_lane_change_pid_settings_.call(empty_msg);
       break;
     default:
       _two_axis_steering_mode = false;
-      set_default_pid_settings_.call(empty_msg);
       break;
   }
 }
@@ -62,9 +58,6 @@ int main(int argc, char** argv)
   ros::Subscriber sub_speed = n.subscribe("/speed", 50, speedCallback);
   ros::Subscriber sub_acc = n.subscribe("/acceleration", 50, accelerationCallback);
   ros::Subscriber sub_lane_control = n.subscribe("/state/lane_control", 50, laneControllCallback);
-  ros::ServiceClient set_lane_change_pid_settings_ =
-      n.serviceClient<std_srvs::Empty>("/pidTuner/setLaneChangePidSettings");
-  ros::ServiceClient set_default_pid_settings_ = n.serviceClient<std_srvs::Empty>("/pidTuner/setDefaultPidSettings");
 
   int publish_rate = 50;
   n.getParam("publish_rate", publish_rate);
@@ -83,14 +76,7 @@ int main(int argc, char** argv)
 
     drive_msg.speed = _speed.data;
     drive_msg.steering_angle_front = _steering_angle.data;
-    if (_two_axis_steering_mode)
-    {
-      drive_msg.steering_angle_rear = -_steering_angle.data;
-    }
-    else
-    {
       drive_msg.steering_angle_rear = 0;
-    }
 
     drive_msg.acceleration = _acceleration.data;
     drive_pub.publish(drive_msg);

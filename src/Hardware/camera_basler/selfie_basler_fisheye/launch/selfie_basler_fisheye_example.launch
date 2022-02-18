@@ -26,19 +26,4 @@
         output="$(arg node_output)" >
     </node>
 
-    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" output="$(arg node_output)" respawn="$(arg node_respawn)" />
-
-    <node
-        pkg="nodelet"
-        type="nodelet"
-        name="image_proc_fisheye"
-        args="load image_proc_fisheye/RectifyNodelet camera_nodelet_manager"
-        respawn="$(arg node_respawn)"
-        output="$(arg node_output)" >
-            <remap from="image_raw" to="camera_basler/image_raw" />
-            <remap from="image_rect" to="camera_basler/image_rect" />
-            <param name="mapx_file" value="$(find selfie_basler_fisheye)/config/mapx.yaml" />
-            <param name="mapy_file" value="$(find selfie_basler_fisheye)/config/mapy.yaml" />
-    </node>
-
 </launch>

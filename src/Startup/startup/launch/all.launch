@@ -84,7 +84,7 @@
     <!-- lane_detector -->
     <include file="$(find lane_detector)/launch/lane_detector_example.launch" >
         <arg name="debug" 
-             value="$(arg debug)" />
+             value="false" />
         <arg name="load_config"
              value="$(arg load_pkg_config)" />
         <arg name="config_file"

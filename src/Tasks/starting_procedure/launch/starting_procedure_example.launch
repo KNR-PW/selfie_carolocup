@@ -36,12 +36,4 @@
         output="$(arg node_output)" >
         <param name="visualization" value="$(arg debug)" />
     </node>
-
-    <node
-        name="gate_scanner"
-        pkg="starting_procedure"
-        type="gate_scanner"
-        respawn="$(arg node_respawn)"
-        output="$(arg node_output)" >
-    </node>
 </launch>
