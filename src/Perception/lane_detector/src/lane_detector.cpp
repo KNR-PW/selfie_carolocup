@@ -2122,7 +2122,7 @@ void LaneDetector::drawParticles(int num)
                  pf_line[j - 1],
                  pf_line[j],
                  cv::Scalar(color_set[i][0], color_set[i][1], color_set[i][2]),
-                 1.5,
+                 1,
                  cv::LINE_AA);
       }
       for (int j = 0; j < pf_cp.size(); ++j)
@@ -2151,7 +2151,7 @@ void LaneDetector::drawParticles(int num)
                  pf_line[j - 1],
                  pf_line[j],
                  cv::Scalar(color_set[i][0], color_set[i][1], color_set[i][2]),
-                 1.5,
+                 1,
                  cv::LINE_AA);
       }
       for (int j = 0; j < pf_cp.size(); ++j)
@@ -2180,7 +2180,7 @@ void LaneDetector::drawParticles(int num)
                  pf_line[j - 1],
                  pf_line[j],
                  cv::Scalar(color_set[i][0], color_set[i][1], color_set[i][2]),
-                 1.5,
+                 1,
                  cv::LINE_AA);
       }
       for (int j = 0; j < pf_cp.size(); ++j)
@@ -2481,7 +2481,7 @@ void LaneDetector::drawIntersection()
   for (size_t i = 0; i < lines_out_h_.size(); ++i)
   {
     cv::Vec4i l = lines_out_h_[i];
-    cv::line(outside_road_, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0, 0, 255), 1.5, cv::LINE_AA);
+    cv::line(outside_road_, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
   }
 
   if (!isec_min_dist_points_.empty())

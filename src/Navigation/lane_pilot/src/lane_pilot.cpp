@@ -39,6 +39,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   pnh_.param<int>("num_proof_to_slowdown", num_proof_to_slowdown_, 2);
   pnh_.param<int>("num_corners_to_detect", num_corners_to_detect_, 3);
   pnh_.param<float>("lane_change_distance", lane_change_distance_, 0.9);
+  pnh_.param<float>("target_distance_to_obstacle", target_distance_to_obstacle_, 0.5);
 
   num_proof_to_return_ = num_proof_to_slowdown_;  // Maybe change to param later
   dr_server_.setCallback(dr_server_CB_);
@@ -104,6 +105,11 @@ void RoadObstacleDetector::updateState(const selfie::EnumLaneControl& state)
   state_ = state;
 }
 
+void RoadObstacleDetector::overtakingCallback(const std_msgs::Bool& msg)
+{
+  can_overtake_ = msg.data;
+}
+
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 {
   if (state_ != EnumLaneControl::OVERTAKE && state_ != EnumLaneControl::ON_LEFT)
@@ -112,9 +118,31 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
     if (!filtered_boxes_.empty())
     {
       ++proof_slowdown_;
-      if ((state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
-          (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
-           nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
+      if (!can_overtake_)
+      {
+        float distance = std::min(nearest_box_in_front_of_car_->bl.x, nearest_box_in_front_of_car_->br.x);
+
+        if (distance > 2 * target_distance_to_obstacle_)
+        {
+          speed_message_.data = max_speed_;
+          offset_value_.data = right_lane_offset_;
+          speed_pub_.publish(speed_message_);
+          offset_pub_.publish(offset_value_);
+          return;
+        }
+
+        float error = distance - target_distance_to_obstacle_;
+
+        speed_message_.data = std::max(float(0), std::min(max_speed_ * error, max_speed_));
+        offset_value_.data = right_lane_offset_;
+
+        speed_pub_.publish(speed_message_);
+        offset_pub_.publish(offset_value_);
+        return;
+      }
+      else if ((state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
+               (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
+                nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
       {
         proof_slowdown_ = 0;
         calculateReturnDistance();
@@ -374,6 +402,7 @@ bool RoadObstacleDetector::switchToActive(std_srvs::Empty::Request& request, std
   obstacles_sub_ = nh_.subscribe("/obstacles", 1, &RoadObstacleDetector::obstacleCallback, this);
   road_lines_sub_ = nh_.subscribe("/road_lines", 1, &RoadObstacleDetector::roadLinesCallback, this);
   motion_sub_ = nh_.subscribe("selfie_out/motion", 1, &RoadObstacleDetector::motionCallback, this);
+  overtaking_sub_ = nh_.subscribe("/can_overtake", 1, &RoadObstacleDetector::overtakingCallback, this);
   sendIndicators(false, false);
   return_distance_calculated_ = false;
   proof_slowdown_ = 0;
@@ -402,7 +431,7 @@ bool RoadObstacleDetector::switchToPassive(std_srvs::Empty::Request& request, st
 bool RoadObstacleDetector::resetNode(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
   ROS_INFO("Lane control reset");
-  if (state_ = EnumLaneControl::PASSIVE_RIGHT)
+  if (state_ == EnumLaneControl::PASSIVE_RIGHT)
   {
     switchToPassive(request, response);
     switchToActive(request, response);
