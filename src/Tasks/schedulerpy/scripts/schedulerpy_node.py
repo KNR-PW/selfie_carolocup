@@ -1,33 +1,54 @@
-import imp
-import smach
-from std_msgs.msg import Int8
-import smach_ros
 import rospy
+import smach
 
-# from core  import scheduler
-
-import threading
-import asyncio
-
-import actionlib
-import topic_tools.srv
-
-# import custom_msgs.msg
-
-import std_srvs.srv
-
-from states import StartingState, FreeDriveState, IntersectionState
+from states import StartingState, FreeDriveState, IntersectionState, SelfieState
+from states.SelfieState import CompetitionID, ControlMode
+from typing import Dict, Optional
 
 
 class Scheduler:
 
-    def rcCb(self, msg):
-        rospy.get_param()
-
     def __init__(self):
-        rospy.loginfo("Scheduler has been created successfuly")
+        self._init_state_machine()
+        self._init_mode_controller()
 
-        # self.state_notifier = rospy.Subscriber("/state/task", Int8, cb)
+        rospy.loginfo("Scheduler has been created successfully")
+
+    def _init_mode_controller(self):
+        def _control_mode_handler_closure(control_mode: ControlMode):
+            self._control_mode_handler(control_mode)
+
+        self._mode_controller = SelfieState.ModeController(_control_mode_handler_closure)
+
+    def _init_state_machine(self):
+        self._sm = smach.StateMachine(outcomes=["Exit"])
+        # global state machine variables available from each state
+        self._sm.userdata.in_args = None
+        self._sm.userdata.out_args = None
+        self._sm.userdata.competition = CompetitionID.NONE
+        self._sm.current_state = None
+
+        start_build = StartingState.StartingStateBuilder()
+        free_build = FreeDriveState.FreeDriveStateBuilder()
+        intersection_builder = IntersectionState.IntersectionStateBuilder()
+
+        self._starting_state: StartingState.StartingState = start_build.product()
+        self._free_state: FreeDriveState.FreeDriveState = free_build.product()
+        self._intersection_state: IntersectionState.IntersectionState = intersection_builder.product()
+
+    def _control_mode_handler(self, new_control_mode: ControlMode):
+        if new_control_mode == ControlMode.MANUAL:
+            self._free_state.set_manual_mode()
+            self._sm.current_state.abort()
+        elif new_control_mode == ControlMode.AUTO:
+            self._free_state.set_auto_mode()
+
+    @staticmethod
+    def get_standard_remapping() -> Dict[str, str]:
+        return {'state_input_args': 'in_args',
+                'state_output_args': 'out_args',
+                'competition': 'competition',
+                'current_state': 'current_state'}
 
     def __enter__(self):
         rospy.loginfo("Preparing to run...")
@@ -44,49 +65,36 @@ class Scheduler:
     def run(self):
         rospy.loginfo("Running scheduler...")
 
-        sm = smach.StateMachine(outcomes=["Exit"])
-        sm.userdata.goal_data = 0
-        sm.userdata.previous_state = 'None'
+        with self._sm:
+            smach.StateMachine.add(
+                "StartingState",
+                self._starting_state,
+                transitions={
+                    self._starting_state.current_outcomes[0]: "FreeRunState"
+                },
+                remapping=Scheduler.get_standard_remapping())
 
-        start_build = StartingState.StartingStateBuilder()
-        free_build = FreeDriveState.FreeDriveStateBuilder()
-
-        startingState = start_build.product()
-        freeState = free_build.product()
-        intersectionState = IntersectionState.IntersectionStateBuilder(
-        ).product()
-
-        with sm:
-            smach.StateMachine.add("StartingState",
-                                   startingState,
-                                   transitions={
-                                       startingState.current_outcomes[0]:
-                                       "FreeRunState"
-                                   },
-                                   remapping={
-                                       'state_output': 'goal_data',
-                                       'prev_state': 'previous_state'
-                                   })
             smach.StateMachine.add(
                 "FreeRunState",
-                freeState,
+                self._free_state,
                 transitions={
-                    freeState.current_outcomes[0]: "IntersectionState"
+                    self._free_state.current_outcomes[0]: "FreeRunState",
+                    self._free_state.current_outcomes[1]: "IntersectionState",
+                    self._free_state.current_outcomes[2]: "IntersectionState"
                 },
-                remapping={
-                    'state_input': 'goal_data'  #,
-                    #    'prev_state': 'previous_state'
-                })
+                remapping=Scheduler.get_standard_remapping())
+
             smach.StateMachine.add(
                 "IntersectionState",
-                intersectionState,
+                self._intersection_state,
                 transitions={
-                    intersectionState.current_outcomes[0]: "FreeRunState"
+                    self._intersection_state.current_outcomes[0]: "FreeRunState"
                 },
-                #    remapping={'prev_state': 'previous_state'}
+                remapping=Scheduler.get_standard_remapping()
             )
+
         rospy.loginfo("State machine is running...")
-        outcome = sm.execute()
+        outcome = self._sm.execute()
 
 
 if __name__ == "__main__":
