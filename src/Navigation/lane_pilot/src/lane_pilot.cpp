@@ -120,8 +120,7 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
       ++proof_slowdown_;
       if (!can_overtake_)
       {
-        float distance = std::min(nearest_box_in_front_of_car_->bl.x,
-                                  nearest_box_in_front_of_car_->br.x);
+        float distance = std::min(nearest_box_in_front_of_car_->bl.x, nearest_box_in_front_of_car_->br.x);
 
         if (distance > 2 * target_distance_to_obstacle_)
         {
@@ -132,15 +131,9 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
           return;
         }
 
-        float error = target_distance_to_obstacle_ - distance;
-        if (error < 0)
-        {
-          speed_message_.data = std::min(std::abs(max_speed_ * error), max_speed_);
-        }
-        else
-        {
-          speed_message_.data = 0;
-        }
+        float error = distance - target_distance_to_obstacle_;
+
+        speed_message_.data = std::max(float(0), std::min(max_speed_ * error, max_speed_));
         offset_value_.data = right_lane_offset_;
 
         speed_pub_.publish(speed_message_);
@@ -148,8 +141,8 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
         return;
       }
       else if ((state_ == EnumLaneControl::ON_RIGHT || state_ == EnumLaneControl::RETURN_RIGHT) &&
-              (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
-               nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
+               (nearest_box_in_front_of_car_->bl.x <= max_distance_to_obstacle_ ||
+                nearest_box_in_front_of_car_->br.x <= max_distance_to_obstacle_))
       {
         proof_slowdown_ = 0;
         calculateReturnDistance();
