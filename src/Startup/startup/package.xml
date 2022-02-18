@@ -17,7 +17,7 @@
   <depend>intersection</depend>
   <depend>park</depend>
   <depend>parking_spot_detector</depend>
-  <depend>scheduler</depend>
+  <depend>schedulerpy</depend>
   <depend>starting_procedure</depend>
   <depend>diagnostics</depend>
   <depend>lane_detector</depend>

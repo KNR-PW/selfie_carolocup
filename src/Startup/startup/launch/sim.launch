@@ -133,8 +133,8 @@
              value="$(arg config)" />
     </include>
 
-    <!-- scheduler -->
-    <include file="$(find scheduler)/launch/scheduler_example.launch" >
+    <!-- schedulerpy -->
+    <include file="$(find schedulerpy)/launch/scheduler_example.launch" >
         <arg name="debug" 
              value="$(arg debug)" />
         <arg name="load_config" 
