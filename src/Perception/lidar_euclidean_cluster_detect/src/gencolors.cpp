@@ -43,7 +43,6 @@
 //
 //M*/
 #include "opencv2/core/core.hpp"
-//#include "precomp.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core_c.h>
 

@@ -98,7 +98,7 @@ static int _cluster_size_min;
 static int _cluster_size_max;
 static const double _initial_quat_w = 1.0;
 
-static bool _remove_ground;  // only ground
+static bool _remove_ground;  
 
 static bool _using_sensor_cloud;
 static bool _use_diffnormals;
@@ -120,7 +120,6 @@ static std::chrono::system_clock::time_point _start, _end;
 std::vector<std::vector<geometry_msgs::Point>> _way_area_points;
 std::vector<cv::Scalar> _colors;
 pcl::PointCloud<pcl::PointXYZ> _sensor_cloud;
-// visualization_msgs::Marker _visualization_marker;
 
 static bool _use_multiple_thres;
 std::vector<double> _clustering_distances;
@@ -214,7 +213,6 @@ void publishCloudClusters(const ros::Publisher* in_publisher, const autoware_msg
         _transform_listener->transformPoint(in_target_frame, ros::Time(), cluster.centroid_point, in_header.frame_id,
                                             cluster_transformed.centroid_point);
 
-        // Convex_hull
         cluster_transformed.convex_hull.polygon.points.resize(cluster.convex_hull.polygon.points.size());
         cluster_transformed.convex_hull.header.frame_id = in_target_frame;
         for (size_t i = 0; i < cluster.convex_hull.polygon.points.size(); i++)
@@ -288,7 +286,6 @@ void publishColorCloud(const ros::Publisher *in_publisher,
 
 void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 {
-  //_start = std::chrono::system_clock::now();
 
   if (!_using_sensor_cloud)
   {
@@ -323,7 +320,6 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     if (_remove_points_upto > 0.0)
     {
-      // TODO
       prepare_data->removePointsFurther(current_sensor_cloud_ptr, removed_points_cloud_ptr, _remove_points_upto);
     }
     else
@@ -345,7 +341,6 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     if (_remove_ground)
     {
-      // TODO
       prepare_data->removeFloor(inlanes_cloud_ptr, nofloor_cloud_ptr, onlyfloor_cloud_ptr, 0.02, 0.1);
       publishCloud(&_pub_ground_cloud, onlyfloor_cloud_ptr);
     }
@@ -357,10 +352,7 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     publishCloud(&_pub_points_lanes_cloud, nofloor_cloud_ptr);
 
 
-    // if (_use_diffnormals)
-    //   differenceNormalsSegmentation(nofloor_cloud_ptr, diffnormals_cloud_ptr);
-    // else
-      diffnormals_cloud_ptr = nofloor_cloud_ptr;
+    diffnormals_cloud_ptr = nofloor_cloud_ptr;
 
     merging_and_clustering->segmentByDistance(diffnormals_cloud_ptr, colored_clustered_cloud_ptr, 
                                             colored_clustered_signs_cloud_ptr,  centroids,
@@ -428,12 +420,7 @@ int main(int argc, char **argv)
   }
   else
   {
-    ROS_INFO("euclidean_cluster > No points node received, defaulting to points_raw, you can use "
-               "_points_node:=YOUR_TOPIC");
-    // points_topic = "/points_raw";
     points_topic = "/camera/depth/color/points";
-
-    
   }
 
   _use_diffnormals = false;
@@ -522,10 +509,8 @@ int main(int argc, char **argv)
 
   _velodyne_transform_available = false;
 
-  // Create a ROS subscriber for the input point cloud
   ros::Subscriber sub = h.subscribe(points_topic, 1, velodyne_callback);
 
-  // Spin
   ros::spin();
 }
 

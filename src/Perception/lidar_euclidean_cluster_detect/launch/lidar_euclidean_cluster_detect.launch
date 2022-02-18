@@ -1,17 +1,16 @@
 <!-- -->
 <launch>
   <arg name="points_node" default="/camera/depth/color/points" />
-  <!-- <arg name="points_node" default="/depth_camera/depth/points" />CHANGE THIS TO READ WHETHER FROM VSCAN OR POINTS_RAW -->
   <arg name="remove_ground" default="true" />
-  <arg name="downsample_cloud" default="true" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
-  <arg name="leaf_size" default="0.05" /><!-- Voxel Grid Filter leaf size-->
-  <arg name="cluster_size_min" default="10" /><!-- Minimum number of points to consider a cluster as valid-->
-  <arg name="cluster_size_max" default="80" /><!-- Maximum number of points to allow inside a cluster-->
+  <arg name="downsample_cloud" default="true" /> 
+  <arg name="leaf_size" default="0.01" />
+  <arg name="cluster_size_min" default="10" />
+  <arg name="cluster_size_max" default="7000" />
   <arg name="sync" default="false" />
   <arg name="use_diffnormals" default="false" />
   <arg name="pose_estimation" default="true" />
   <arg name="clip_min_height" default="-0.4" />
-  <arg name="clip_max_height" default="0.18" />
+  <arg name="clip_max_height" default="0.23" />
 
   <arg name="keep_lanes" default="false" />
   <arg name="keep_lane_left_distance" default="5" />
@@ -22,24 +21,20 @@
   <arg name="use_vector_map" default="false" />
   <arg name="wayarea_gridmap_layer" default="wayarea" />
 
-<!-- <arg name="output_frame" default="base_link" /> -->
-<!-- <arg name="output_frame" default="depth_camera_lens_optical" /> -->
   <arg name="output_frame" default="camera_color_frame" />
 
-<!-- chwilowo usuwa punkty za podaną wartością -->
   <arg name="remove_points_upto" default="4.0" />
 
   <arg name="use_gpu" default="false" />
 
   <arg name="use_multiple_thres" default="true"/>
-  <arg name="clustering_ranges" default="[15,30,45,60]"/><!-- Distances to segment pointcloud -->
+  <arg name="clustering_ranges" default="[15,30,45,60]"/>
   <arg name="clustering_distances"
-       default="[0.1, 0.1 , 0.2 , 0.2 , 0.2 ]"/><!-- Euclidean Clustering threshold distance for each segment -->
-<!-- default="[0.5,1.1,1.6,2.1,2.6]" -->
+       default="[0.05, 0.1 , 0.02 , 0.02 , 0.02 ]"/>
   <node pkg="lidar_euclidean_cluster_detect" type="lidar_euclidean_cluster_detect"
         name="lidar_euclidean_cluster_detect" output="screen">
     <param name="points_node"
-           value="$(arg points_node)"/> <!-- Can be used to select which pointcloud node will be used as input for the clustering -->
+           value="$(arg points_node)"/> 
     <param name="remove_ground" value="$(arg remove_ground)"/>
     <param name="downsample_cloud" value="$(arg downsample_cloud)"/>
     <param name="leaf_size" value="$(arg leaf_size)"/>
@@ -58,9 +53,9 @@
     <param name="cluster_merge_threshold" value="$(arg cluster_merge_threshold)"/>
     <param name="use_gpu" value="$(arg use_gpu)"/>
     <param name="use_multiple_thres" value="$(arg use_multiple_thres)"/>
-    <param name="clustering_ranges" value="$(arg clustering_ranges)"/><!-- Distances to segment pointcloud -->
+    <param name="clustering_ranges" value="$(arg clustering_ranges)"/>
     <param name="clustering_distances"
-           value="$(arg clustering_distances)"/><!-- Euclidean Clustering threshold distance for each segment -->
+           value="$(arg clustering_distances)"/>
 
     <remap from="/points_raw" to="/sync_drivers/points_raw" if="$(arg sync)" />
   </node>

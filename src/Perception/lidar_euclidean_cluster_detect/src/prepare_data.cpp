@@ -22,7 +22,7 @@ void Prepare_data::keepLanePoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_c
   pcl::ExtractIndices<pcl::PointXYZ> extract;
   extract.setInputCloud(in_cloud_ptr);
   extract.setIndices(far_indices);
-  extract.setNegative(true);  // true removes the indices, false leaves only the indices
+  extract.setNegative(true);  
   extract.filter(*out_cloud_ptr);
 }
 
@@ -43,7 +43,7 @@ void Prepare_data::removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_clou
   seg.setAxis(Eigen::Vector3f(0, 1, 0));
   seg.setEpsAngle(in_floor_max_angle);
 
-  seg.setDistanceThreshold(in_max_height);  // floor distance
+  seg.setDistanceThreshold(in_max_height);  
   seg.setOptimizeCoefficients(true);
   seg.setInputCloud(in_cloud_ptr);
   seg.segment(*inliers, *coefficients);
@@ -56,11 +56,11 @@ void Prepare_data::removeFloor(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_clou
   pcl::ExtractIndices<pcl::PointXYZ> extract;
   extract.setInputCloud(in_cloud_ptr);
   extract.setIndices(inliers);
-  extract.setNegative(true);  // true removes the indices, false leaves only the indices
+  extract.setNegative(true);  
   extract.filter(*out_nofloor_cloud_ptr);
 
   // EXTRACT THE FLOOR FROM THE CLOUD
-  extract.setNegative(false);  // true removes the indices, false leaves only the indices
+  extract.setNegative(false);  
   extract.filter(*out_onlyfloor_cloud_ptr);
 }
 

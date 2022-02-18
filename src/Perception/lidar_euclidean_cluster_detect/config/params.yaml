@@ -2,9 +2,6 @@
 # points_node: /points_raw
 points_node: /camera/depth/color/points
 
-# Enabled GPU via CUDA for Euclidean Cluster Extraction only
-use_gpu: false
-
 # Points closer than this distance to the lidar will be removed
 remove_points_upto: 0.0
 
@@ -46,5 +43,3 @@ clustering_distances: [0.5,1.1,1.6,2.1,2.6]
 # Distance between cluster centroids (m)
 cluster_merge_threshold: 1.5
 
-# Estimate the pose of the cluster using a minimum-area bounding rectangle
-pose_estimation: true
