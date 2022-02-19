@@ -43,6 +43,7 @@ def path_callback(msg):
 
     position_offset = -pose_next.position.y
     heading_offset = -pose_next.orientation.z
+    #rospy.logwarn('pos offset: %f  heading_offset: %f',position_offset, heading_offset)
 
 
 def max_speed_callback(msg):
