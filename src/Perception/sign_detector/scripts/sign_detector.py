@@ -18,7 +18,7 @@ COLORS = [(0, 255, 0), (0, 0, 255), (255, 0, 0),
           (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 
 motion_msg = None
-Conf_threshold = 0.45
+Conf_threshold = 0.9
 NMS_threshold = 0.2
 frame_counter = 0
 
@@ -31,7 +31,7 @@ SPEED_LIMIT = 0
 OVERTAKING_BAN = 1
 
 starting_time = time.time()
-pkg_path = rospack.get_path('sign_detection')+'/data/'
+pkg_path = rospack.get_path('sign_detector')+'/data/'
 
 visualize_detection = rospy.get_param('visualize_sign_detection', True)
 speed_limit_distance = rospy.get_param('speed_limit_distance', 2.0)
@@ -98,21 +98,21 @@ def is_sign(classes):
         can_overtake = False
         overtaking_ban_start_distance = motion_msg.distance
 
-    if motion_msg.distance > overtaking_ban_start_distance + overtaking_ban_distance:
+    if not can_overtake and motion_msg.distance > overtaking_ban_start_distance + overtaking_ban_distance:
         can_overtake = True
         overtaking_ban_start_distance = None
+        last_time_seen_overtaking_ban = None
 
-    if last_time_seen_speed_limit:
-        print(datetime.datetime.now() - last_time_seen_speed_limit)
     if last_time_seen_speed_limit is None:
         speed_limit = False
     elif not speed_limit and datetime.datetime.now() - last_time_seen_speed_limit > datetime.timedelta(seconds=1):
         speed_limit = True
         speed_limit_start_distance = motion_msg.distance
 
-    if motion_msg.distance > speed_limit_start_distance + speed_limit_distance:
+    if speed_limit and motion_msg.distance > speed_limit_start_distance + speed_limit_distance:
         speed_limit = False
         speed_limit_start_distance = None
+        last_time_seen_speed_limit = None
 
 def image_callback(msg):
     try:
