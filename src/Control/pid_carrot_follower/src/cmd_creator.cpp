@@ -38,6 +38,7 @@ void laneControllCallback(const std_msgs::Int8& msg)
   switch (msg.data)
   {
     case selfie::EnumLaneControl::OVERTAKE:
+      _two_axis_steering_mode = true;
     case selfie::EnumLaneControl::RETURN_RIGHT:
       _two_axis_steering_mode = true;
       break;
@@ -69,14 +70,40 @@ int main(int argc, char** argv)
   _steering_angle.data = 0;
   _acceleration.data = 0;
 
+  float front_right_offset = 0.;
+  float rear_right_offset = 0.;
+  float front_left_offset = 0.;
+  float rear_left_offset = 0.;
+  n.getParam("front_right_offset", front_right_offset);
+  n.getParam("rear_right_offset", rear_right_offset);
+  n.getParam("front_left_offset", front_left_offset);
+  n.getParam("rear_left_offset", rear_left_offset);
+
   while (n.ok())
   {
     // check for incoming messages
     ros::spinOnce();
 
     drive_msg.speed = _speed.data;
-    drive_msg.steering_angle_front = _steering_angle.data;
+    if(_two_axis_steering_mode)
+    {
+      if(_steering_angle.data>0)
+      {
+	      drive_msg.steering_angle_front = _steering_angle.data + front_left_offset;
+	      drive_msg.steering_angle_rear = _steering_angle.data + rear_left_offset;
+      }
+      else
+      {
+	      drive_msg.steering_angle_front = _steering_angle.data + front_right_offset;
+	      drive_msg.steering_angle_rear = _steering_angle.data + rear_left_offset;
+      }
+        
+    }
+    else
+    {
+      drive_msg.steering_angle_front = _steering_angle.data;
       drive_msg.steering_angle_rear = 0;
+    }
 
     drive_msg.acceleration = _acceleration.data;
     drive_pub.publish(drive_msg);
