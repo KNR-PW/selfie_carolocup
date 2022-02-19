@@ -47,6 +47,7 @@ private:
   ros::Subscriber road_lines_sub_;
   ros::Subscriber motion_sub_;
   ros::Subscriber overtaking_sub_;
+  ros::Subscriber speed_limit_sub_;
   ros::Publisher speed_pub_;
   ros::Publisher visualizer_;
   ros::Publisher offset_pub_;
@@ -96,6 +97,7 @@ private:
 
   float target_distance_to_obstacle_;
   bool can_overtake_;
+  bool speed_limit_;
   int proof_slowdown_;
   int num_proof_to_slowdown_;
   int proof_return_;
@@ -129,6 +131,7 @@ private:
   void obstacleCallback(const custom_msgs::Box2DArray&);
   void motionCallback(const custom_msgs::Motion&);
   void overtakingCallback(const std_msgs::Bool&);
+  void speedCallback(const std_msgs::Bool&);
   void calculateReturnDistance();
 
   bool switchToActive(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
