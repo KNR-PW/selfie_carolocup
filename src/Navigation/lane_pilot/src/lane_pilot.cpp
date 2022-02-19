@@ -39,7 +39,7 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   pnh_.param<int>("num_proof_to_slowdown", num_proof_to_slowdown_, 2);
   pnh_.param<int>("num_corners_to_detect", num_corners_to_detect_, 3);
   pnh_.param<float>("lane_change_distance", lane_change_distance_, 0.9);
-  pnh_.param<float>("target_distance_to_obstacle", target_distance_to_obstacle_, 0.5);
+  pnh_.param<float>("target_distance_to_obstacle", target_distance_to_obstacle_, 1.0);
 
   num_proof_to_return_ = num_proof_to_slowdown_;  // Maybe change to param later
   dr_server_.setCallback(dr_server_CB_);
@@ -117,9 +117,11 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
     filterBoxes(msg);
     if (!filtered_boxes_.empty())
     {
+      ROS_INFO("can overtake: %d",int(can_overtake_));
       ++proof_slowdown_;
       if (!can_overtake_)
       {
+         ROS_INFO("IN can overtake");
         float distance = std::min(nearest_box_in_front_of_car_->bl.x, nearest_box_in_front_of_car_->br.x);
 
         if (distance > 2 * target_distance_to_obstacle_)

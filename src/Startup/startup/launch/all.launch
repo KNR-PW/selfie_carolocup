@@ -110,7 +110,10 @@
         <arg name="config_file"
              value="$(arg config)" />
     </include>
-
+    <include file="$(find sign_detector)/launch/sign_detector_example.launch" >
+        <arg name="debug" 
+             value="false" />
+    </include>
 <!-- Tasks -->
     <!-- free_drive -->
     <include file="$(find free_drive)/launch/free_drive_example.launch" >
