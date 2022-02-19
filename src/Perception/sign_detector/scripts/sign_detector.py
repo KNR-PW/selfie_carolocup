@@ -33,9 +33,10 @@ OVERTAKING_BAN = 1
 starting_time = time.time()
 pkg_path = rospack.get_path('sign_detector')+'/data/'
 
-visualize_detection = rospy.get_param('visualize_sign_detection', True)
-speed_limit_distance = rospy.get_param('speed_limit_distance', 2.0)
-overtaking_ban_distance = rospy.get_param('overtaking_ban_distance', 2.0)
+rospy.init_node('sign_detector')
+visualize_detection = rospy.get_param('~visualize_sign_detection', True)
+speed_limit_distance = rospy.get_param('~speed_limit_distance', 2.0)
+overtaking_ban_distance = rospy.get_param('~overtaking_ban_distance', 2.0)
 
 class_name = []
 with open(pkg_path +'classes.txt', 'r') as f:
@@ -123,6 +124,7 @@ def image_callback(msg):
     else:
         classes, scores, boxes = detect_signs(img)
 
+    print(visualize_detection)
     if visualize_detection and img is not None:
         visualize(img, classes, scores, boxes)
 
@@ -136,7 +138,7 @@ def motion_callback(msg):
 
 
 
-rospy.init_node('sign_detector')
+
 image_topic = "/camera_basler/image_rect"
 motion_topic = "/selfie_out/motion"
 rospy.Subscriber(image_topic, Image, image_callback)
