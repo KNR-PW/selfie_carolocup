@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_runtime
   roslint
+  sensor_msgs
 )
 
 catkin_python_setup()
@@ -23,6 +24,8 @@ add_message_files(
   Motion.msg
   Box2D.msg
   Box2DArray.msg
+  Box3D.msg
+  Box3DArray.msg
   RoadLines.msg
 )
 
@@ -50,13 +53,14 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  sensor_msgs
 
   actionlib_msgs
   std_msgs
 )
 catkin_package(
   INCLUDE_DIRS include 
-  CATKIN_DEPENDS geometry_msgs message_runtime actionlib_msgs std_msgs
+  CATKIN_DEPENDS geometry_msgs message_runtime actionlib_msgs std_msgs sensor_msgs
 )
 set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces")
 roslint_cpp()
