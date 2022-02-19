@@ -1,0 +1,195 @@
+<launch>
+
+<arg name="debug"
+     value="$(optenv SELFIE_DEBUG false)" />
+<arg name="load_pkg_config"
+     default="true" />
+<arg name="config"
+     value="$(optenv SELFIE_CONFIG default)" />
+
+
+<group unless="$(arg load_pkg_config)">
+    <rosparam command="load"
+        file="$(find startup)/config/custom/$(arg config).yaml"  />
+</group>
+
+<!-- Control -->
+    <!-- drive_multiplexer -->
+    <include file="$(find drive_multiplexer)/launch/drive_multiplexer_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config" 
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file" 
+             value="$(arg config)" />
+
+    </include>
+
+    <!-- pid_carrot_follower -->
+    <include file="$(find pid_carrot_follower)/launch/pid_carrot_follower_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+<!-- Hardware -->
+    <!-- camera -->
+    <include file="$(find selfie_basler_fisheye)/launch/selfie_basler_fisheye_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+       <arg name="filters" value="pointcloud"/>
+    </include>
+
+
+    <!-- stm32_bridge -->
+    <include file="$(find stm32_bridge)/launch/stm32_bridge_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+<!-- Navigation -->
+    <!-- lane_pilot -->
+    <include file="$(find lane_pilot)/launch/lane_pilot_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- path_generator -->
+    <include file="$(find path_generator)/launch/path_generator_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+<!-- Perception -->
+    <!-- lane_detector -->
+    <include file="$(find lane_detector)/launch/lane_detector_example.launch" >
+        <arg name="debug" 
+             value="false" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- obstacle_detector -->
+    <include file="$(find obstacle_detector)/launch/obstacle_detector_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- odometry -->
+    <include file="$(find odometry)/launch/odometry_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+    <include file="$(find sign_detector)/launch/sign_detector_example.launch" >
+        <arg name="debug" 
+             value="false" />
+    </include>
+    <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
+    </include>
+
+<!-- Tasks -->
+    <!-- free_drive -->
+    <include file="$(find free_drive)/launch/free_drive_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- intersection -->
+    <include file="$(find intersection)/launch/intersection_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- park -->
+    <include file="$(find park)/launch/park_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- parking_spot_detector -->
+    <include file="$(find parking_spot_detector)/launch/detect_parking_spot_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- scheduler -->
+    <include file="$(find scheduler)/launch/scheduler_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+    <!-- starting_procedure -->
+    <include file="$(find starting_procedure)/launch/starting_procedure_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+<!-- Startup -->
+
+    <!-- diagnostics -->
+    <include file="$(find diagnostics)/launch/diagnostics_example.launch" >
+        <arg name="debug" 
+             value="$(arg debug)" />
+        <arg name="load_config"
+             value="$(arg load_pkg_config)" />
+        <arg name="config_file"
+             value="$(arg config)" />
+    </include>
+
+</launch>
