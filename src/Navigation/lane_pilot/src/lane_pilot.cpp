@@ -113,7 +113,7 @@ void RoadObstacleDetector::overtakingCallback(const std_msgs::Bool& msg)
 void RoadObstacleDetector::speedCallback(const std_msgs::Bool& msg)
 {
   speed_limit_ = msg.data;
-  max_speed_ /= (1 + int(speed_limit_));
+  max_speed_ = 0.3/float(1.0 + int(speed_limit_));
 }
 
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
