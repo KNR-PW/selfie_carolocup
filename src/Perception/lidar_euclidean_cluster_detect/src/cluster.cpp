@@ -142,25 +142,25 @@ void Cluster::BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box2D
   // out_cluster_message.tr.x = this->GetMaxPoint().x;
   // out_cluster_message.tr.z = this->GetMinPoint().z;
   out_cluster_message.tr.x = this->GetMaxPoint().z;
-  out_cluster_message.tr.y = this->GetMinPoint().x;
+  out_cluster_message.tr.y = this->GetMinPoint().x * -1;
 
   //out_cluster_message.tl.header = in_ros_header;
   // out_cluster_message.tl.x = this->GetMaxPoint().x;
   // out_cluster_message.tl.z = this->GetMaxPoint().z;
   out_cluster_message.tl.x = this->GetMaxPoint().z;
-  out_cluster_message.tl.y = this->GetMaxPoint().x;
+  out_cluster_message.tl.y = this->GetMaxPoint().x * -1;
 
   //out_cluster_message.br.header = in_ros_header;
   // out_cluster_message.br.x = this->GetMinPoint().x;
   // out_cluster_message.br.z = this->GetMinPoint().z;
   out_cluster_message.br.x = this->GetMinPoint().z;
-  out_cluster_message.br.y = this->GetMinPoint().x;
+  out_cluster_message.br.y = this->GetMinPoint().x * -1;
 
   //out_cluster_message.bl.header = in_ros_header;
   // out_cluster_message.bl.x = this->GetMinPoint().x;
   // out_cluster_message.bl.z = this->GetMaxPoint().z;
   out_cluster_message.bl.x = this->GetMinPoint().z;
-  out_cluster_message.bl.y = this->GetMaxPoint().x;
+  out_cluster_message.bl.y = this->GetMaxPoint().x * -1;
 
   //out_cluster_message.centroid_point.header = in_ros_header;
   out_cluster_message.point_centroid.x = this->GetCentroid().x;
