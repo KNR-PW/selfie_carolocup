@@ -2,9 +2,12 @@
     <arg name="debug" default="False" />
     <arg name="speed_limit_distance" default="2"/>
     <arg name="overtaking_ban_distance" default="2"/>
+    <arg name="activation_time" default="0.5"/>
     <node name="sign_detector" pkg="sign_detector" type="sign_detector.py" output="screen">
         <param name="visualize_sign_detection" value="$(arg debug)" />
         <param name="speed_limit_distance" value="$(arg speed_limit_distance)" />
         <param name="overtaking_ban_distance" value="$(arg overtaking_ban_distance)" />
+        <param name="activation_time" value="$(arg activation_time)" />
+
     </node>
 </launch>

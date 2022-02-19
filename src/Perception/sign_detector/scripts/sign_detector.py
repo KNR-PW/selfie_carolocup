@@ -37,6 +37,7 @@ rospy.init_node('sign_detector')
 visualize_detection = rospy.get_param('~visualize_sign_detection', True)
 speed_limit_distance = rospy.get_param('~speed_limit_distance', 2.0)
 overtaking_ban_distance = rospy.get_param('~overtaking_ban_distance', 2.0)
+activation_time = rospy.get_param('~activation_time', 0.5)
 
 class_name = []
 with open(pkg_path +'classes.txt', 'r') as f:
@@ -95,7 +96,7 @@ def is_sign(classes):
 
     if last_time_seen_overtaking_ban is None:
         can_overtake = True
-    elif can_overtake and datetime.datetime.now() - last_time_seen_overtaking_ban > datetime.timedelta(seconds=1):
+    elif can_overtake and datetime.datetime.now() - last_time_seen_overtaking_ban > datetime.timedelta(seconds=activation_time):
         can_overtake = False
         overtaking_ban_start_distance = motion_msg.distance
 
@@ -106,7 +107,7 @@ def is_sign(classes):
 
     if last_time_seen_speed_limit is None:
         speed_limit = False
-    elif not speed_limit and datetime.datetime.now() - last_time_seen_speed_limit > datetime.timedelta(seconds=1):
+    elif not speed_limit and datetime.datetime.now() - last_time_seen_speed_limit > datetime.timedelta(seconds=activation_time):
         speed_limit = True
         speed_limit_start_distance = motion_msg.distance
 
