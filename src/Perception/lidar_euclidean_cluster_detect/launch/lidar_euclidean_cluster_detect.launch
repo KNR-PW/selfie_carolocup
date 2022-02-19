@@ -3,8 +3,11 @@
   <arg name="points_node" default="/camera/depth/color/points" />
   <arg name="remove_ground" default="true" />
   <arg name="downsample_cloud" default="true" /> 
-  <arg name="leaf_size" default="0.01" />
+  <!-- TU ZMIENIAĆ -->
+  <arg name="leaf_size" default="0.03" /> 
+   <!-- TU ZMIENIAĆ -->
   <arg name="cluster_size_min" default="10" />
+   <!-- TU ZMIENIAĆ -->
   <arg name="cluster_size_max" default="7000" />
   <arg name="sync" default="false" />
   <arg name="use_diffnormals" default="false" />
@@ -29,8 +32,9 @@
 
   <arg name="use_multiple_thres" default="true"/>
   <arg name="clustering_ranges" default="[15,30,45,60]"/>
+   <!-- TU ZMIENIAĆ PIERWSZY ELEMENT -->
   <arg name="clustering_distances"
-       default="[0.05, 0.1 , 0.02 , 0.02 , 0.02 ]"/>
+       default="[0.07, 0.1 , 0.02 , 0.02 , 0.02 ]"/>
   <node pkg="lidar_euclidean_cluster_detect" type="lidar_euclidean_cluster_detect"
         name="lidar_euclidean_cluster_detect" output="screen">
     <param name="points_node"

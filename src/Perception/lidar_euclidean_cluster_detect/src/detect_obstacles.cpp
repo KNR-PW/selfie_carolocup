@@ -12,6 +12,10 @@
 
 #include "custom_msgs/Box3D.h"
 #include "custom_msgs/Box3DArray.h"
+#include <visualization_msgs/Marker.h>
+
+#include "custom_msgs/Box2D.h"
+#include "custom_msgs/Box2DArray.h"
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
@@ -79,6 +83,8 @@ ros::Publisher _centroid_pub;
 ros::Publisher _pub_clusters_message;
 
 ros::Publisher _pub_clusters_box_message;
+
+ros::Publisher visualization_lines_pub_;
 
 ros::Publisher _pub_clusters_signs_cloud;
 
@@ -284,6 +290,100 @@ void publishColorCloud(const ros::Publisher *in_publisher,
   in_publisher->publish(cloud_msg);
 }
 
+void visualizeLines(custom_msgs::Box2DArray box2DArray)
+{
+  // visualization_msgs::Marker marker;
+
+  // marker.header.frame_id = visualization_frame_;
+  // marker.header.stamp = ros::Time::now();
+  // marker.ns = "line";
+  // marker.type = visualization_msgs::Marker::LINE_LIST;
+  // marker.action = visualization_msgs::Marker::ADD;
+  // marker.id = 0;
+  // marker.lifetime = ros::Duration();
+
+  // marker.color.r = 1.0f;
+  // marker.color.g = 0.0f;
+  // marker.color.b = 0.0f;
+  // marker.color.a = 1.0f;
+
+  // marker.scale.x = 0.01;
+  // marker.scale.y = 0.01;
+
+  // geometry_msgs::Point marker_point;
+  // marker_point.z = 0;
+  // // if (!line_array_.empty())
+  // // {
+  // //   for (int i = 0; i < line_array_.size(); i++)
+  // //   {
+  // //     marker_point.x = line_array_[i].start_point.x;
+  // //     marker_point.y = line_array_[i].start_point.y * 1;
+  // //     marker.points.push_back(marker_point);
+
+  // //     marker_point.x = line_array_[i].end_point.x;
+  // //     marker_point.y = line_array_[i].end_point.y * 1;
+  // //     marker.points.push_back(marker_point);
+  // //   }
+  // // }
+
+  //   if (!box2DArray.boxes.empty())
+  // {
+  //   for (int i = 0; i < box2DArray.boxes.size(); i++)
+  //   {
+  //     marker_point.x = box2DArray.boxes[i].point_centroid.x;
+  //     marker_point.y = box2DArray.boxes[i].point_centroid.y;
+  //     marker.points.push_back(marker_point);
+
+  //     marker_point.x = box2DArray.boxes[i].point_centroid.x;
+  //     marker_point.y = box2DArray.boxes[i].point_centroid.y;
+  //     marker.points.push_back(marker_point);
+  //   }
+  // }
+  // visualization_lines_pub_.publish(marker);
+
+  visualization_msgs::Marker marker;
+
+  marker.header.frame_id = _output_frame;
+  marker.header.stamp = ros::Time::now();
+  marker.ns = "obstacles";
+  marker.type = visualization_msgs::Marker::LINE_LIST;
+  marker.action = visualization_msgs::Marker::ADD;
+  marker.id = 0;
+  marker.lifetime = ros::Duration();
+
+  marker.color.r = 0.0f;
+  marker.color.g = 1.0f;
+  marker.color.b = 0.0f;
+  marker.color.a = 1.0f;
+
+  marker.scale.x = 0.006;
+
+  if (!box2DArray.boxes.empty())
+  {
+    for (int i = 0; i < box2DArray.boxes.size(); i++)
+    {
+      marker.points.push_back(box2DArray.boxes[i].tr);
+      marker.points.push_back(box2DArray.boxes[i].tl);
+
+      marker.points.push_back(box2DArray.boxes[i].tl);
+      marker.points.push_back(box2DArray.boxes[i].bl);
+
+      marker.points.push_back(box2DArray.boxes[i].bl);
+      marker.points.push_back(box2DArray.boxes[i].br);
+
+      marker.points.push_back(box2DArray.boxes[i].br);
+      marker.points.push_back(box2DArray.boxes[i].tr);
+    }
+  }
+  else
+  {
+    marker.points.push_back(geometry_msgs::Point());
+    marker.points.push_back(geometry_msgs::Point());
+  }
+
+  visualization_lines_pub_.publish(marker);
+}
+
 void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 {
 
@@ -305,7 +405,7 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     autoware_msgs::Centroids centroids;
     autoware_msgs::CloudClusterArray cloud_clusters;
 
-    custom_msgs::Box3DArray box3D_cloud_clusters;
+    custom_msgs::Box2DArray box3D_cloud_clusters;
 
     Prepare_data* prepare_data = new Prepare_data();
     Merging_and_clustering* merging_and_clustering = 
@@ -360,12 +460,14 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     _pub_clusters_box_message.publish(box3D_cloud_clusters);
 
+    visualizeLines(box3D_cloud_clusters);
+
     publishColorCloud(&_pub_clusters_signs_cloud, colored_clustered_signs_cloud_ptr);
     publishColorCloud(&_pub_cluster_cloud, colored_clustered_cloud_ptr);
 
-    if(box3D_cloud_clusters.boxes.size() > 0){
-      _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
-    }
+    // if(box3D_cloud_clusters.boxes.size() > 0){
+    //   _pub_cluster_cloud_box.publish(box3D_cloud_clusters.boxes.at(0).cloud);
+    // }
 
     centroids.header = _velodyne_header;
 
@@ -378,6 +480,8 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
     _using_sensor_cloud = false;
   }
 }
+
+
 
 int main(int argc, char **argv)
 {
@@ -406,7 +510,9 @@ int main(int argc, char **argv)
   _pub_points_lanes_cloud = h.advertise<sensor_msgs::PointCloud2>("/points_lanes", 1);
   _pub_clusters_message = h.advertise<autoware_msgs::CloudClusterArray>("/detection/lidar_detector/cloud_clusters", 1);
 
-  _pub_clusters_box_message = h.advertise<custom_msgs::Box3DArray>("/obstacles", 1);
+  _pub_clusters_box_message = h.advertise<custom_msgs::Box2DArray>("/obstacles", 1);
+
+  visualization_lines_pub_ = h.advertise<visualization_msgs::Marker>("/obstacles_markers", 1);
 
   _pub_detected_objects = h.advertise<autoware_msgs::DetectedObjectArray>("/detection/lidar_detector/objects", 1);
 

@@ -43,6 +43,9 @@
 #include "autoware_msgs/CloudCluster.h"
 #include "custom_msgs/Box3D.h"
 
+#include "custom_msgs/Box2D.h"
+#include "custom_msgs/Box2DArray.h"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -79,7 +82,7 @@ public:
 
   void ToROSMessage(std_msgs::Header in_ros_header, autoware_msgs::CloudCluster& out_cluster_message);
 
-  void BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box3D& out_cluster_message);
+  void BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box2D& out_cluster_message);
 
   Cluster();
   virtual ~Cluster();

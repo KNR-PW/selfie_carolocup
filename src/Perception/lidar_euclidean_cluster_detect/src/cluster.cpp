@@ -57,12 +57,15 @@ Eigen::Vector3f Cluster::GetEigenValues()
 
 float Cluster::GetLength()
 {
-  return max_point_.x - min_point_.x;
+  // return max_point_.x - min_point_.x;
+  return max_point_.z - min_point_.z;
 }
 
 float Cluster::GetWidth()
 {
-  return max_point_.y - min_point_.y;
+  // return max_point_.y - min_point_.y;
+  // return max_point_.z - min_point_.z;
+  return max_point_.x - min_point_.x;
 }
 
 float Cluster::GetHeight()
@@ -124,7 +127,7 @@ void Cluster::ToROSMessage(std_msgs::Header in_ros_header, autoware_msgs::CloudC
   }
 }
 
-void Cluster::BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box3D& out_cluster_message)
+void Cluster::BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box2D& out_cluster_message)
 {
   sensor_msgs::PointCloud2 cloud_msg;
 
@@ -133,32 +136,40 @@ void Cluster::BoxToROSMessage(std_msgs::Header in_ros_header, custom_msgs::Box3D
 
   out_cluster_message.header = in_ros_header;
 
-  out_cluster_message.cloud = cloud_msg;
+  // out_cluster_message.cloud = cloud_msg;
 
   //out_cluster_message.tr.header = in_ros_header;
-  out_cluster_message.tr.x = this->GetMaxPoint().x;
-  out_cluster_message.tr.y = this->GetMinPoint().y;
+  // out_cluster_message.tr.x = this->GetMaxPoint().x;
+  // out_cluster_message.tr.z = this->GetMinPoint().z;
+  out_cluster_message.tr.x = this->GetMaxPoint().z;
+  out_cluster_message.tr.y = this->GetMinPoint().x;
 
   //out_cluster_message.tl.header = in_ros_header;
-  out_cluster_message.tl.x = this->GetMaxPoint().x;
-  out_cluster_message.tl.y = this->GetMaxPoint().y;
+  // out_cluster_message.tl.x = this->GetMaxPoint().x;
+  // out_cluster_message.tl.z = this->GetMaxPoint().z;
+  out_cluster_message.tl.x = this->GetMaxPoint().z;
+  out_cluster_message.tl.y = this->GetMaxPoint().x;
 
   //out_cluster_message.br.header = in_ros_header;
-  out_cluster_message.br.x = this->GetMinPoint().x;
-  out_cluster_message.br.y = this->GetMinPoint().y;
+  // out_cluster_message.br.x = this->GetMinPoint().x;
+  // out_cluster_message.br.z = this->GetMinPoint().z;
+  out_cluster_message.br.x = this->GetMinPoint().z;
+  out_cluster_message.br.y = this->GetMinPoint().x;
 
   //out_cluster_message.bl.header = in_ros_header;
-  out_cluster_message.bl.x = this->GetMinPoint().x;
-  out_cluster_message.bl.y = this->GetMaxPoint().y;
+  // out_cluster_message.bl.x = this->GetMinPoint().x;
+  // out_cluster_message.bl.z = this->GetMaxPoint().z;
+  out_cluster_message.bl.x = this->GetMinPoint().z;
+  out_cluster_message.bl.y = this->GetMaxPoint().x;
 
   //out_cluster_message.centroid_point.header = in_ros_header;
   out_cluster_message.point_centroid.x = this->GetCentroid().x;
-  out_cluster_message.point_centroid.y = this->GetCentroid().y;
-  out_cluster_message.point_centroid.z = this->GetCentroid().z;
+  // out_cluster_message.point_centroid.y = this->GetCentroid().y;
+  out_cluster_message.point_centroid.y = this->GetCentroid().z;
 
   out_cluster_message.width = this->GetWidth();
   out_cluster_message.length= this->GetLength();
-  out_cluster_message.height = this->GetHeight();
+  // out_cluster_message.height = this->GetHeight();
 
 }
 

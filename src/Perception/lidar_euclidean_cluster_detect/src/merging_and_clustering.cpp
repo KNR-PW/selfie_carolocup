@@ -122,7 +122,7 @@ void Merging_and_clustering::segmentByDistance(const pcl::PointCloud<pcl::PointX
                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_signs_cloud_ptr,
                        autoware_msgs::Centroids &in_out_centroids, autoware_msgs::CloudClusterArray &in_out_clusters,
-                       custom_msgs::Box3DArray &box3D_cloud_clusters)
+                       custom_msgs::Box2DArray &box3D_cloud_clusters)
 {
   std::vector<ClusterPtr> all_clusters;
 
@@ -241,7 +241,7 @@ void Merging_and_clustering::segmentByDistance(const pcl::PointCloud<pcl::PointX
           in_out_centroids.points.push_back(centroid);
 
           autoware_msgs::CloudCluster cloud_cluster;
-          custom_msgs::Box3D box3D_cloud_cluster;
+          custom_msgs::Box2D box3D_cloud_cluster;
 
           
           final_clusters[i]->ToROSMessage(_velodyne_header, cloud_cluster);

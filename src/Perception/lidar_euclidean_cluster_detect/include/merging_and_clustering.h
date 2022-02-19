@@ -15,6 +15,9 @@
 #include "custom_msgs/Box3D.h"
 #include "custom_msgs/Box3DArray.h"
 
+#include "custom_msgs/Box2D.h"
+#include "custom_msgs/Box2DArray.h"
+
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
@@ -129,7 +132,7 @@ class Merging_and_clustering
                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_cloud_ptr,
                         pcl::PointCloud<pcl::PointXYZRGB>::Ptr out_signs_cloud_ptr,
                         autoware_msgs::Centroids &in_out_centroids, autoware_msgs::CloudClusterArray &in_out_clusters,
-                        custom_msgs::Box3DArray &box3D_cloud_clusters);
+                        custom_msgs::Box2DArray &box3D_cloud_clusters);
 };
 
 #endif
