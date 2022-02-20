@@ -1,7 +1,7 @@
 import rospy
 import smach
 
-from states import StartingState, FreeDriveState, IntersectionState, SelfieState
+from states import StartingState, FreeDriveState, IntersectionState, SearchingState, ParkingState, SelfieState
 from states.SelfieState import CompetitionID, ControlMode
 from typing import Dict, Optional
 
@@ -31,10 +31,14 @@ class Scheduler:
         start_build = StartingState.StartingStateBuilder()
         free_build = FreeDriveState.FreeDriveStateBuilder()
         intersection_builder = IntersectionState.IntersectionStateBuilder()
+        searching_builder = SearchingState.SearchingStateBuilder()
+        parking_builder = ParkingState.ParkingStateBuilder()
 
         self._starting_state: StartingState.StartingState = start_build.product()
         self._free_state: FreeDriveState.FreeDriveState = free_build.product()
         self._intersection_state: IntersectionState.IntersectionState = intersection_builder.product()
+        self._searching_state: SearchingState.SearchingState = searching_builder.product()
+        self._parking_state: ParkingState.ParkingState = parking_builder.product()
 
     def _control_mode_handler(self, new_control_mode: ControlMode):
         if new_control_mode == ControlMode.MANUAL:
@@ -43,6 +47,7 @@ class Scheduler:
         elif new_control_mode == ControlMode.AUTO:
             self._free_state.set_auto_mode()
 
+    # TODO: move it to another class
     @staticmethod
     def get_standard_remapping() -> Dict[str, str]:
         return {'state_input_args': 'in_args',
@@ -89,6 +94,25 @@ class Scheduler:
                 self._intersection_state,
                 transitions={
                     self._intersection_state.current_outcomes[0]: "FreeRunState"
+                },
+                remapping=Scheduler.get_standard_remapping()
+            )
+
+            smach.StateMachine.add(
+                "SearchingState",
+                self._searching_state,
+                transitions={
+                    self._searching_state.current_outcomes[0]: "FreeRunState",
+                    self._searching_state.current_outcomes[1]: "ParkingState"
+                },
+                remapping=Scheduler.get_standard_remapping()
+            )
+
+            smach.StateMachine.add(
+                "ParkingState",
+                self._parking_state,
+                transitions={
+                    self._searching_state.current_outcomes[0]: "FreeRunState"
                 },
                 remapping=Scheduler.get_standard_remapping()
             )

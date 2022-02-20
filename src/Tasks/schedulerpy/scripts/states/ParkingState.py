@@ -4,7 +4,8 @@ from SelfieState import *
 import topic_tools
 import custom_msgs.msg
 import std_srvs.srv
-import topic_tools.srv
+from topic_tools.srv import MuxSelect
+from .SelfieState import CompetitionID
 
 from utils import ActionCallbackPack
 
@@ -14,11 +15,20 @@ class ParkingState(SelfieState):
     def __init__(self, state_outcomes):
         SelfieState.__init__(self, state_outcomes)
 
-        self.muxDriveSelect_ = rospy.ServiceProxy("drive_multiplexer/select",
-                                                  topic_tools.srv.MuxSelect)
+        self.mux_drive_select_ = rospy.ServiceProxy("drive_multiplexer/select",
+                                                    topic_tools.srv.MuxSelect)
 
-    def prepare_action(self):
-        self.muxDriveSelect_.call("drive/park")
+    def redirect_state(self) -> str:
+        return self.current_outcomes[0]
+
+    def setup_goal(self, user_data: UserData) -> None:
+        # TODO: make sure that i can read parking_spot from in_args
+        self.current_goal = user_data.in_args.parking_spot
+
+    def prepare_action(self, user_data: UserData) -> None:
+        mux_msg = topic_tools.srv.MuxSelectRequest()
+        mux_msg.topic = "drive/park"
+        self.mux_drive_select_.call(mux_msg)
 
 
 class ParkingStateCallbackPack(ActionCallbackPack.ActionCallbackPack):
@@ -33,16 +43,9 @@ class ParkingStateCallbackPack(ActionCallbackPack.ActionCallbackPack):
 class ParkingStateBuilder(SelfieStateBuilder):
 
     def __init__(self) -> None:
-        self.outcomes = ["ParkingOutcome"]
-        self.actionName = "task/park"
-        self.actionType = custom_msgs.msg.parkAction
-        self.reset()
+        SelfieStateBuilder.__init__(self, 'task/park', custom_msgs.msg.parkAction)
         self.callbackPack = ParkingStateCallbackPack()
-
-    def __reset(self) -> None:
-        self.state = ParkingState(self.outcomes)
-
-    def product(self) -> ParkingState:
-        state = self.state
         self.reset()
-        return state
+
+    def _reset(self) -> None:
+        self._state_to_build = ParkingState(self.outcomes)
