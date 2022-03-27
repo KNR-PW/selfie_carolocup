@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   park
   lane_detector
   free_drive
-  scheduler
+  schedulerpy
   drive_multiplexer
   lane_pilot
   diagnostics

@@ -3,14 +3,20 @@ project(common)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS 
+find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp rospy
+  roscpp_serialization
   custom_msgs
   std_msgs
   visualization_msgs
   roslint
   )
+
+find_package(Boost REQUIRED COMPONENTS python)
+find_package(PythonLibs 3.8 REQUIRED)
+
+catkin_python_setup()
 
 catkin_package(
   CATKIN_DEPENDS geometry_msgs std_msgs visualization_msgs custom_msgs roscpp
@@ -21,6 +27,8 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${PYTHON_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -48,5 +56,4 @@ add_dependencies(commonlib
 )
 
 target_link_libraries(commonlib
-  ${catkin_LIBRARIES}
-)
+  ${catkin_LIBRARIES})
