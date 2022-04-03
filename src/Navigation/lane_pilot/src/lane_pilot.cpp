@@ -133,7 +133,7 @@ void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
 
         float error = distance - target_distance_to_obstacle_;
 
-        speed_message_.data = std::max(float(0), std::min(max_speed_ * error, max_speed_));
+        speed_message_.data = std::max(0.f, std::min(max_speed_ * error, max_speed_));
         offset_value_.data = right_lane_offset_;
 
         speed_pub_.publish(speed_message_);
