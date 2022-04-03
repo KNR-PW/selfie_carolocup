@@ -49,7 +49,6 @@ RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros:
   offset_pub_ = nh_.advertise<std_msgs::Float64>("/path_offset", 1);
   speed_pub_ = nh_.advertise<std_msgs::Float64>("/max_speed", 1);
   indicators_pub_ = nh_.advertise<custom_msgs::Indicators>("/selfie_in/indicators", 20, true);
-  
 
   speed_message_.data = max_speed_;
 
@@ -113,7 +112,7 @@ void RoadObstacleDetector::overtakingCallback(const std_msgs::Bool& msg)
 void RoadObstacleDetector::speedCallback(const std_msgs::Bool& msg)
 {
   speed_limit_ = msg.data;
-  max_speed_ = 0.3/float(1.0 + int(speed_limit_));
+  max_speed_ = 0.3 / float(1.0 + int(speed_limit_));
 }
 
 void RoadObstacleDetector::obstacleCallback(const custom_msgs::Box2DArray& msg)
