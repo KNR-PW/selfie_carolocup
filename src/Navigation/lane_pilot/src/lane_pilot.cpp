@@ -4,6 +4,7 @@
  **/
 
 #include <lane_pilot/lane_pilot.hpp>
+#include <algorithm>
 
 RoadObstacleDetector::RoadObstacleDetector(const ros::NodeHandle& nh, const ros::NodeHandle& pnh)
   : nh_(nh)
