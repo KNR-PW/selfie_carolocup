@@ -1,0 +1,6 @@
+sign_detector: 
+  {
+    speed_limit_distance: 2.0,
+    overtaking_ban_distance: 2.0,
+    activation_time: 0.5,
+  }
