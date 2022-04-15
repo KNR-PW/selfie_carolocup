@@ -69,3 +69,5 @@ rosrun selfie_avoiding_obstacles lane_pilot
   - how many corners of box should be in area of interest to consider it as obstacle to avoid
 - `lane_change_distance` (_float_)
   - how many meters it should take to change lane
+- `target_distance_to_obstacle` (_float_)
+  - targetted distance to obstacle during overtaking ban
