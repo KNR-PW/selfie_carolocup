@@ -33,7 +33,7 @@ starting_time = time.time()
 pkg_path = rospack.get_path('sign_detector') + '/data/'
 
 rospy.init_node('sign_detector')
-visualize_detection = rospy.get_param('~visualize_sign_detection', True)
+visualize_detection = rospy.get_param('~visualization', True)
 speed_limit_distance = rospy.get_param('~speed_limit_distance', 2.0)
 overtaking_ban_distance = rospy.get_param('~overtaking_ban_distance', 2.0)
 activation_time = rospy.get_param('~activation_time', 0.5)
