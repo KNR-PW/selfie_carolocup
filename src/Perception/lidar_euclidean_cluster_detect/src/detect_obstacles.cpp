@@ -441,7 +441,7 @@ void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
     if (_remove_ground)
     {
-      prepare_data->removeFloor(inlanes_cloud_ptr, nofloor_cloud_ptr, onlyfloor_cloud_ptr, 0.02, 0.1);
+      prepare_data->removeFloor(inlanes_cloud_ptr, nofloor_cloud_ptr, onlyfloor_cloud_ptr, 0.025, 0.15);
       publishCloud(&_pub_ground_cloud, onlyfloor_cloud_ptr);
     }
     else

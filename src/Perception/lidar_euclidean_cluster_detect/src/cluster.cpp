@@ -321,7 +321,8 @@ void Cluster::SetCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_origin_cloud
     eigen_values_ = current_cluster_pca.getEigenValues();
   }
 
-  valid_cluster_ = max_point_.y > 0.18;
+  valid_cluster_ = max_point_.y > 0.16 && min_point_.y < 0.09;
+  std::cout << "minimalny punkt: " << min_point_.y << "    maksymalny punkt: " << max_point_.y << std::endl;
   pointcloud_ = current_cluster;
 }
 

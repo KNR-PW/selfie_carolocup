@@ -6,9 +6,9 @@
   <!-- TU ZMIENIAĆ -->
   <arg name="leaf_size" default="0.03" /> 
    <!-- TU ZMIENIAĆ -->
-  <arg name="cluster_size_min" default="10" />
+  <arg name="cluster_size_min" default="7" />
    <!-- TU ZMIENIAĆ -->
-  <arg name="cluster_size_max" default="7000" />
+  <arg name="cluster_size_max" default="300" />
   <arg name="sync" default="false" />
   <arg name="use_diffnormals" default="false" />
   <arg name="pose_estimation" default="true" />
