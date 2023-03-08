@@ -1,5 +1,5 @@
 # Selfie
-![carolo2022](/uploads/112dd0b4bc76ba8a7765a1cf65889d38/carolo2022.jpg)
+![carolo2022](./docs/assets/carolo2022.jpg)
 
 In *Selfie* project vehicles based on 1:10 scale RC cars are customized to be able to operate autonomously in simulated road environments.
 
